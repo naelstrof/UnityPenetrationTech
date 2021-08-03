@@ -8,21 +8,21 @@ namespace PenetrationTech
     #if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomEditor(typeof(Penetratable))]
-    public class PenetratableEditor : Editor {
+    [CustomEditor(typeof(Penetrable))]
+    public class PenetrableEditor : Editor {
         public int lastTouched = 0;
-        public enum PenetratableTool {
+        public enum PenetrableTool {
             None = 0,
             Path,
             Expand,
             Pull,
             Push
         }
-        public PenetratableTool selectedTool = PenetratableTool.None;
+        public PenetrableTool selectedTool = PenetrableTool.None;
         //private string[] toolTexts = new string[]{"None", "Path tool", "Expand tool", "Pull tool", "Push tool"};
         private string[] toolTexts = new string[]{"None", "Path tool", "Expand tool"}; //, "Pull tool", "Push tool"};
         public override void OnInspectorGUI() {
-            selectedTool = (PenetratableTool)GUILayout.Toolbar((int)selectedTool, toolTexts);
+            selectedTool = (PenetrableTool)GUILayout.Toolbar((int)selectedTool, toolTexts);
             GUILayout.Space(16);
             DrawDefaultInspector();
             bool showWarning = false;
@@ -38,7 +38,7 @@ namespace PenetrationTech
                 EditorGUILayout.HelpBox("First set up 4 path nodes, specify a Transform thats nearest along the path to take. (hips, spine, neck, etc).", MessageType.Error);
             }
             switch(selectedTool) {
-                case PenetratableTool.None:
+                case PenetrableTool.None:
                     if (serializedObject.FindProperty("holeMeshes").arraySize <= 0) {
                         EditorGUILayout.HelpBox("Now specify which meshes to target blendshape deformations.", MessageType.Info);
                     } else {
@@ -46,15 +46,15 @@ namespace PenetrationTech
                         EditorGUILayout.HelpBox("MAKE SURE GIZMOS ARE ENABLED, otherwise the tools and widgets won't appear.", MessageType.Warning);
                     }
                 break;
-                case PenetratableTool.Path:
+                case PenetrableTool.Path:
                     EditorGUILayout.HelpBox("Path tool is used to display and adjust the bezier curve of the path that penetrators will take. It only displays when 4 path nodes are set up.", MessageType.Info);
                     EditorGUILayout.HelpBox("Adjust the BEZIER DEPTHS paths along the depth of the orifice, BEZIER DEPTHS 3 will be used as an alternate entrace if allowedPenetrationDepth is 1.", MessageType.Info);
                     break;
-                case PenetratableTool.Expand: EditorGUILayout.HelpBox("For each Shape, place the corresponding widget on along the curve next to the shape. Then change its diameter so that we know how big the shape deforms.", MessageType.Info); break;
+                case PenetrableTool.Expand: EditorGUILayout.HelpBox("For each Shape, place the corresponding widget on along the curve next to the shape. Then change its diameter so that we know how big the shape deforms.", MessageType.Info); break;
             }
         }
         public void DrawBezier() {
-            Penetratable p = (Penetratable)target;
+            Penetrable p = (Penetrable)target;
             if(p.path != null && p.path.Count>=4) {
                 Vector3 p0 = p.path[0].position;
                 Vector3 p1 = p.path[1].position;
@@ -69,8 +69,8 @@ namespace PenetrationTech
                     //Handles.color = Color.blue;
                     //Handles.DrawLine(startPoint, startPoint+normal*0.1f);
                 }
-                if (selectedTool == PenetratableTool.Expand) {
-                    foreach (Penetratable.PenetratableShape shape in p.shapes) {
+                if (selectedTool == PenetrableTool.Expand) {
+                    foreach (Penetrable.PenetrableShape shape in p.shapes) {
                         Vector3 point = Bezier.BezierPoint(p0, p1, p2, p3, shape.alongPathAmount01);
                         Vector3 normal = Bezier.BezierSlope(p0, p1, p2, p3, shape.alongPathAmount01);
                         Handles.color = Color.blue;
@@ -80,7 +80,7 @@ namespace PenetrationTech
             }
         }
         public void OnSceneGUI() {
-            Penetratable p = (Penetratable)target;
+            Penetrable p = (Penetrable)target;
             if (p.path.Count < 4) {
                 return;
             }
@@ -101,9 +101,9 @@ namespace PenetrationTech
                     string pullShape = (shapes.GetArrayElementAtIndex(i).FindPropertyRelative("pullBlendshapeName").stringValue);
                     int pullID = renderer.sharedMesh.GetBlendShapeIndex(pullShape);
                     if (i == lastTouched) {
-                        if (expandID != -1) { renderer.SetBlendShapeWeight(expandID, selectedTool == PenetratableTool.Expand ? 100f : 0f); }
-                        if (pullID != -1) { renderer.SetBlendShapeWeight(pullID, selectedTool == PenetratableTool.Pull ? 100f : 0f); }
-                        if (pushID != -1) { renderer.SetBlendShapeWeight(pushID, selectedTool == PenetratableTool.Push ? 100f : 0f); }
+                        if (expandID != -1) { renderer.SetBlendShapeWeight(expandID, selectedTool == PenetrableTool.Expand ? 100f : 0f); }
+                        if (pullID != -1) { renderer.SetBlendShapeWeight(pullID, selectedTool == PenetrableTool.Pull ? 100f : 0f); }
+                        if (pushID != -1) { renderer.SetBlendShapeWeight(pushID, selectedTool == PenetrableTool.Push ? 100f : 0f); }
                     } else {
                         if (expandID != -1) { renderer.SetBlendShapeWeight(expandID, 0f); }
                         if (pullID != -1) { renderer.SetBlendShapeWeight(pullID, 0f); }
@@ -112,7 +112,7 @@ namespace PenetrationTech
                 }
             }
             SerializedProperty paths = serializedObject.FindProperty("path");
-            if (selectedTool == PenetratableTool.Path) {
+            if (selectedTool == PenetrableTool.Path) {
                 for (int i = 0; i < paths.arraySize && i < 4; i++) {
                     Transform attachedTransform = (Transform)(paths.GetArrayElementAtIndex(i).FindPropertyRelative("attachedTransform").objectReferenceValue);
                     if (attachedTransform == null) {
@@ -139,7 +139,7 @@ namespace PenetrationTech
             Vector3 p1 = p.path[1].position;
             Vector3 p2 = p.path[2].position;
             Vector3 p3 = p.path[3].position;
-            if (selectedTool == PenetratableTool.Expand) {
+            if (selectedTool == PenetrableTool.Expand) {
                 for (int i = 0; i < shapes.arraySize; i++) {
                     string expandBlendshapeName = shapes.GetArrayElementAtIndex(i).FindPropertyRelative("expandBlendshapeName").stringValue;
                     if (string.IsNullOrEmpty(expandBlendshapeName)) {
@@ -159,13 +159,13 @@ namespace PenetrationTech
                     Handles.Label(pushGlobalPosition, expandBlendshapeName);
                 }
             }
-            if (selectedTool == PenetratableTool.Pull || selectedTool == PenetratableTool.Push) {
+            if (selectedTool == PenetrableTool.Pull || selectedTool == PenetrableTool.Push) {
                 for (int i = 0; i < shapes.arraySize; i++) {
-                    string pushBlendshapeName = shapes.GetArrayElementAtIndex(i).FindPropertyRelative(selectedTool == PenetratableTool.Pull ? "pullBlendshapeName" : "pushBlendshapeName" ).stringValue;
+                    string pushBlendshapeName = shapes.GetArrayElementAtIndex(i).FindPropertyRelative(selectedTool == PenetrableTool.Pull ? "pullBlendshapeName" : "pushBlendshapeName" ).stringValue;
                     if (string.IsNullOrEmpty(pushBlendshapeName)) {
                         continue;
                     }
-                    SerializedProperty pushLocalOffset = shapes.GetArrayElementAtIndex(i).FindPropertyRelative(selectedTool == PenetratableTool.Pull ? "pullPositionOffset":"pushPositionOffset");
+                    SerializedProperty pushLocalOffset = shapes.GetArrayElementAtIndex(i).FindPropertyRelative(selectedTool == PenetrableTool.Pull ? "pullPositionOffset":"pushPositionOffset");
                     SerializedProperty alongPath = shapes.GetArrayElementAtIndex(i).FindPropertyRelative("alongPathAmount01");
                     Vector3 pushTargetPoint = Bezier.BezierPoint(p0, p1, p2, p3, Mathf.Clamp01( alongPath.floatValue + pushLocalOffset.floatValue));
                     Vector3 pushTargetTangent = Bezier.BezierSlope(p0, p1, p2, p3, Mathf.Clamp01(alongPath.floatValue + pushLocalOffset.floatValue));
@@ -174,7 +174,7 @@ namespace PenetrationTech
                     if (Vector3.Distance(pushTargetPoint, pushGlobalPosition) > 0.001f) {
                         lastTouched = i;
                         float dir = Vector3.Dot(pushGlobalPosition-pushTargetPoint, pushTargetTangent);
-                        if (selectedTool == PenetratableTool.Pull) {
+                        if (selectedTool == PenetrableTool.Pull) {
                             pushLocalOffset.floatValue = Mathf.Clamp(pushLocalOffset.floatValue - alongPath.floatValue + dir, -1f, 0f);
                         } else {
                             pushLocalOffset.floatValue = Mathf.Clamp(pushLocalOffset.floatValue - alongPath.floatValue + dir, 0f, 1f);
@@ -182,13 +182,13 @@ namespace PenetrationTech
                         serializedObject.ApplyModifiedProperties();
                         serializedObject.ApplyModifiedProperties();
                     }
-                    Handles.Label(pushGlobalPosition, selectedTool == PenetratableTool.Pull ? pushBlendshapeName + " PULL POINT" : pushBlendshapeName + " PUSH POINT");
+                    Handles.Label(pushGlobalPosition, selectedTool == PenetrableTool.Pull ? pushBlendshapeName + " PULL POINT" : pushBlendshapeName + " PUSH POINT");
                 }
             }
             DrawBezier();
         }
         public void OnDisable() {
-            Penetratable p = (Penetratable)target;
+            Penetrable p = (Penetrable)target;
             foreach (SkinnedMeshRenderer r in p.holeMeshes) {
                 if (r == null) {
                     continue;
@@ -205,7 +205,7 @@ namespace PenetrationTech
         }
     }
     #endif
-    public class Penetratable : MonoBehaviour {
+    public class Penetrable : MonoBehaviour {
         [Tooltip("The \"root\" object that is the highest-most transform that would still be a part of this penetratable. This would be the character, or onahole root transform. It's used in circular-dependency checks, as well as collision phasing.")]
         public Transform root;
 
@@ -219,18 +219,18 @@ namespace PenetrationTech
         [Tooltip("This is read by dicks to toggle a shader flag that prevents the dick from turning invisible inside. Set to true if you've got a transparent onahole or similar.")]
         public bool canSeePenetratorInside = false;
         [Tooltip("The path nodes used to construct the Bezier path, there should ONLY BE FOUR. No more and no less.")]
-        public List<PenetratablePath> path = new List<PenetratablePath>();
+        public List<PenetrablePath> path = new List<PenetrablePath>();
         [Tooltip("Hole meshes to trigger blendshapes on, they should all share the same blendshape names.")]
         public List<SkinnedMeshRenderer> holeMeshes;
         [Tooltip("A list of shapes, where they're located along the path, and how wide they expand. Used to properly drive the shapes.")]
-        public List<PenetratableShape> shapes = new List<PenetratableShape>();
+        public List<PenetrableShape> shapes = new List<PenetrableShape>();
 
         // Gets a rigidbody along the path. Useful when attempting to calculate forces on a ragdoll.
         public Rigidbody GetBody(float alongPath01, bool reverse) {
             return path[Mathf.FloorToInt(Mathf.Clamp01(alongPath01)*3.99f)].connectedBody;
         }
         public ConfigurableJoint GetJoint(float alongPath01, bool reverse) {
-            PenetratablePath p = path[Mathf.FloorToInt(Mathf.Clamp01(alongPath01)*3.99f)];
+            PenetrablePath p = path[Mathf.FloorToInt(Mathf.Clamp01(alongPath01)*3.99f)];
             if (p.joint != null) {
                 return p.joint;
             }
@@ -249,7 +249,7 @@ namespace PenetrationTech
             return p.joint;
         }
         [System.Serializable]
-        public class PenetratablePath {
+        public class PenetrablePath {
             public Transform attachedTransform;
             public Vector3 localOffset;
             public Rigidbody connectedBody;
@@ -272,7 +272,7 @@ namespace PenetrationTech
             get { return Bezier.BezierApproxLength(path[0].position, path[1].position, path[2].position, path[3].position); }
         }
         [System.Serializable]
-        public class PenetratableShape {
+        public class PenetrableShape {
             [Tooltip("The blendshape name to trigger when a penetrator reaches the specified alongPathAmount.")]
             public string expandBlendshapeName = "";
             [Tooltip("How widely the blendshape triggers.")]
@@ -370,8 +370,8 @@ namespace PenetrationTech
             // Set up the paths to have orthonormalized forwards, rights, and ups. The forward axis follows the curve, the other two are arbitrary.
             // They're used in circle packing offsets for multiple penetrations.
             for(int i=0;i<path.Count-1;i++) {
-                PenetratablePath current = path[i];
-                PenetratablePath next = path[i+1];
+                PenetrablePath current = path[i];
+                PenetrablePath next = path[i+1];
                 current.forward = current.attachedTransform.InverseTransformDirection(next.position-current.position);
                 Vector3 mostPerpendicular = current.attachedTransform.right;
                 float minDot = Vector3.Dot(current.forward, current.attachedTransform.right);
@@ -387,7 +387,7 @@ namespace PenetrationTech
                 Vector3.OrthoNormalize(ref current.forward, ref current.right, ref current.up);
             }
 
-            PenetratablePath currentn = path[path.Count-1];
+            PenetrablePath currentn = path[path.Count-1];
             currentn.forward = (currentn.position - path[path.Count-2].position).normalized;
             Vector3 mostPerpendicularn = currentn.attachedTransform.right;
             float minDotn = Vector3.Dot(currentn.forward, currentn.attachedTransform.right);
@@ -403,7 +403,7 @@ namespace PenetrationTech
             Vector3.OrthoNormalize(ref currentn.forward, ref currentn.right, ref currentn.up);
 
             // Cache the blendshape IDs, so we don't have to do a lookup constantly.
-            foreach(PenetratableShape shape in shapes) {
+            foreach(PenetrableShape shape in shapes) {
                 foreach (SkinnedMeshRenderer renderer in holeMeshes) {
                     shape.expandBlendshape[renderer.sharedMesh] = renderer.sharedMesh.GetBlendShapeIndex(shape.expandBlendshapeName);
                     shape.pushBlendshape[renderer.sharedMesh] = renderer.sharedMesh.GetBlendShapeIndex(shape.pushBlendshapeName);
@@ -419,7 +419,7 @@ namespace PenetrationTech
                     }
                 }
             }
-            foreach(PenetratableShape shape in shapes) {
+            foreach(PenetrableShape shape in shapes) {
                 shape.alongPathAmount01 = Mathf.Clamp01(shape.alongPathAmount01);
                 shape.holeDiameter = Mathf.Max(shape.holeDiameter, 0f);
             }
