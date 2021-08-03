@@ -48,7 +48,7 @@ namespace PenetrationTech
                 break;
                 case PenetratableTool.Path:
                     EditorGUILayout.HelpBox("Path tool is used to display and adjust the bezier curve of the path that penetrators will take. It only displays when 4 path nodes are set up.", MessageType.Info);
-                    EditorGUILayout.HelpBox("Adjust the BEZIER DEPTHS paths along the depth of the oriface, BEZIER DEPTHS 3 will be used as an alternate entrace if allowedPenetrationDepth is 1.", MessageType.Info);
+                    EditorGUILayout.HelpBox("Adjust the BEZIER DEPTHS paths along the depth of the orifice, BEZIER DEPTHS 3 will be used as an alternate entrace if allowedPenetrationDepth is 1.", MessageType.Info);
                     break;
                 case PenetratableTool.Expand: EditorGUILayout.HelpBox("For each Shape, place the corresponding widget on along the curve next to the shape. Then change its diameter so that we know how big the shape deforms.", MessageType.Info); break;
             }
@@ -268,7 +268,7 @@ namespace PenetrationTech
             public Quaternion startRotation;
         }
         [HideInInspector]
-        public float orifaceLength {
+        public float orificeLength {
             get { return Bezier.BezierApproxLength(path[0].position, path[1].position, path[2].position, path[3].position); }
         }
         [System.Serializable]
@@ -433,16 +433,16 @@ namespace PenetrationTech
                 return Bezier.BezierSlope(path[0].position, path[1].position, path[2].position, path[3].position, pointAlongPath01);
             }
         }
-        // Gets the 3d position of the path in world space. From 01 oriface space. Values outside 01 are either clamped or extend infinitely straight out at the ends of the path.
+        // Gets the 3d position of the path in world space. From 01 orifice space. Values outside 01 are either clamped or extend infinitely straight out at the ends of the path.
         public Vector3 GetPoint(float pointAlongPath01, bool reverse) {
             Vector3 position = Vector3.zero;
             if ((pointAlongPath01 >= 0f && pointAlongPath01 < 1f)) {
                 position = reverse?Bezier.BezierPoint(path[3].position, path[2].position, path[1].position, path[0].position, pointAlongPath01) : Bezier.BezierPoint(path[0].position, path[1].position, path[2].position, path[3].position, pointAlongPath01);
             } else if ( pointAlongPath01 < 0f ) {
-                position = (reverse?path[3].position:path[0].position) - GetTangent(0f, reverse).normalized*(-pointAlongPath01*orifaceLength);
+                position = (reverse?path[3].position:path[0].position) - GetTangent(0f, reverse).normalized*(-pointAlongPath01*orificeLength);
             } else if (pointAlongPath01 > 1f) {
                 if (allowedPenetrationDepth01 == 1f) {
-                    position = (reverse?path[0].position:path[3].position) + GetTangent(1f, reverse).normalized*((pointAlongPath01-1f)*orifaceLength);
+                    position = (reverse?path[0].position:path[3].position) + GetTangent(1f, reverse).normalized*((pointAlongPath01-1f)*orificeLength);
                 } else {
                     position = (reverse?path[0].position:path[3].position);
                 }
@@ -486,9 +486,9 @@ namespace PenetrationTech
             // Get girths at entrance and exit (for circlePacking)
             foreach(var penetrator in penetrators) {
                 float rootPenetrationDepth = (penetrator.penetrationDepth01-1f) * penetrator.GetLength();
-                float targetEntrancePoint = penetrator.backwards ? 1f * orifaceLength : 0f * orifaceLength;
+                float targetEntrancePoint = penetrator.backwards ? 1f * orificeLength : 0f * orificeLength;
                 float sampleEntrancePoint = (targetEntrancePoint - rootPenetrationDepth) / penetrator.GetLength();
-                float targetExitPoint = penetrator.backwards ? 0f * orifaceLength : 1f * orifaceLength;
+                float targetExitPoint = penetrator.backwards ? 0f * orificeLength : 1f * orificeLength;
                 float sampleExitPoint = (targetExitPoint - rootPenetrationDepth) / penetrator.GetLength();
                 penetrator.girthAtEntrance = penetrator.GetWorldGirth(1f-sampleEntrancePoint);
                 penetrator.girthAtExit = penetrator.GetWorldGirth(1f-sampleExitPoint);
@@ -548,7 +548,7 @@ namespace PenetrationTech
                         continue;
                     }
                     //float tipPenetrationDepth = penetrator.targetPenetrator.penetrationDepth01 * penetrator.targetPenetrator.GetLength();
-                    float shapeTargetPoint = penetrator.backwards ? (1f-shape.alongPathAmount01) * orifaceLength : shape.alongPathAmount01 * orifaceLength;
+                    float shapeTargetPoint = penetrator.backwards ? (1f-shape.alongPathAmount01) * orificeLength : shape.alongPathAmount01 * orificeLength;
                     float shapeSamplePoint = (shapeTargetPoint - rootPenetrationDepth) / penetrator.GetLength();
                     float shapeGirth = penetrator.GetWorldGirth(1f-shapeSamplePoint);
                     shape.girths[penetratorNum] = shapeGirth;
@@ -592,8 +592,8 @@ namespace PenetrationTech
                 float dickLength = penetrator.GetLength();
                 float penetrationDepth = penetrator.penetrationDepth01;
 
-                float tipTargetPoint = penetrationDepth*dickLength/orifaceLength;
-                float rootTargetPoint = (penetrationDepth-1f)*dickLength/orifaceLength;
+                float tipTargetPoint = penetrationDepth*dickLength/orificeLength;
+                float rootTargetPoint = (penetrationDepth-1f)*dickLength/orificeLength;
 
                 float weight = 1f-Mathf.Clamp01(-penetrator.penetrationDepth01);
                 if (!penetrator.body.isKinematic) {

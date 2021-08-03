@@ -2,13 +2,13 @@
 
 # Unity Penetration Tech
 
-A gpu-based deformation system for mapping penetrators along oriface paths.
+A gpu-based deformation system for mapping penetrators along orifice paths.
 
 ![egg demo](demo.gif)
 
 # Features
 
-* Bezier curve based oriface definitions.
+* Bezier curve based orifice definitions.
   * Arbitrary soft turns and bends!
   * Allows for all-the-way-through deformations.
   * Orifaces can be two-way, or one-way with over-penetration protection.
@@ -18,19 +18,21 @@ A gpu-based deformation system for mapping penetrators along oriface paths.
 * Supports physics simulations!
   * Ragdolls react to kinematic penetrations, and attempt to position themselves in a sane way.
 * Many simultaneous penetrations!
-  * Uses a deterministic circle packing algorithm to fit many penetrators into the same oriface.
+  * Uses a deterministic circle packing algorithm to fit many penetrators into the same orifice.
 * Arbitrary blendshape deformation support.
   * Make penetrators wiggle, pulse, squish, stretch, and bulge: things will react to it!
 * Uses an Amplify Shader Editor node in order to do all of the deformation calculations.
   * Write your own shaders that support it!
 * Advanced clipping features.
-  * Penetrators get pinched and turned invisible within opaque orifaces.
+  * Penetrators get pinched and turned invisible within opaque orifices.
 * Supports LODGroups!
   * Meshes can be built out of many pieces, with many lod groups-- yet everything still works properly!
+* Depth events for both orifice and penetrators. On tug and push.
+  * Trigger sounds, particles, animations, or whatever else. Give both orifices and penetrators unique personalities.
 
 # Limitations
 
-* Since orifaces can only be defined with a single bezier curve, proper xy-offsets get very difficult to calculate. Try to keep penetrators completely along one axis, otherwise they might clip strangely.
+* Since orifices can only be defined with a single bezier curve, proper xy-offsets get very difficult to calculate. Try to keep penetrators completely along one axis, otherwise they might clip strangely.
 * Penetrators use UV2.w, UV3, and UV4 to bake blendshapes for the shader to read. This limits three things:
   * Penetrators shouldn't have blendshape normals (They can be disabled in the import settings).
   * Penetrators MUST have these three blendshapes available, even if they're unused: `DickSquish`, `DickPull`, `DickCum`.

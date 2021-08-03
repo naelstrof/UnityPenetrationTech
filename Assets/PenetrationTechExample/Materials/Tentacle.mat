@@ -86,11 +86,11 @@ Material:
     - _OrifaceLength: 1
     - _Parallax: 0.02
     - _PenetrationDepth: -1
-    - _PenetratorBlendshapeMultiplier: 0.552
+    - _PenetratorBlendshapeMultiplier: 0.4710399
     - _PenetratorBulgePercentage: 0.3
     - _PenetratorCumActive: 0
     - _PenetratorCumProgress: 0
-    - _PenetratorLength: 2.996161
+    - _PenetratorLength: 1.9175421
     - _PenetratorSquishPullAmount: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -112,8 +112,8 @@ Material:
     - _OrifaceOutWorldPosition3: {r: 0, g: -1, b: 0, a: 0}
     - _OrifaceWorldNormal: {r: 0, g: 1, b: 0, a: 0}
     - _OrifaceWorldPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _PenetratorForward: {r: 0, g: 1, b: 0.00000023841854, a: 0}
-    - _PenetratorOrigin: {r: -0.000004525467, g: -0.000000027781484, b: -0.00000051021607, a: 0}
-    - _PenetratorRight: {r: 1, g: 0, b: 0, a: 0}
-    - _PenetratorUp: {r: 0, g: -0.00000013411051, b: 1, a: 0}
+    - _PenetratorForward: {r: -0.000000008077762, g: 1, b: 0.00000017881395, a: 0}
+    - _PenetratorOrigin: {r: 0.0000015811726, g: -0.00000065451303, b: -0.00000032313466, a: 0}
+    - _PenetratorRight: {r: 1, g: -0.0000000064626535, b: 0, a: 0}
+    - _PenetratorUp: {r: -3.7283654e-15, g: -0.00000017881395, b: 1, a: 0}
   m_BuildTextureStacks: []

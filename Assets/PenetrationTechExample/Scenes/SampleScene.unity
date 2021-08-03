@@ -7631,7 +7631,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7860376182984402824, guid: 1f44bbde9e358c5419f5e8eb9aaf2fae, type: 3}
       propertyPath: canOverpenetrate
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f44bbde9e358c5419f5e8eb9aaf2fae, type: 3}
@@ -23667,7 +23667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetPenetratable: {fileID: 1486511835}
-  spawnAlongLength: 1
+  spawnAlongLength: 0.9
   pushDirection: -1
   penetratorPrefab: {fileID: 7079800824840153358, guid: 1f44bbde9e358c5419f5e8eb9aaf2fae, type: 3}
 --- !u!95 &1923369670

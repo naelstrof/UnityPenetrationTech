@@ -31,7 +31,7 @@ namespace PenetrationTechExample {
                 // Manually control penetration parameters
                 d.autoPenetrate = false;
                 d.canOverpenetrate = true;
-                d.CoupleWith(targetPenetratable, ((spawnAlongLength*targetPenetratable.orifaceLength)/d.GetLength()));
+                d.CoupleWith(targetPenetratable, ((spawnAlongLength*targetPenetratable.orificeLength)/d.GetLength()));
                 penetrators.Add(d);
                 Destroy(d.gameObject, 60f);
                 yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,5f));
