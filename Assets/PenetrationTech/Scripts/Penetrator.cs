@@ -161,7 +161,7 @@ namespace PenetrationTech {
         [Tooltip("Meshes that recieve PenetrationTech deformation information like squish and cum info.")]
         public List<SkinnedMeshRenderer> deformationTargets = new List<SkinnedMeshRenderer>();
         [Tooltip("The hole that the dick should be penetrating right now. If autopenetrate is on, this is handled automatically.")]
-        public Penetratable holeTarget;
+        public Penetrable holeTarget;
         [Tooltip("How much cum is in the dick at the moment. This is automatically controlled by the Cum() function, though can be animated manually otherwise.")]
         [Range(0f, 1f)]
         public float cumActive;
@@ -726,7 +726,7 @@ namespace PenetrationTech {
             }
         }
     #endif
-        public void CoupleWith(Penetratable hole, float penetrationDepth01) {
+        public void CoupleWith(Penetrable hole, float penetrationDepth01) {
             if (holeTarget != null) {
                 Decouple(true);
             }
@@ -908,24 +908,24 @@ namespace PenetrationTech {
             if (holeTarget != null) {
                 return;
             }
-            Penetratable closestPenetratable = collider.GetComponentInParent<Penetratable>();
+            Penetrable closestPenetrable = collider.GetComponentInParent<Penetrable>();
             // No circular dependencies please.
-            if (closestPenetratable != null) {
-                if (closestPenetratable.root == this.root) {
+            if (closestPenetrable != null) {
+                if (closestPenetrable.root == this.root) {
                     return;
                 }
-                float dist = Vector3.Distance(GetWorldRootPosition(), closestPenetratable.path[0].position);
-                float dist2 = Vector3.Distance(GetWorldRootPosition(), closestPenetratable.path[3].position);
-                backwards = (dist2 < dist && closestPenetratable.canAllTheWayThrough);
+                float dist = Vector3.Distance(GetWorldRootPosition(), closestPenetrable.path[0].position);
+                float dist2 = Vector3.Distance(GetWorldRootPosition(), closestPenetrable.path[3].position);
+                backwards = (dist2 < dist && closestPenetrable.canAllTheWayThrough);
                 if (backwards) {
                     dist = dist2;
                 }
-                float angleDiff = Vector3.Dot(closestPenetratable.GetTangent(0f, backwards), dickRoot.TransformDirection(dickForward));
-                if (!closestPenetratable.ContainsPenetrator(this) && angleDiff > -0.25f) {
+                float angleDiff = Vector3.Dot(closestPenetrable.GetTangent(0f, backwards), dickRoot.TransformDirection(dickForward));
+                if (!closestPenetrable.ContainsPenetrator(this) && angleDiff > -0.25f) {
                     if (dist > GetLength()) {
                         return;
                     }
-                    CoupleWith(closestPenetratable, 0f);
+                    CoupleWith(closestPenetrable, 0f);
                 }
             }
         }

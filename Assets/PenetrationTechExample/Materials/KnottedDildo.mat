@@ -84,6 +84,7 @@ Material:
     - _NOBLENDSHAPES: 0
     - _OcclusionStrength: 1
     - _OrifaceLength: 1
+    - _OrificeLength: 1
     - _Parallax: 0.02
     - _PenetrationDepth: -1
     - _PenetratorBlendshapeMultiplier: 1.2645653
@@ -112,6 +113,11 @@ Material:
     - _OrifaceOutWorldPosition3: {r: -0.0015807097, g: -0.991149, b: 0.0000000036077863, a: 0}
     - _OrifaceWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
     - _OrifaceWorldPosition: {r: -0.0015929719, g: 0.008848807, b: 0.0000000025250497, a: 0}
+    - _OrificeOutWorldPosition1: {r: -0.0015929719, g: -0.3211512, b: 0.0000000025250497, a: 0}
+    - _OrificeOutWorldPosition2: {r: -0.0015807097, g: -0.65114903, b: 0.0000000036077863, a: 0}
+    - _OrificeOutWorldPosition3: {r: -0.0015807097, g: -0.991149, b: 0.0000000036077863, a: 0}
+    - _OrificeWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
+    - _OrificeWorldPosition: {r: -0.0015929719, g: 0.008848807, b: 0.0000000025250497, a: 0}
     - _PenetratorForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
     - _PenetratorOrigin: {r: -0.000000026220915, g: -0.0000001190531, b: 0.000000721949, a: 0}
     - _PenetratorRight: {r: 1, g: -0.000000008648601, b: -0.00000008334374, a: 0}

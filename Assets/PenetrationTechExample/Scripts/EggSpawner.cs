@@ -5,7 +5,7 @@ using PenetrationTech;
 
 namespace PenetrationTechExample {
     public class EggSpawner : MonoBehaviour {
-        public Penetratable targetPenetratable;
+        public Penetrable targetPenetrable;
         [Range(0f,1f)]
         public float spawnAlongLength = 0.5f;
         [Range(-1,1f)]
@@ -31,7 +31,7 @@ namespace PenetrationTechExample {
                 // Manually control penetration parameters
                 d.autoPenetrate = false;
                 d.canOverpenetrate = true;
-                d.CoupleWith(targetPenetratable, ((spawnAlongLength*targetPenetratable.orificeLength)/d.GetLength()));
+                d.CoupleWith(targetPenetrable, ((spawnAlongLength*targetPenetrable.orificeLength)/d.GetLength()));
                 penetrators.Add(d);
                 Destroy(d.gameObject, 60f);
                 yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,5f));
