@@ -134,7 +134,7 @@ namespace PenetrationTech {
         [Tooltip("The layer which hole colliders exist on, for searching.")]
         [LayerAttribute]
         public int holeLayer;
-        [Tooltip("If you want to animate the penetrationDepth01 yourself, this should be set to false. Otherwise this dick will auto-seek nearby orifaces and control how deeply it is penetrated automatically.")]
+        [Tooltip("If you want to animate the penetrationDepth01 yourself, this should be set to false. Otherwise this dick will auto-seek nearby orifices and control how deeply it is penetrated automatically.")]
         public bool autoPenetrate = true;
         [Tooltip("Pop out and reset the hole target if we end up \"outside\" of a penetratable. You might want to have this set to false in animation with manually authored targets.")]
         public bool autoDecouple = true;
@@ -456,10 +456,10 @@ namespace PenetrationTech {
                 }
                 foreach (var material in materials) {
                     material.SetFloat("_PenetrationDepth", -1f);
-                    material.SetVector("_OrifaceWorldPosition", p0);
-                    material.SetVector("_OrifaceOutWorldPosition1", p1);
-                    material.SetVector("_OrifaceOutWorldPosition2", p2);
-                    material.SetVector("_OrifaceOutWorldPosition3", p3);
+                    material.SetVector("_OrificeWorldPosition", p0);
+                    material.SetVector("_OrificeOutWorldPosition1", p1);
+                    material.SetVector("_OrificeOutWorldPosition2", p2);
+                    material.SetVector("_OrificeOutWorldPosition3", p3);
                 }
             }
             invisibleWhenInside = false;
@@ -753,7 +753,7 @@ namespace PenetrationTech {
                 return;
             }
             //slimySource?.Stop();
-            float rootTargetPoint = (penetrationDepth01-1f)*GetLength()/holeTarget.orifaceLength;
+            float rootTargetPoint = (penetrationDepth01-1f)*GetLength()/holeTarget.orificeLength;
             if (rootTargetPoint > 1f || instantaneous) {
                 penetrationDepth01 = -1f;
                 squishPullAmount = 0f;
@@ -778,9 +778,9 @@ namespace PenetrationTech {
                 return;
             }
             float dickLength = GetLength();
-            float orifaceLength = 1f;
+            float orificeLength = 1f;
             if (holeTarget != null) {
-                orifaceLength = holeTarget.orifaceLength;
+                orificeLength = holeTarget.orificeLength;
             }
             if (dickRoot != null && deformationTargets.Count > 0) {
                 foreach (var renderer in deformationTargets) {
@@ -815,18 +815,18 @@ namespace PenetrationTech {
                             Quaternion rotateAdjust = Quaternion.FromToRotation(dickRoot.TransformDirection(dickForward), entranceForward);
                             rotateAdjust = Quaternion.FromToRotation(rotateAdjust * dickRoot.TransformDirection(dickUp), entranceUp)*rotateAdjust;
                             Vector3 entranceOffsetAdjust = rotateAdjust * entranceOffset;
-                            material.SetVector("_OrifaceWorldPosition", p0 - entranceOffsetAdjust);
-                            material.SetVector("_OrifaceOutWorldPosition1", p1 - entranceOffsetAdjust);
+                            material.SetVector("_OrificeWorldPosition", p0 - entranceOffsetAdjust);
+                            material.SetVector("_OrificeOutWorldPosition1", p1 - entranceOffsetAdjust);
 
                             Vector3 exitForward, exitRight, exitUp;
                             exitForward = exitRight = exitUp = Vector3.zero;
                             holeTarget.GetOrtho(1f, backwards, dickRoot.TransformDirection(dickForward), dickRoot.TransformDirection(dickUp), ref exitForward, ref exitRight, ref exitUp);
-                            Vector3 exitOffset = GetWorldPlanarOffset((-orifaceLength/dickLength)+penetrationDepth01);
+                            Vector3 exitOffset = GetWorldPlanarOffset((-orificeLength/dickLength)+penetrationDepth01);
                             Quaternion exitRotateAdjust = Quaternion.FromToRotation(dickRoot.TransformDirection(dickForward), exitForward);
                             exitRotateAdjust = Quaternion.FromToRotation(exitRotateAdjust * dickRoot.TransformDirection(dickUp), exitUp)*exitRotateAdjust;
                             Vector3 exitOffsetAdjust = exitRotateAdjust * exitOffset;
-                            material.SetVector("_OrifaceOutWorldPosition3", p3 - exitOffsetAdjust);
-                            material.SetVector("_OrifaceOutWorldPosition2", p2 - exitOffsetAdjust);
+                            material.SetVector("_OrificeOutWorldPosition3", p3 - exitOffsetAdjust);
+                            material.SetVector("_OrificeOutWorldPosition2", p2 - exitOffsetAdjust);
                             /*Debug.DrawLine(p3, p3+exitForward, Color.blue);
                             Debug.DrawLine(p3, p3+exitRight, Color.red);
                             Debug.DrawLine(p3, p3+exitUp, Color.green);
@@ -836,10 +836,10 @@ namespace PenetrationTech {
                             Debug.DrawLine(dickRoot.position, dickRoot.position+dickRoot.TransformDirection(dickRight), Color.red);
                             Debug.DrawLine(dickRoot.position, dickRoot.position+dickRoot.TransformDirection(dickUp), Color.green);
                             Debug.DrawLine(dickRoot.position, dickRoot.position - exitOffset);*/
-                            material.SetVector("_OrifaceWorldNormal", -holeTarget.GetTangent(0f,backwards));
+                            material.SetVector("_OrificeWorldNormal", -holeTarget.GetTangent(0f,backwards));
                         }
 
-                        material.SetFloat("_OrifaceLength", orifaceLength);
+                        material.SetFloat("_OrificeLength", orificeLength);
                         material.SetFloat("_PenetratorBlendshapeMultiplier", dickRoot.TransformVector(dickUp).magnitude * GetTransformPose(renderer).lossyScale.x);
                         material.SetFloat("_PenetratorCumActive", cumActive);
                         material.SetFloat("_PenetratorCumProgress", cumProgress);
@@ -955,7 +955,7 @@ namespace PenetrationTech {
             }
             if (holeTarget != null) {
                 //penetrationDepth01 += GetTangent(penetrationDepth01)*Time.deltaTime;
-                //penetrationDepth01 += GetTangent(penetrationDepth01-(holeTarget.orifaceLength/GetLength()))*Time.deltaTime;
+                //penetrationDepth01 += GetTangent(penetrationDepth01-(holeTarget.orificeLength/GetLength()))*Time.deltaTime;
             } else {
                 penetrationDepth01 = -1f;
             }
@@ -973,9 +973,9 @@ namespace PenetrationTech {
             //}
         //}
         public void PushTowards(float direction) {
-            float orifaceDepth01 = ((penetrationDepth01-1f))*GetLength()/holeTarget.orifaceLength;
-            Vector3 holePos = holeTarget.GetPoint(orifaceDepth01, backwards);
-            Vector3 holeTangent = holeTarget.GetTangent(Mathf.Clamp01(orifaceDepth01), backwards).normalized;
+            float orificeDepth01 = ((penetrationDepth01-1f))*GetLength()/holeTarget.orificeLength;
+            Vector3 holePos = holeTarget.GetPoint(orificeDepth01, backwards);
+            Vector3 holeTangent = holeTarget.GetTangent(Mathf.Clamp01(orificeDepth01), backwards).normalized;
             PushTowards(holePos+holeTangent*direction);
         }
         public void PushTowards(Vector3 worldPosition) {
@@ -983,9 +983,9 @@ namespace PenetrationTech {
                 return;
             }
             float length = GetLength();
-            // Calculate where the "first" shape is located along the oriface path.
-            float firstShapeOffset = ((backwards?1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01:holeTarget.shapes[0].alongPathAmount01)*holeTarget.orifaceLength)/length;
-            float lastShapeOffset = ((backwards?holeTarget.shapes[0].alongPathAmount01:1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01)*holeTarget.orifaceLength)/length;
+            // Calculate where the "first" shape is located along the orifice path.
+            float firstShapeOffset = ((backwards?1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01:holeTarget.shapes[0].alongPathAmount01)*holeTarget.orificeLength)/length;
+            float lastShapeOffset = ((backwards?holeTarget.shapes[0].alongPathAmount01:1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01)*holeTarget.orificeLength)/length;
             // If we cannot overpenetrate, we use a method that simply uses the distance to the hole to determine how deep we are.
             if (!canOverpenetrate) {
                 float dist = Vector3.Distance(worldPosition, holeTarget.GetPoint(0,backwards));
@@ -999,15 +999,15 @@ namespace PenetrationTech {
                     float move = diff*Time.deltaTime*8f;
                     // Calculate the tangents, which is used for knot forces at both the entrance and exit shape.
                     float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
-                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orifaceLength/length) + lastShapeOffset);
+                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
                     move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
                     penetrationDepth01 = Mathf.Clamp(penetrationDepth01+move, -1f, 1f);
                 }
-            // Otherwise, we use a moving plane that follows the normal of the oriface path, and use the plane distance to the desired point to determine which way we should go.
+            // Otherwise, we use a moving plane that follows the normal of the orifice path, and use the plane distance to the desired point to determine which way we should go.
             } else {
-                float orifaceDepth01 = ((penetrationDepth01-1f))*GetLength()/holeTarget.orifaceLength;
-                Vector3 holePos = holeTarget.GetPoint(orifaceDepth01, backwards);
-                Vector3 holeTangent = holeTarget.GetTangent(Mathf.Clamp01(orifaceDepth01), backwards).normalized;
+                float orificeDepth01 = ((penetrationDepth01-1f))*GetLength()/holeTarget.orificeLength;
+                Vector3 holePos = holeTarget.GetPoint(orificeDepth01, backwards);
+                Vector3 holeTangent = holeTarget.GetTangent(Mathf.Clamp01(orificeDepth01), backwards).normalized;
                 Vector3 holeToMouse = worldPosition - holePos;
                 float squishMove = Vector3.Dot(holeToMouse, holeTangent);
                 squishPullAmount -= squishMove*Time.deltaTime*(1f/slideFriction);
@@ -1015,14 +1015,14 @@ namespace PenetrationTech {
                 if (Mathf.Abs(squishPullAmount) == 1f) {
                     float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*15f;
                     float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
-                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orifaceLength/length) + lastShapeOffset);
+                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
                     move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
                     penetrationDepth01 = Mathf.Max(penetrationDepth01+move, -1f);
                 }
             }
             // Prevent the dick from penetrating futher than intended.
             if (!holeTarget.canAllTheWayThrough) {
-                penetrationDepth01 = Mathf.Min(penetrationDepth01,holeTarget.allowedPenetrationDepth01*holeTarget.orifaceLength/GetLength());
+                penetrationDepth01 = Mathf.Min(penetrationDepth01,holeTarget.allowedPenetrationDepth01*holeTarget.orificeLength/GetLength());
             }
             if (!IsInside() && autoDecouple) {
                 Decouple(false);
@@ -1032,7 +1032,7 @@ namespace PenetrationTech {
             if (holeTarget == null) {
                 return false;
             }
-            float rootTargetPoint = (penetrationDepth01-1f)*GetLength()/holeTarget.orifaceLength;
+            float rootTargetPoint = (penetrationDepth01-1f)*GetLength()/holeTarget.orificeLength;
             if (rootTargetPoint > 1f-leeway || penetrationDepth01 < 0f+leeway) {
                 return false;
             }
