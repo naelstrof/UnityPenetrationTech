@@ -1,0 +1,274 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &657169103055097893
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 168158749373385375}
+  - component: {fileID: 5751699000168527206}
+  - component: {fileID: 423287790205873520}
+  - component: {fileID: 423287790205873535}
+  m_Layer: 0
+  m_Name: Onahole
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &168158749373385375
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657169103055097893}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071067}
+  m_LocalPosition: {x: 2.2, y: 0.44, z: 0.514}
+  m_LocalScale: {x: 0.58586, y: 0.58585995, z: 0.58585995}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!137 &5751699000168527206
+SkinnedMeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657169103055097893}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 3
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: e73b63708b27a3a46af5761807019674, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  serializedVersion: 2
+  m_Quality: 0
+  m_UpdateWhenOffscreen: 1
+  m_SkinnedMotionVectors: 1
+  m_Mesh: {fileID: -5495902117074765545, guid: a68431f2d8a315245b954d0fe8af83ff, type: 3}
+  m_Bones: []
+  m_BlendShapeWeights:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  m_RootBone: {fileID: 0}
+  m_AABB:
+    m_Center: {x: 0, y: 0.004614949, z: 0}
+    m_Extent: {x: 0.4179202, y: 0.5311383, z: 0.4179202}
+  m_DirtyAABB: 0
+--- !u!54 &423287790205873520
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657169103055097893}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &423287790205873535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657169103055097893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cad28ed5e589e44ebc65868cddcf576, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 168158749373385375}
+  holeLayer: 0
+  allowedPenetrationDepth01: 1
+  canSeePenetratorInside: 1
+  path:
+  - attachedTransform: {fileID: 168158749373385375}
+    localOffset: {x: 0, y: 0.59201354, z: 0}
+    connectedBody: {fileID: 423287790205873520}
+    right: {x: 0, y: 0, z: 0}
+    up: {x: 0, y: 0, z: 0}
+    forward: {x: 0, y: 0, z: 0}
+    joint: {fileID: 0}
+    startRotation: {x: 0, y: 0, z: 0, w: 0}
+  - attachedTransform: {fileID: 168158749373385375}
+    localOffset: {x: 0, y: 0.23726135, z: -0.00000007630403}
+    connectedBody: {fileID: 423287790205873520}
+    right: {x: 0, y: 0, z: 0}
+    up: {x: 0, y: 0, z: 0}
+    forward: {x: 0, y: 0, z: 0}
+    joint: {fileID: 0}
+    startRotation: {x: 0, y: 0, z: 0, w: 0}
+  - attachedTransform: {fileID: 168158749373385375}
+    localOffset: {x: 0, y: -0.23361453, z: 0.00000007630403}
+    connectedBody: {fileID: 423287790205873520}
+    right: {x: 0, y: 0, z: 0}
+    up: {x: 0, y: 0, z: 0}
+    forward: {x: 0, y: 0, z: 0}
+    joint: {fileID: 0}
+    startRotation: {x: 0, y: 0, z: 0, w: 0}
+  - attachedTransform: {fileID: 168158749373385375}
+    localOffset: {x: 0, y: -0.6218814, z: -0.000000050869353}
+    connectedBody: {fileID: 423287790205873520}
+    right: {x: 0, y: 0, z: 0}
+    up: {x: 0, y: 0, z: 0}
+    forward: {x: 0, y: 0, z: 0}
+    joint: {fileID: 0}
+    startRotation: {x: 0, y: 0, z: 0, w: 0}
+  holeMeshes:
+  - {fileID: 5751699000168527206}
+  shapes:
+  - expandBlendshapeName: Depth1
+    holeDiameter: 0.45
+    alongPathAmount01: 0.1
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth2
+    holeDiameter: 0.26
+    alongPathAmount01: 0.2546231
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth3
+    holeDiameter: 0.26
+    alongPathAmount01: 0.37613067
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth4
+    holeDiameter: 0.26
+    alongPathAmount01: 0.5015364
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth5
+    holeDiameter: 0.26
+    alongPathAmount01: 0.6218356
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth6
+    holeDiameter: 0.26
+    alongPathAmount01: 0.7521147
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []
+  - expandBlendshapeName: Depth7
+    holeDiameter: 0.45
+    alongPathAmount01: 0.884853
+    canOverdriveShapes: 1
+    OnExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEndExpand:
+      m_PersistentCalls:
+        m_Calls: []
+    pushBlendshapeName: 
+    pullBlendshapeName: 
+    pushPositionOffset: 0
+    pullPositionOffset: 0
+    triggeredEvent: 0
+    girths: []

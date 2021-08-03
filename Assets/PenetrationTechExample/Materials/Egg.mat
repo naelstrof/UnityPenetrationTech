@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Egg
+  m_Shader: {fileID: 4800000, guid: 0a50e463046357d45834c49125d77eba, type: 3}
+  m_ShaderKeywords: _NOBLENDSHAPES_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BlendshapeMultiplier: 0.49999994
+    - _BulgePercentage: 0.1
+    - _BumpScale: 1
+    - _CLIP_DICK: 0
+    - _CumActive: 0
+    - _CumProgress: 0
+    - _Cutoff: 0.5
+    - _DEFORM_BALLS: 0
+    - _DetailNormalMapScale: 1
+    - _DickLength: 0.35954824
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.296
+    - _GlossyReflections: 1
+    - _INVISIBLE_WHEN_INSIDE: 0
+    - _Metallic: 0
+    - _Mode: 0
+    - _NOBLENDSHAPES: 1
+    - _OcclusionStrength: 1
+    - _OrifaceLength: 1
+    - _Parallax: 0.02
+    - _PenetrationDepth: -1
+    - _PenetratorBlendshapeMultiplier: 0.8354999
+    - _PenetratorBulgePercentage: 0.1
+    - _PenetratorCumActive: 0
+    - _PenetratorCumProgress: 0
+    - _PenetratorLength: 0.7190965
+    - _PenetratorSquishPullAmount: 0
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SquishPullAmount: 0
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    - __dirty: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DickForward: {r: 0, g: 1, b: 0.00000029802328, a: 0}
+    - _DickOrigin: {r: 0, g: -0.0038911626, b: -6.9849176e-10, a: 0}
+    - _DickRight: {r: 1, g: 0, b: 0, a: 0}
+    - _DickUp: {r: 0, g: -0.00000029802328, b: 1, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OrifaceOutWorldPosition1: {r: 0, g: 0, b: 0, a: 0}
+    - _OrifaceOutWorldPosition2: {r: 0, g: 0, b: 0, a: 0}
+    - _OrifaceOutWorldPosition3: {r: 0, g: 0, b: 0, a: 0}
+    - _OrifaceWorldNormal: {r: 0, g: 1, b: 0, a: 0}
+    - _OrifaceWorldPosition: {r: 0, g: 0, b: 0, a: 0}
+    - _PenetratorForward: {r: 0, g: 1, b: 0.0000003567005, a: 0}
+    - _PenetratorOrigin: {r: 0.0000013240069, g: -0.0077823168, b: 0.00000015780637, a: 0}
+    - _PenetratorRight: {r: 1, g: 0, b: 0, a: 0}
+    - _PenetratorUp: {r: 0, g: -0.00000024899842, b: 1, a: 0}
+  m_BuildTextureStacks: []
