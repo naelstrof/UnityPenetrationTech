@@ -597,8 +597,8 @@ namespace PenetrationTech
 
                 float weight = 1f-Mathf.Clamp01(-penetrator.penetrationDepth01);
                 if (!penetrator.body.isKinematic) {
-                    penetrator.body.angularDrag = Mathf.Lerp(0.05f,6f,weight);
-                    penetrator.body.drag = Mathf.Lerp(0f,6f,weight);
+                    penetrator.body.velocity = Vector3.zero;
+                    penetrator.body.angularVelocity = Vector3.zero;
                     penetrator.body.useGravity = !penetrator.IsInside();
                     // If we're not quite "in", push ourselves to just have the tip at the entrance.
                     // But only if we're auto-penetrating, otherwise kobolds get vaccumed in
@@ -608,7 +608,7 @@ namespace PenetrationTech
                     }
                     Vector3 rootTargetPosition = GetPoint(rootTargetPoint, penetrator.backwards);
                     Vector3 diff = rootTargetPosition - penetrator.GetWorldRootPosition();
-                    penetrator.body.position += diff;
+                    penetrator.body.position += diff*Time.deltaTime;
                     penetrator.body.rotation = Quaternion.FromToRotation(penetrator.dickRoot.TransformDirection(penetrator.dickForward), (tipTargetPosition-rootTargetPosition).normalized)*penetrator.body.rotation;
                 } else {
                     // Kill cyclical adjustments
