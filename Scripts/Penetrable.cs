@@ -669,11 +669,6 @@ namespace PenetrationTech
                     float mag = Mathf.Max(rdiff.magnitude-positionForgivenessMeters,0f);
                     rtargetBody.AddForceAtPosition(rdir*mag*springStrength*weight, rootTargetPosition, ForceMode.Acceleration);
                 }
-                foreach(var p in path) {
-                    if (p.shouldRemoveJoint && p.joint != null) {
-                        Destroy(p.joint);
-                    }
-                }
 
                 //penetrator.body.AddForceAtPosition((rdir*rdist*weight*springStrength), penetrator.dickRoot.position, ForceMode.Acceleration);
                 //GetBody(rootTargetPoint, penetrator.backwards).AddForceAtPosition((-rdir*rdist*weight*springStrength), rootTargetPosition, ForceMode.Acceleration);
@@ -688,6 +683,11 @@ namespace PenetrationTech
                     float angleDiff = Mathf.Max(Vector3.Angle(-tangent, penetrator.dickRoot.TransformDirection(penetrator.dickForward)) - deflectionForgivenessDegrees, 0f);
                     penetrator.body.angularVelocity *= 0.9f;
                     penetrator.body.AddTorque(cross * angleDiff * deflectionSpringStrength * weight, ForceMode.VelocityChange); }*/
+            }
+            foreach(var p in path) {
+                if (p.shouldRemoveJoint && p.joint != null) {
+                    Destroy(p.joint);
+                }
             }
         }
     }
