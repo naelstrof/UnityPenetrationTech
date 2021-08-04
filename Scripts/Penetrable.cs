@@ -231,6 +231,7 @@ namespace PenetrationTech
         }
         public ConfigurableJoint GetJoint(float alongPath01, bool reverse) {
             PenetrablePath p = path[Mathf.FloorToInt(Mathf.Clamp01(alongPath01)*3.99f)];
+            p.shouldRemoveJoint = false;
             if (p.joint != null) {
                 return p.joint;
             }
@@ -262,6 +263,8 @@ namespace PenetrationTech
             public Vector3 up;
             [HideInInspector]
             public Vector3 forward;
+            [HideInInspector]
+            public bool shouldRemoveJoint = false;
             [HideInInspector]
             public ConfigurableJoint joint;
             [HideInInspector]
@@ -581,10 +584,13 @@ namespace PenetrationTech
         }
         public void FixedUpdate() {
             float springStrength = 500f;
-            float positionForgivenessMeters = 0.1f;
+            float positionForgivenessMeters = 0f;
             float deflectionForgivenessDegrees = 10f;
             //float deflectionSpringStrength = 1000000f;
             float overallDamping = 0.2f;
+            foreach(var p in path) {
+                p.shouldRemoveJoint = true;
+            }
             foreach(var penetrator in penetrators) {
                 if (penetrator == null || penetrator.body == null) {
                     continue;
@@ -662,6 +668,11 @@ namespace PenetrationTech
                     Vector3 rdir = rdiff.normalized;
                     float mag = Mathf.Max(rdiff.magnitude-positionForgivenessMeters,0f);
                     rtargetBody.AddForceAtPosition(rdir*mag*springStrength*weight, rootTargetPosition, ForceMode.Acceleration);
+                }
+                foreach(var p in path) {
+                    if (p.shouldRemoveJoint && p.joint != null) {
+                        Destroy(p.joint);
+                    }
                 }
 
                 //penetrator.body.AddForceAtPosition((rdir*rdist*weight*springStrength), penetrator.dickRoot.position, ForceMode.Acceleration);
