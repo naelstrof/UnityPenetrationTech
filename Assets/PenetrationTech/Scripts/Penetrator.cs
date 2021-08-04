@@ -396,6 +396,7 @@ namespace PenetrationTech {
             if (body == null) {
                 body = gameObject.AddComponent<Rigidbody>();
             }
+            GenerateBlendshapeDict();
             //bodyWasAffectedByGravity = body.useGravity;
             //bodyWasKinematic = body.isKinematic;
             float averageGirth = 0f;
@@ -465,8 +466,7 @@ namespace PenetrationTech {
             invisibleWhenInside = false;
             allTheWayThrough = true;
         }
-
-        void Start() {
+        void GenerateBlendshapeDict() {
             internalPenetratorshape = null;
             if (deformationTargets.Count == 0) {
                 return;
@@ -671,7 +671,7 @@ namespace PenetrationTech {
             shape.yOffset.postWrapMode = WrapMode.ClampForever;
         }
         public void BakeAll() {
-            Start();
+            GenerateBlendshapeDict();
             dickForward = dickRoot.InverseTransformDirection((dickTip.position - dickRoot.position).normalized);
             if (Vector3.Dot(dickForward, Vector3.up) > 0.9f) {
                 // if the dick root is y forward, then we should use z forward instead.
@@ -930,7 +930,7 @@ namespace PenetrationTech {
             }
         }
         public void OnValidate() {
-            Start();
+            GenerateBlendshapeDict();
             SetDeforms();
         }
         void OnDisable() {
