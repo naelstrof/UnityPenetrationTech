@@ -113,10 +113,10 @@ Material:
     - _OrifaceOutWorldPosition3: {r: 0, g: -1, b: 0, a: 0}
     - _OrifaceWorldNormal: {r: 0, g: 1, b: 0, a: 0}
     - _OrifaceWorldPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _OrificeOutWorldPosition1: {r: 0, g: 0, b: 0, a: 0}
-    - _OrificeOutWorldPosition2: {r: 0, g: 0, b: 0, a: 0}
-    - _OrificeOutWorldPosition3: {r: 0, g: 0, b: 0, a: 0}
-    - _OrificeWorldNormal: {r: 0, g: 0, b: 0, a: 0}
+    - _OrificeOutWorldPosition1: {r: 0, g: 0.33, b: 0, a: 0}
+    - _OrificeOutWorldPosition2: {r: 0, g: 0.66, b: 0, a: 0}
+    - _OrificeOutWorldPosition3: {r: 0, g: 1, b: 0, a: 0}
+    - _OrificeWorldNormal: {r: 0, g: -1, b: 0, a: 0}
     - _OrificeWorldPosition: {r: 0, g: 0, b: 0, a: 0}
     - _PenetratorForward: {r: 0.007546551, g: 0.06995387, b: 0.9975217, a: 0}
     - _PenetratorOrigin: {r: 0.0025034444, g: -0.08660436, b: 0.099455446, a: 0}

@@ -28,6 +28,7 @@ namespace PenetrationTechExample {
         public IEnumerator SpawnEgg() {
             while(true) {
                 Penetrator d = GameObject.Instantiate(penetratorPrefab).GetComponentInChildren<Penetrator>();
+                d.body.transform.position = targetPenetrable.GetPoint(spawnAlongLength, false);
                 // Manually control penetration parameters
                 d.autoPenetrate = false;
                 d.canOverpenetrate = true;

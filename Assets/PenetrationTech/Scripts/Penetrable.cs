@@ -614,7 +614,8 @@ namespace PenetrationTech
                     }
                     Vector3 rootTargetPosition = GetPoint(rootTargetPoint, penetrator.backwards);
                     Vector3 diff = rootTargetPosition - penetrator.GetWorldRootPosition();
-                    penetrator.body.position += diff*Time.deltaTime;
+                    //penetrator.body.position += diff;
+                    penetrator.body.velocity = diff*10f;
                     penetrator.body.rotation = Quaternion.FromToRotation(penetrator.dickRoot.TransformDirection(penetrator.dickForward), (tipTargetPosition-rootTargetPosition).normalized)*penetrator.body.rotation;
                 } else {
                     // Kill cyclical adjustments
