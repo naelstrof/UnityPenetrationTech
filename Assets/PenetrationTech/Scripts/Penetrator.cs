@@ -194,6 +194,8 @@ namespace PenetrationTech {
         public UnityEvent OnPenetrate;
         [Tooltip("Triggers once when the dick fully leaves a hole.")]
         public UnityEvent OnEndPenetrate;
+        [Tooltip("Triggers at the very end of each cum pump.")]
+        public UnityEvent OnCumEmit;
         [Tooltip("Everytime the dick moves while penetrating, it triggers an event based on how much. Can be considered how much \"stimulus\" a dick is recieving. Negative when pulling out.")]
         public PenetratorMoveEvent OnMove;
         [Header("Bake Settings")]
@@ -1058,6 +1060,7 @@ namespace PenetrationTech {
                     cumProgress = Mathf.MoveTowards(cumProgress, 1f+bulgePercentage+0.1f, Time.deltaTime);
                     yield return null;
                 }
+                OnCumEmit.Invoke();
                 //stream.Fire(dickCumContents, cumVolumePerPump/10f);
             }
             cumActive = 0f;
