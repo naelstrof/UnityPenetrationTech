@@ -737,8 +737,14 @@ namespace PenetrationTech {
             //dick.body.maxAngularVelocity = 64f;
             StopCoroutine("DecoupleRoutine");
             this.penetrationDepth01 = penetrationDepth01;
+            foreach(Penetrator p in hole.GetPenetrators()) {
+                foreach(Collider a in p.selfColliders) {
+                    foreach(Collider b in p.selfColliders) {
+                        Physics.IgnoreCollision(a, b, true);
+                    }
+                }
+            }
             holeTarget = hole;
-            body.detectCollisions = false;
             invisibleWhenInside = !holeTarget.canSeePenetratorInside;
             allTheWayThrough = holeTarget.canAllTheWayThrough;
             if (slimySource != null && slimySlidingSounds.Count > 0) {
@@ -761,10 +767,17 @@ namespace PenetrationTech {
                 squishPullAmount = 0f;
                 body.detectCollisions = true;
                 SetDeforms();
-                holeTarget?.RemovePenetrator(this);
                 OnEndPenetrate.Invoke();
-                holeTarget = null;
                 UnignoreAll();
+                holeTarget?.RemovePenetrator(this);
+                foreach(Penetrator p in holeTarget.GetPenetrators()) {
+                    foreach(Collider a in p.selfColliders) {
+                        foreach(Collider b in p.selfColliders) {
+                            Physics.IgnoreCollision(a, b, false);
+                        }
+                    }
+                }
+                holeTarget = null;
                 //body.isKinematic = bodyWasKinematic;
                 //body.drag = 0f;
                 //body.useGravity = bodyWasAffectedByGravity;
