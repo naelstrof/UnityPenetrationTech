@@ -9,21 +9,21 @@ Shader "PenetrationTech/Standard/Penetrator"
 		_PenetratorLength("PenetratorLength", Float) = 1
 		_PenetratorUp("PenetratorUp", Vector) = (0,1,0,0)
 		_PenetratorRight("PenetratorRight", Vector) = (1,0,0,0)
-		_OrificeOutWorldPosition1("OrificeOutWorldPosition1", Vector) = (0,0,0,0)
-		_OrificeOutWorldPosition3("OrificeOutWorldPosition3", Vector) = (0,0,0,0)
+		_OrificeOutWorldPosition1("OrificeOutWorldPosition1", Vector) = (0,0.33,0,0)
+		_OrificeOutWorldPosition3("OrificeOutWorldPosition3", Vector) = (0,1,0,0)
 		_OrificeWorldPosition("OrificeWorldPosition", Vector) = (0,0,0,0)
-		_OrificeOutWorldPosition2("OrificeOutWorldPosition2", Vector) = (0,0,0,0)
-		_OrificeWorldNormal("OrificeWorldNormal", Vector) = (0,0,0,0)
+		_OrificeOutWorldPosition2("OrificeOutWorldPosition2", Vector) = (0,0.66,0,0)
+		_OrificeWorldNormal("OrificeWorldNormal", Vector) = (0,-1,0,0)
 		_PenetrationDepth("PenetrationDepth", Range( -1 , 10)) = 0
 		_PenetratorBlendshapeMultiplier("PenetratorBlendshapeMultiplier", Range( 0 , 100)) = 1
-		_OrificeLength("OrificeLength", Float) = 0
+		_OrificeLength("OrificeLength", Float) = 1
 		_PenetratorBulgePercentage("PenetratorBulgePercentage", Range( 0 , 1)) = 0
 		_PenetratorCumProgress("PenetratorCumProgress", Range( -1 , 2)) = 0
 		_PenetratorSquishPullAmount("PenetratorSquishPullAmount", Range( -1 , 1)) = 0
 		_PenetratorCumActive("PenetratorCumActive", Range( 0 , 1)) = 0
 		[Toggle(_DEFORM_BALLS_ON)] _DEFORM_BALLS("DEFORM_BALLS", Float) = 0
-		[Toggle(_CLIP_DICK_ON)] _CLIP_DICK("CLIP_DICK", Float) = 0
 		[Toggle(_NOBLENDSHAPES_ON)] _NOBLENDSHAPES("NOBLENDSHAPES", Float) = 0
+		[Toggle(_CLIP_DICK_ON)] _CLIP_DICK("CLIP_DICK", Float) = 0
 		[Toggle(_INVISIBLE_WHEN_INSIDE_ON)] _INVISIBLE_WHEN_INSIDE("INVISIBLE_WHEN_INSIDE", Float) = 0
 		_Cutoff( "Mask Clip Value", Float ) = 0.5
 		_MainTex("MainTex", 2D) = "white" {}
@@ -76,25 +76,25 @@ Shader "PenetrationTech/Standard/Penetrator"
 		uniform float _Cutoff = 0.5;
 
 
+		float3 MyCustomExpression20_g988( float3 bezierDerivitive, float3 forward, float3 up )
+		{
+			float bezierUpness = dot( bezierDerivitive , up);
+			float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
+			float bezierDownness = dot( bezierDerivitive , -up );
+			return normalize( lerp( bezierUp , forward , saturate( bezierDownness )) );
+		}
+
+
+		float3 MyCustomExpression20_g998( float3 bezierDerivitive, float3 forward, float3 up )
+		{
+			float bezierUpness = dot( bezierDerivitive , up);
+			float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
+			float bezierDownness = dot( bezierDerivitive , -up );
+			return normalize( lerp( bezierUp , forward , saturate( bezierDownness )) );
+		}
+
+
 		float3 MyCustomExpression20_g993( float3 bezierDerivitive, float3 forward, float3 up )
-		{
-			float bezierUpness = dot( bezierDerivitive , up);
-			float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
-			float bezierDownness = dot( bezierDerivitive , -up );
-			return normalize( lerp( bezierUp , forward , saturate( bezierDownness )) );
-		}
-
-
-		float3 MyCustomExpression20_g981( float3 bezierDerivitive, float3 forward, float3 up )
-		{
-			float bezierUpness = dot( bezierDerivitive , up);
-			float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
-			float bezierDownness = dot( bezierDerivitive , -up );
-			return normalize( lerp( bezierUp , forward , saturate( bezierDownness )) );
-		}
-
-
-		float3 MyCustomExpression20_g987( float3 bezierDerivitive, float3 forward, float3 up )
 		{
 			float bezierUpness = dot( bezierDerivitive , up);
 			float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
@@ -108,13 +108,13 @@ Shader "PenetrationTech/Standard/Penetrator"
 			UNITY_INITIALIZE_OUTPUT( Input, o );
 			float3 ase_vertexNormal = v.normal.xyz;
 			float3 VertexNormal259_g979 = ase_vertexNormal;
-			float3 normalizeResult27_g991 = normalize( VertexNormal259_g979 );
-			float3 temp_output_35_0_g979 = normalizeResult27_g991;
+			float3 normalizeResult27_g985 = normalize( VertexNormal259_g979 );
+			float3 temp_output_35_0_g979 = normalizeResult27_g985;
 			float4 ase_vertexTangent = v.tangent;
-			float3 normalizeResult31_g991 = normalize( ase_vertexTangent.xyz );
-			float3 normalizeResult29_g991 = normalize( cross( normalizeResult27_g991 , normalizeResult31_g991 ) );
-			float3 temp_output_35_1_g979 = cross( normalizeResult29_g991 , normalizeResult27_g991 );
-			float3 temp_output_35_2_g979 = normalizeResult29_g991;
+			float3 normalizeResult31_g985 = normalize( ase_vertexTangent.xyz );
+			float3 normalizeResult29_g985 = normalize( cross( normalizeResult27_g985 , normalizeResult31_g985 ) );
+			float3 temp_output_35_1_g979 = cross( normalizeResult29_g985 , normalizeResult27_g985 );
+			float3 temp_output_35_2_g979 = normalizeResult29_g985;
 			float3 SquishDelta85_g979 = ( ( ( temp_output_35_0_g979 * v.texcoord2.x ) + ( temp_output_35_1_g979 * v.texcoord2.y ) + ( temp_output_35_2_g979 * v.texcoord2.z ) ) * _PenetratorBlendshapeMultiplier );
 			float temp_output_234_0_g979 = length( SquishDelta85_g979 );
 			float temp_output_11_0_g979 = max( _PenetrationDepth , 0.0 );
@@ -131,16 +131,16 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float3 DickForward18_g979 = _PenetratorForward;
 			float dotResult42_g979 = dot( temp_output_27_0_g979 , DickForward18_g979 );
 			float BulgePercentage37_g979 = _PenetratorBulgePercentage;
-			float temp_output_1_0_g985 = saturate( ( abs( ( dotResult42_g979 - VisibleLength25_g979 ) ) / ( DickLength19_g979 * BulgePercentage37_g979 ) ) );
-			float temp_output_94_0_g979 = sqrt( ( 1.0 - ( temp_output_1_0_g985 * temp_output_1_0_g985 ) ) );
+			float temp_output_1_0_g996 = saturate( ( abs( ( dotResult42_g979 - VisibleLength25_g979 ) ) / ( DickLength19_g979 * BulgePercentage37_g979 ) ) );
+			float temp_output_94_0_g979 = sqrt( ( 1.0 - ( temp_output_1_0_g996 * temp_output_1_0_g996 ) ) );
 			float3 PullDelta91_g979 = ( ( ( temp_output_35_0_g979 * v.texcoord3.x ) + ( temp_output_35_1_g979 * v.texcoord3.y ) + ( temp_output_35_2_g979 * v.texcoord3.z ) ) * _PenetratorBlendshapeMultiplier );
 			float dotResult32_g979 = dot( temp_output_27_0_g979 , DickForward18_g979 );
-			float temp_output_1_0_g990 = saturate( ( abs( ( dotResult32_g979 - ( DickLength19_g979 * _PenetratorCumProgress ) ) ) / ( DickLength19_g979 * BulgePercentage37_g979 ) ) );
+			float temp_output_1_0_g986 = saturate( ( abs( ( dotResult32_g979 - ( DickLength19_g979 * _PenetratorCumProgress ) ) ) / ( DickLength19_g979 * BulgePercentage37_g979 ) ) );
 			float3 CumDelta90_g979 = ( ( ( temp_output_35_0_g979 * v.texcoord1.w ) + ( temp_output_35_1_g979 * v.texcoord2.w ) + ( temp_output_35_2_g979 * v.texcoord3.w ) ) * _PenetratorBlendshapeMultiplier );
 			#ifdef _NOBLENDSHAPES_ON
 				float3 staticSwitch390_g979 = VertexPosition254_g979;
 			#else
-				float3 staticSwitch390_g979 = ( VertexPosition254_g979 + ( SquishDelta85_g979 * temp_output_94_0_g979 * saturate( -_PenetratorSquishPullAmount ) ) + ( temp_output_94_0_g979 * PullDelta91_g979 * saturate( _PenetratorSquishPullAmount ) ) + ( sqrt( ( 1.0 - ( temp_output_1_0_g990 * temp_output_1_0_g990 ) ) ) * CumDelta90_g979 * _PenetratorCumActive ) );
+				float3 staticSwitch390_g979 = ( VertexPosition254_g979 + ( SquishDelta85_g979 * temp_output_94_0_g979 * saturate( -_PenetratorSquishPullAmount ) ) + ( temp_output_94_0_g979 * PullDelta91_g979 * saturate( _PenetratorSquishPullAmount ) ) + ( sqrt( ( 1.0 - ( temp_output_1_0_g986 * temp_output_1_0_g986 ) ) ) * CumDelta90_g979 * _PenetratorCumActive ) );
 			#endif
 			float dotResult118_g979 = dot( ( staticSwitch390_g979 - DickOrigin16_g979 ) , DickForward18_g979 );
 			float PenetrationDepth39_g979 = _PenetrationDepth;
@@ -170,39 +170,39 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float3 originalPosition126_g979 = lerpResult343_g979;
 			float dotResult177_g979 = dot( ( originalPosition126_g979 - DickOrigin16_g979 ) , DickForward18_g979 );
 			float temp_output_178_0_g979 = max( VisibleLength25_g979 , 0.05 );
-			float temp_output_42_0_g992 = ( dotResult177_g979 / temp_output_178_0_g979 );
-			float temp_output_26_0_g996 = temp_output_42_0_g992;
-			float temp_output_19_0_g996 = ( 1.0 - temp_output_26_0_g996 );
+			float temp_output_42_0_g987 = ( dotResult177_g979 / temp_output_178_0_g979 );
+			float temp_output_26_0_g991 = temp_output_42_0_g987;
+			float temp_output_19_0_g991 = ( 1.0 - temp_output_26_0_g991 );
 			float4 appendResult130_g979 = (float4(_OrificeWorldNormal , 0.0));
 			float4 transform135_g979 = mul(unity_WorldToObject,appendResult130_g979);
 			float3 OrifaceNormal155_g979 = (transform135_g979).xyz;
 			float temp_output_396_0_g979 = min( temp_output_178_0_g979 , distance( DickOrigin16_g979 , OrifacePosition170_g979 ) );
 			float dotResult398_g979 = dot( ( DickOrigin16_g979 - OrifacePosition170_g979 ) , OrifaceNormal155_g979 );
 			float3 lerpResult401_g979 = lerp( ( OrifacePosition170_g979 + ( OrifaceNormal155_g979 * temp_output_396_0_g979 * 0.5 ) ) , DickOrigin16_g979 , saturate( sign( dotResult398_g979 ) ));
-			float3 temp_output_8_0_g992 = lerpResult401_g979;
-			float3 temp_output_9_0_g992 = ( lerpResult401_g979 + ( DickForward18_g979 * temp_output_396_0_g979 * 0.25 ) );
-			float3 temp_output_10_0_g992 = ( OrifacePosition170_g979 + ( OrifaceNormal155_g979 * 0.25 * temp_output_396_0_g979 ) );
-			float3 temp_output_11_0_g992 = OrifacePosition170_g979;
-			float temp_output_1_0_g994 = temp_output_42_0_g992;
-			float temp_output_8_0_g994 = ( 1.0 - temp_output_1_0_g994 );
-			float3 temp_output_3_0_g994 = temp_output_9_0_g992;
-			float3 temp_output_4_0_g994 = temp_output_10_0_g992;
-			float3 temp_output_7_0_g993 = ( ( 3.0 * temp_output_8_0_g994 * temp_output_8_0_g994 * ( temp_output_3_0_g994 - temp_output_8_0_g992 ) ) + ( 6.0 * temp_output_8_0_g994 * temp_output_1_0_g994 * ( temp_output_4_0_g994 - temp_output_3_0_g994 ) ) + ( 3.0 * temp_output_1_0_g994 * temp_output_1_0_g994 * ( temp_output_11_0_g992 - temp_output_4_0_g994 ) ) );
-			float3 normalizeResult27_g995 = normalize( temp_output_7_0_g993 );
-			float3 bezierDerivitive20_g993 = temp_output_7_0_g993;
-			float3 temp_output_3_0_g992 = DickForward18_g979;
-			float3 forward20_g993 = temp_output_3_0_g992;
-			float3 temp_output_4_0_g992 = DickUp172_g979;
-			float3 up20_g993 = temp_output_4_0_g992;
-			float3 localMyCustomExpression20_g993 = MyCustomExpression20_g993( bezierDerivitive20_g993 , forward20_g993 , up20_g993 );
-			float3 normalizeResult31_g995 = normalize( localMyCustomExpression20_g993 );
-			float3 normalizeResult29_g995 = normalize( cross( normalizeResult27_g995 , normalizeResult31_g995 ) );
-			float3 temp_output_65_22_g992 = normalizeResult29_g995;
-			float3 temp_output_2_0_g992 = ( originalPosition126_g979 - DickOrigin16_g979 );
-			float3 temp_output_5_0_g992 = DickRight184_g979;
-			float dotResult15_g992 = dot( temp_output_2_0_g992 , temp_output_5_0_g992 );
-			float3 temp_output_65_0_g992 = cross( normalizeResult29_g995 , normalizeResult27_g995 );
-			float dotResult18_g992 = dot( temp_output_2_0_g992 , temp_output_4_0_g992 );
+			float3 temp_output_8_0_g987 = lerpResult401_g979;
+			float3 temp_output_9_0_g987 = ( lerpResult401_g979 + ( DickForward18_g979 * temp_output_396_0_g979 * 0.25 ) );
+			float3 temp_output_10_0_g987 = ( OrifacePosition170_g979 + ( OrifaceNormal155_g979 * 0.25 * temp_output_396_0_g979 ) );
+			float3 temp_output_11_0_g987 = OrifacePosition170_g979;
+			float temp_output_1_0_g989 = temp_output_42_0_g987;
+			float temp_output_8_0_g989 = ( 1.0 - temp_output_1_0_g989 );
+			float3 temp_output_3_0_g989 = temp_output_9_0_g987;
+			float3 temp_output_4_0_g989 = temp_output_10_0_g987;
+			float3 temp_output_7_0_g988 = ( ( 3.0 * temp_output_8_0_g989 * temp_output_8_0_g989 * ( temp_output_3_0_g989 - temp_output_8_0_g987 ) ) + ( 6.0 * temp_output_8_0_g989 * temp_output_1_0_g989 * ( temp_output_4_0_g989 - temp_output_3_0_g989 ) ) + ( 3.0 * temp_output_1_0_g989 * temp_output_1_0_g989 * ( temp_output_11_0_g987 - temp_output_4_0_g989 ) ) );
+			float3 normalizeResult27_g990 = normalize( temp_output_7_0_g988 );
+			float3 bezierDerivitive20_g988 = temp_output_7_0_g988;
+			float3 temp_output_3_0_g987 = DickForward18_g979;
+			float3 forward20_g988 = temp_output_3_0_g987;
+			float3 temp_output_4_0_g987 = DickUp172_g979;
+			float3 up20_g988 = temp_output_4_0_g987;
+			float3 localMyCustomExpression20_g988 = MyCustomExpression20_g988( bezierDerivitive20_g988 , forward20_g988 , up20_g988 );
+			float3 normalizeResult31_g990 = normalize( localMyCustomExpression20_g988 );
+			float3 normalizeResult29_g990 = normalize( cross( normalizeResult27_g990 , normalizeResult31_g990 ) );
+			float3 temp_output_65_22_g987 = normalizeResult29_g990;
+			float3 temp_output_2_0_g987 = ( originalPosition126_g979 - DickOrigin16_g979 );
+			float3 temp_output_5_0_g987 = DickRight184_g979;
+			float dotResult15_g987 = dot( temp_output_2_0_g987 , temp_output_5_0_g987 );
+			float3 temp_output_65_0_g987 = cross( normalizeResult29_g990 , normalizeResult27_g990 );
+			float dotResult18_g987 = dot( temp_output_2_0_g987 , temp_output_4_0_g987 );
 			float dotResult142_g979 = dot( ( originalPosition126_g979 - DickOrigin16_g979 ) , DickForward18_g979 );
 			float temp_output_152_0_g979 = ( dotResult142_g979 - VisibleLength25_g979 );
 			float temp_output_157_0_g979 = ( temp_output_152_0_g979 / OrifaceLength34_g979 );
@@ -211,69 +211,69 @@ Shader "PenetrationTech/Standard/Penetrator"
 			#else
 				float staticSwitch197_g979 = temp_output_157_0_g979;
 			#endif
-			float temp_output_42_0_g980 = staticSwitch197_g979;
-			float temp_output_26_0_g984 = temp_output_42_0_g980;
-			float temp_output_19_0_g984 = ( 1.0 - temp_output_26_0_g984 );
-			float3 temp_output_8_0_g980 = OrifacePosition170_g979;
+			float temp_output_42_0_g997 = staticSwitch197_g979;
+			float temp_output_26_0_g1001 = temp_output_42_0_g997;
+			float temp_output_19_0_g1001 = ( 1.0 - temp_output_26_0_g1001 );
+			float3 temp_output_8_0_g997 = OrifacePosition170_g979;
 			float4 appendResult145_g979 = (float4(_OrificeOutWorldPosition1 , 1.0));
 			float4 transform151_g979 = mul(unity_WorldToObject,appendResult145_g979);
 			float3 OrifaceOutPosition1183_g979 = (transform151_g979).xyz;
-			float3 temp_output_9_0_g980 = OrifaceOutPosition1183_g979;
+			float3 temp_output_9_0_g997 = OrifaceOutPosition1183_g979;
 			float4 appendResult144_g979 = (float4(_OrificeOutWorldPosition2 , 1.0));
 			float4 transform154_g979 = mul(unity_WorldToObject,appendResult144_g979);
 			float3 OrifaceOutPosition2182_g979 = (transform154_g979).xyz;
-			float3 temp_output_10_0_g980 = OrifaceOutPosition2182_g979;
+			float3 temp_output_10_0_g997 = OrifaceOutPosition2182_g979;
 			float4 appendResult143_g979 = (float4(_OrificeOutWorldPosition3 , 1.0));
 			float4 transform147_g979 = mul(unity_WorldToObject,appendResult143_g979);
 			float3 OrifaceOutPosition3175_g979 = (transform147_g979).xyz;
-			float3 temp_output_11_0_g980 = OrifaceOutPosition3175_g979;
-			float temp_output_1_0_g982 = temp_output_42_0_g980;
-			float temp_output_8_0_g982 = ( 1.0 - temp_output_1_0_g982 );
-			float3 temp_output_3_0_g982 = temp_output_9_0_g980;
-			float3 temp_output_4_0_g982 = temp_output_10_0_g980;
-			float3 temp_output_7_0_g981 = ( ( 3.0 * temp_output_8_0_g982 * temp_output_8_0_g982 * ( temp_output_3_0_g982 - temp_output_8_0_g980 ) ) + ( 6.0 * temp_output_8_0_g982 * temp_output_1_0_g982 * ( temp_output_4_0_g982 - temp_output_3_0_g982 ) ) + ( 3.0 * temp_output_1_0_g982 * temp_output_1_0_g982 * ( temp_output_11_0_g980 - temp_output_4_0_g982 ) ) );
-			float3 normalizeResult27_g983 = normalize( temp_output_7_0_g981 );
-			float3 bezierDerivitive20_g981 = temp_output_7_0_g981;
-			float3 temp_output_3_0_g980 = DickForward18_g979;
-			float3 forward20_g981 = temp_output_3_0_g980;
-			float3 temp_output_4_0_g980 = DickUp172_g979;
-			float3 up20_g981 = temp_output_4_0_g980;
-			float3 localMyCustomExpression20_g981 = MyCustomExpression20_g981( bezierDerivitive20_g981 , forward20_g981 , up20_g981 );
-			float3 normalizeResult31_g983 = normalize( localMyCustomExpression20_g981 );
-			float3 normalizeResult29_g983 = normalize( cross( normalizeResult27_g983 , normalizeResult31_g983 ) );
-			float3 temp_output_65_22_g980 = normalizeResult29_g983;
-			float3 temp_output_2_0_g980 = ( originalPosition126_g979 - DickOrigin16_g979 );
-			float3 temp_output_5_0_g980 = DickRight184_g979;
-			float dotResult15_g980 = dot( temp_output_2_0_g980 , temp_output_5_0_g980 );
-			float3 temp_output_65_0_g980 = cross( normalizeResult29_g983 , normalizeResult27_g983 );
-			float dotResult18_g980 = dot( temp_output_2_0_g980 , temp_output_4_0_g980 );
+			float3 temp_output_11_0_g997 = OrifaceOutPosition3175_g979;
+			float temp_output_1_0_g999 = temp_output_42_0_g997;
+			float temp_output_8_0_g999 = ( 1.0 - temp_output_1_0_g999 );
+			float3 temp_output_3_0_g999 = temp_output_9_0_g997;
+			float3 temp_output_4_0_g999 = temp_output_10_0_g997;
+			float3 temp_output_7_0_g998 = ( ( 3.0 * temp_output_8_0_g999 * temp_output_8_0_g999 * ( temp_output_3_0_g999 - temp_output_8_0_g997 ) ) + ( 6.0 * temp_output_8_0_g999 * temp_output_1_0_g999 * ( temp_output_4_0_g999 - temp_output_3_0_g999 ) ) + ( 3.0 * temp_output_1_0_g999 * temp_output_1_0_g999 * ( temp_output_11_0_g997 - temp_output_4_0_g999 ) ) );
+			float3 normalizeResult27_g1000 = normalize( temp_output_7_0_g998 );
+			float3 bezierDerivitive20_g998 = temp_output_7_0_g998;
+			float3 temp_output_3_0_g997 = DickForward18_g979;
+			float3 forward20_g998 = temp_output_3_0_g997;
+			float3 temp_output_4_0_g997 = DickUp172_g979;
+			float3 up20_g998 = temp_output_4_0_g997;
+			float3 localMyCustomExpression20_g998 = MyCustomExpression20_g998( bezierDerivitive20_g998 , forward20_g998 , up20_g998 );
+			float3 normalizeResult31_g1000 = normalize( localMyCustomExpression20_g998 );
+			float3 normalizeResult29_g1000 = normalize( cross( normalizeResult27_g1000 , normalizeResult31_g1000 ) );
+			float3 temp_output_65_22_g997 = normalizeResult29_g1000;
+			float3 temp_output_2_0_g997 = ( originalPosition126_g979 - DickOrigin16_g979 );
+			float3 temp_output_5_0_g997 = DickRight184_g979;
+			float dotResult15_g997 = dot( temp_output_2_0_g997 , temp_output_5_0_g997 );
+			float3 temp_output_65_0_g997 = cross( normalizeResult29_g1000 , normalizeResult27_g1000 );
+			float dotResult18_g997 = dot( temp_output_2_0_g997 , temp_output_4_0_g997 );
 			float temp_output_208_0_g979 = saturate( sign( temp_output_152_0_g979 ) );
-			float3 lerpResult221_g979 = lerp( ( ( ( temp_output_19_0_g996 * temp_output_19_0_g996 * temp_output_19_0_g996 * temp_output_8_0_g992 ) + ( temp_output_19_0_g996 * temp_output_19_0_g996 * 3.0 * temp_output_26_0_g996 * temp_output_9_0_g992 ) + ( 3.0 * temp_output_19_0_g996 * temp_output_26_0_g996 * temp_output_26_0_g996 * temp_output_10_0_g992 ) + ( temp_output_26_0_g996 * temp_output_26_0_g996 * temp_output_26_0_g996 * temp_output_11_0_g992 ) ) + ( temp_output_65_22_g992 * dotResult15_g992 ) + ( temp_output_65_0_g992 * dotResult18_g992 ) ) , ( ( ( temp_output_19_0_g984 * temp_output_19_0_g984 * temp_output_19_0_g984 * temp_output_8_0_g980 ) + ( temp_output_19_0_g984 * temp_output_19_0_g984 * 3.0 * temp_output_26_0_g984 * temp_output_9_0_g980 ) + ( 3.0 * temp_output_19_0_g984 * temp_output_26_0_g984 * temp_output_26_0_g984 * temp_output_10_0_g980 ) + ( temp_output_26_0_g984 * temp_output_26_0_g984 * temp_output_26_0_g984 * temp_output_11_0_g980 ) ) + ( temp_output_65_22_g980 * dotResult15_g980 ) + ( temp_output_65_0_g980 * dotResult18_g980 ) ) , temp_output_208_0_g979);
-			float3 temp_output_42_0_g986 = DickForward18_g979;
+			float3 lerpResult221_g979 = lerp( ( ( ( temp_output_19_0_g991 * temp_output_19_0_g991 * temp_output_19_0_g991 * temp_output_8_0_g987 ) + ( temp_output_19_0_g991 * temp_output_19_0_g991 * 3.0 * temp_output_26_0_g991 * temp_output_9_0_g987 ) + ( 3.0 * temp_output_19_0_g991 * temp_output_26_0_g991 * temp_output_26_0_g991 * temp_output_10_0_g987 ) + ( temp_output_26_0_g991 * temp_output_26_0_g991 * temp_output_26_0_g991 * temp_output_11_0_g987 ) ) + ( temp_output_65_22_g987 * dotResult15_g987 ) + ( temp_output_65_0_g987 * dotResult18_g987 ) ) , ( ( ( temp_output_19_0_g1001 * temp_output_19_0_g1001 * temp_output_19_0_g1001 * temp_output_8_0_g997 ) + ( temp_output_19_0_g1001 * temp_output_19_0_g1001 * 3.0 * temp_output_26_0_g1001 * temp_output_9_0_g997 ) + ( 3.0 * temp_output_19_0_g1001 * temp_output_26_0_g1001 * temp_output_26_0_g1001 * temp_output_10_0_g997 ) + ( temp_output_26_0_g1001 * temp_output_26_0_g1001 * temp_output_26_0_g1001 * temp_output_11_0_g997 ) ) + ( temp_output_65_22_g997 * dotResult15_g997 ) + ( temp_output_65_0_g997 * dotResult18_g997 ) ) , temp_output_208_0_g979);
+			float3 temp_output_42_0_g992 = DickForward18_g979;
 			float NonVisibleLength165_g979 = ( temp_output_11_0_g979 * _PenetratorLength );
-			float3 temp_output_52_0_g986 = ( ( temp_output_42_0_g986 * ( ( NonVisibleLength165_g979 - OrifaceLength34_g979 ) - DickLength19_g979 ) ) + ( originalPosition126_g979 - DickOrigin16_g979 ) );
-			float dotResult53_g986 = dot( temp_output_42_0_g986 , temp_output_52_0_g986 );
-			float temp_output_1_0_g988 = 1.0;
-			float temp_output_8_0_g988 = ( 1.0 - temp_output_1_0_g988 );
-			float3 temp_output_3_0_g988 = OrifaceOutPosition1183_g979;
-			float3 temp_output_4_0_g988 = OrifaceOutPosition2182_g979;
-			float3 temp_output_7_0_g987 = ( ( 3.0 * temp_output_8_0_g988 * temp_output_8_0_g988 * ( temp_output_3_0_g988 - OrifacePosition170_g979 ) ) + ( 6.0 * temp_output_8_0_g988 * temp_output_1_0_g988 * ( temp_output_4_0_g988 - temp_output_3_0_g988 ) ) + ( 3.0 * temp_output_1_0_g988 * temp_output_1_0_g988 * ( OrifaceOutPosition3175_g979 - temp_output_4_0_g988 ) ) );
-			float3 normalizeResult27_g989 = normalize( temp_output_7_0_g987 );
-			float3 temp_output_85_23_g986 = normalizeResult27_g989;
-			float3 temp_output_4_0_g986 = DickUp172_g979;
-			float dotResult54_g986 = dot( temp_output_4_0_g986 , temp_output_52_0_g986 );
-			float3 bezierDerivitive20_g987 = temp_output_7_0_g987;
-			float3 forward20_g987 = temp_output_42_0_g986;
-			float3 up20_g987 = temp_output_4_0_g986;
-			float3 localMyCustomExpression20_g987 = MyCustomExpression20_g987( bezierDerivitive20_g987 , forward20_g987 , up20_g987 );
-			float3 normalizeResult31_g989 = normalize( localMyCustomExpression20_g987 );
-			float3 normalizeResult29_g989 = normalize( cross( normalizeResult27_g989 , normalizeResult31_g989 ) );
-			float3 temp_output_85_0_g986 = cross( normalizeResult29_g989 , normalizeResult27_g989 );
-			float3 temp_output_43_0_g986 = DickRight184_g979;
-			float dotResult55_g986 = dot( temp_output_43_0_g986 , temp_output_52_0_g986 );
-			float3 temp_output_85_22_g986 = normalizeResult29_g989;
+			float3 temp_output_52_0_g992 = ( ( temp_output_42_0_g992 * ( ( NonVisibleLength165_g979 - OrifaceLength34_g979 ) - DickLength19_g979 ) ) + ( originalPosition126_g979 - DickOrigin16_g979 ) );
+			float dotResult53_g992 = dot( temp_output_42_0_g992 , temp_output_52_0_g992 );
+			float temp_output_1_0_g994 = 1.0;
+			float temp_output_8_0_g994 = ( 1.0 - temp_output_1_0_g994 );
+			float3 temp_output_3_0_g994 = OrifaceOutPosition1183_g979;
+			float3 temp_output_4_0_g994 = OrifaceOutPosition2182_g979;
+			float3 temp_output_7_0_g993 = ( ( 3.0 * temp_output_8_0_g994 * temp_output_8_0_g994 * ( temp_output_3_0_g994 - OrifacePosition170_g979 ) ) + ( 6.0 * temp_output_8_0_g994 * temp_output_1_0_g994 * ( temp_output_4_0_g994 - temp_output_3_0_g994 ) ) + ( 3.0 * temp_output_1_0_g994 * temp_output_1_0_g994 * ( OrifaceOutPosition3175_g979 - temp_output_4_0_g994 ) ) );
+			float3 normalizeResult27_g995 = normalize( temp_output_7_0_g993 );
+			float3 temp_output_85_23_g992 = normalizeResult27_g995;
+			float3 temp_output_4_0_g992 = DickUp172_g979;
+			float dotResult54_g992 = dot( temp_output_4_0_g992 , temp_output_52_0_g992 );
+			float3 bezierDerivitive20_g993 = temp_output_7_0_g993;
+			float3 forward20_g993 = temp_output_42_0_g992;
+			float3 up20_g993 = temp_output_4_0_g992;
+			float3 localMyCustomExpression20_g993 = MyCustomExpression20_g993( bezierDerivitive20_g993 , forward20_g993 , up20_g993 );
+			float3 normalizeResult31_g995 = normalize( localMyCustomExpression20_g993 );
+			float3 normalizeResult29_g995 = normalize( cross( normalizeResult27_g995 , normalizeResult31_g995 ) );
+			float3 temp_output_85_0_g992 = cross( normalizeResult29_g995 , normalizeResult27_g995 );
+			float3 temp_output_43_0_g992 = DickRight184_g979;
+			float dotResult55_g992 = dot( temp_output_43_0_g992 , temp_output_52_0_g992 );
+			float3 temp_output_85_22_g992 = normalizeResult29_g995;
 			float temp_output_222_0_g979 = saturate( sign( ( temp_output_157_0_g979 - 1.0 ) ) );
-			float3 lerpResult224_g979 = lerp( lerpResult221_g979 , ( ( ( dotResult53_g986 * temp_output_85_23_g986 ) + ( dotResult54_g986 * temp_output_85_0_g986 ) + ( dotResult55_g986 * temp_output_85_22_g986 ) ) + OrifaceOutPosition3175_g979 ) , temp_output_222_0_g979);
+			float3 lerpResult224_g979 = lerp( lerpResult221_g979 , ( ( ( dotResult53_g992 * temp_output_85_23_g992 ) + ( dotResult54_g992 * temp_output_85_0_g992 ) + ( dotResult55_g992 * temp_output_85_22_g992 ) ) + OrifaceOutPosition3175_g979 ) , temp_output_222_0_g979);
 			#ifdef _CLIP_DICK_ON
 				float3 staticSwitch229_g979 = lerpResult221_g979;
 			#else
@@ -293,23 +293,23 @@ Shader "PenetrationTech/Standard/Penetrator"
 			#endif
 			v.vertex.xyz = staticSwitch239_g979;
 			v.vertex.w = 1;
-			float3 temp_output_21_0_g992 = VertexNormal259_g979;
-			float dotResult55_g992 = dot( temp_output_21_0_g992 , temp_output_3_0_g992 );
-			float dotResult56_g992 = dot( temp_output_21_0_g992 , temp_output_4_0_g992 );
-			float dotResult57_g992 = dot( temp_output_21_0_g992 , temp_output_5_0_g992 );
-			float3 normalizeResult31_g992 = normalize( ( ( dotResult55_g992 * normalizeResult27_g995 ) + ( dotResult56_g992 * temp_output_65_0_g992 ) + ( dotResult57_g992 * temp_output_65_22_g992 ) ) );
-			float3 temp_output_21_0_g980 = VertexNormal259_g979;
-			float dotResult55_g980 = dot( temp_output_21_0_g980 , temp_output_3_0_g980 );
-			float dotResult56_g980 = dot( temp_output_21_0_g980 , temp_output_4_0_g980 );
-			float dotResult57_g980 = dot( temp_output_21_0_g980 , temp_output_5_0_g980 );
-			float3 normalizeResult31_g980 = normalize( ( ( dotResult55_g980 * normalizeResult27_g983 ) + ( dotResult56_g980 * temp_output_65_0_g980 ) + ( dotResult57_g980 * temp_output_65_22_g980 ) ) );
-			float3 lerpResult227_g979 = lerp( normalizeResult31_g992 , normalizeResult31_g980 , temp_output_208_0_g979);
-			float3 temp_output_24_0_g986 = VertexNormal259_g979;
-			float dotResult61_g986 = dot( temp_output_42_0_g986 , temp_output_24_0_g986 );
-			float dotResult62_g986 = dot( temp_output_4_0_g986 , temp_output_24_0_g986 );
-			float dotResult60_g986 = dot( temp_output_43_0_g986 , temp_output_24_0_g986 );
-			float3 normalizeResult33_g986 = normalize( ( ( dotResult61_g986 * temp_output_85_23_g986 ) + ( dotResult62_g986 * temp_output_85_0_g986 ) + ( dotResult60_g986 * temp_output_85_22_g986 ) ) );
-			float3 lerpResult233_g979 = lerp( lerpResult227_g979 , normalizeResult33_g986 , temp_output_222_0_g979);
+			float3 temp_output_21_0_g987 = VertexNormal259_g979;
+			float dotResult55_g987 = dot( temp_output_21_0_g987 , temp_output_3_0_g987 );
+			float dotResult56_g987 = dot( temp_output_21_0_g987 , temp_output_4_0_g987 );
+			float dotResult57_g987 = dot( temp_output_21_0_g987 , temp_output_5_0_g987 );
+			float3 normalizeResult31_g987 = normalize( ( ( dotResult55_g987 * normalizeResult27_g990 ) + ( dotResult56_g987 * temp_output_65_0_g987 ) + ( dotResult57_g987 * temp_output_65_22_g987 ) ) );
+			float3 temp_output_21_0_g997 = VertexNormal259_g979;
+			float dotResult55_g997 = dot( temp_output_21_0_g997 , temp_output_3_0_g997 );
+			float dotResult56_g997 = dot( temp_output_21_0_g997 , temp_output_4_0_g997 );
+			float dotResult57_g997 = dot( temp_output_21_0_g997 , temp_output_5_0_g997 );
+			float3 normalizeResult31_g997 = normalize( ( ( dotResult55_g997 * normalizeResult27_g1000 ) + ( dotResult56_g997 * temp_output_65_0_g997 ) + ( dotResult57_g997 * temp_output_65_22_g997 ) ) );
+			float3 lerpResult227_g979 = lerp( normalizeResult31_g987 , normalizeResult31_g997 , temp_output_208_0_g979);
+			float3 temp_output_24_0_g992 = VertexNormal259_g979;
+			float dotResult61_g992 = dot( temp_output_42_0_g992 , temp_output_24_0_g992 );
+			float dotResult62_g992 = dot( temp_output_4_0_g992 , temp_output_24_0_g992 );
+			float dotResult60_g992 = dot( temp_output_43_0_g992 , temp_output_24_0_g992 );
+			float3 normalizeResult33_g992 = normalize( ( ( dotResult61_g992 * temp_output_85_23_g992 ) + ( dotResult62_g992 * temp_output_85_0_g992 ) + ( dotResult60_g992 * temp_output_85_22_g992 ) ) );
+			float3 lerpResult233_g979 = lerp( lerpResult227_g979 , normalizeResult33_g992 , temp_output_222_0_g979);
 			#ifdef _CLIP_DICK_ON
 				float3 staticSwitch236_g979 = lerpResult227_g979;
 			#else
@@ -351,7 +351,7 @@ Shader "PenetrationTech/Standard/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-149;164;1675;699;-5908.111;2006.958;2.675143;True;False
+149;164;1675;699;-5908.111;1998.933;2.675143;True;False
 Node;AmplifyShaderEditor.SamplerNode;100;7108.375,-1682.497;Inherit;True;Property;_MainTex;MainTex;23;0;Create;True;0;0;0;False;0;False;-1;None;a7fd0f05ef2dbbd43ac64dff86a86708;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;102;7105.585,-1265.636;Inherit;True;Property;_MaskMap;MaskMap;24;0;Create;True;0;0;0;False;0;False;-1;None;b6ba1a4a299c969449e3ec084c188366;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;101;7104.496,-1467.525;Inherit;True;Property;_BumpMap;BumpMap;25;0;Create;True;0;0;0;False;0;False;-1;None;22df23dcaaa4c974888f14b0f36d484f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
@@ -365,4 +365,4 @@ WireConnection;552;10;676;251
 WireConnection;552;11;676;0
 WireConnection;552;12;676;252
 ASEEND*/
-//CHKSM=808A67D4BFB741CFD22DEEBD1FC72888F2E49A53
+//CHKSM=A7FE788197DB9CED039EE77E8AF5EE2EADAE77FC
