@@ -373,7 +373,7 @@ namespace PenetrationTech {
                 }
                 if (shapeType == PenetratorShape.ShapeType.Cum) {
                     float fullLength = d.GetLocalLength();
-                    weight = d.cumActive * Easing.Circular.Out(1f-Mathf.Clamp01(Mathf.Abs(length - (d.cumProgress * fullLength)) / (fullLength * d.bulgePercentage)));
+                    weight = d.cumActive * Easing.Circular.Out(1f-Mathf.Clamp01(Mathf.Abs(length - ((d.cumProgress+girth.keys[0].time) * fullLength)) / (fullLength * d.bulgePercentage)));
                 }
                 return weight;
             }
