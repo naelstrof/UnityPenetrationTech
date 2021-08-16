@@ -309,6 +309,8 @@ namespace PenetrationTech
             public bool triggeredEvent = false;
             [HideInInspector]
             public List<float> girths = new List<float>();
+            [HideInInspector]
+            public float lastTriggerAmount = 0f;
         }
 
         public bool canAllTheWayThrough {
@@ -577,8 +579,11 @@ namespace PenetrationTech
                     totalGirth = Mathf.Min(totalGirth,shape.holeDiameter*transform.lossyScale.x);
                 }
                 float triggerAmount = (totalGirth / (shape.holeDiameter*transform.lossyScale.x));
-                foreach(var mesh in holeMeshes) {
-                    mesh.SetBlendShapeWeight(shape.expandBlendshape[mesh.sharedMesh], triggerAmount*100f);
+                if (triggerAmount != shape.lastTriggerAmount) {
+                    foreach(var mesh in holeMeshes) {
+                        mesh.SetBlendShapeWeight(shape.expandBlendshape[mesh.sharedMesh], triggerAmount*100f);
+                    }
+                    shape.lastTriggerAmount = triggerAmount;
                 }
             }
         }
