@@ -38,7 +38,6 @@ Shader "PenetrationTech/Standard/Penetrator"
 		Tags{ "RenderType" = "TransparentCutout"  "Queue" = "Geometry+0" }
 		Cull Back
 		CGPROGRAM
-		#include "Assets/PenetrationTech/Shaders/BezierUpFunction.txt"
 		#pragma target 3.0
 		#pragma shader_feature_local _DEFORM_BALLS_ON
 		#pragma multi_compile_local __ _CLIP_DICK_ON
@@ -161,13 +160,16 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float3 temp_output_4_0_g1013 = temp_output_10_0_g1010;
 			float3 temp_output_7_0_g1012 = ( ( 3.0 * temp_output_8_0_g1013 * temp_output_8_0_g1013 * ( temp_output_3_0_g1013 - temp_output_8_0_g1010 ) ) + ( 6.0 * temp_output_8_0_g1013 * temp_output_1_0_g1013 * ( temp_output_4_0_g1013 - temp_output_3_0_g1013 ) ) + ( 3.0 * temp_output_1_0_g1013 * temp_output_1_0_g1013 * ( temp_output_11_0_g1010 - temp_output_4_0_g1013 ) ) );
 			float3 normalizeResult27_g1014 = normalize( temp_output_7_0_g1012 );
-			float3 bezierDerivitive32_g1012 = temp_output_7_0_g1012;
-			float3 temp_output_3_0_g1010 = DickForward18_g979;
-			float3 forward32_g1012 = temp_output_3_0_g1010;
 			float3 temp_output_4_0_g1010 = DickUp172_g979;
-			float3 up32_g1012 = temp_output_4_0_g1010;
-			float3 localBezierUpFunction32_g1012 = BezierUpFunction( bezierDerivitive32_g1012 , forward32_g1012 , up32_g1012 );
-			float3 normalizeResult31_g1014 = normalize( localBezierUpFunction32_g1012 );
+			float3 temp_output_10_0_g1012 = temp_output_4_0_g1010;
+			float3 temp_output_3_0_g1010 = DickForward18_g979;
+			float3 temp_output_13_0_g1012 = temp_output_3_0_g1010;
+			float dotResult33_g1012 = dot( temp_output_7_0_g1012 , temp_output_10_0_g1012 );
+			float3 lerpResult34_g1012 = lerp( temp_output_10_0_g1012 , -temp_output_13_0_g1012 , saturate( dotResult33_g1012 ));
+			float dotResult37_g1012 = dot( temp_output_7_0_g1012 , -temp_output_10_0_g1012 );
+			float3 lerpResult40_g1012 = lerp( lerpResult34_g1012 , temp_output_13_0_g1012 , saturate( dotResult37_g1012 ));
+			float3 normalizeResult42_g1012 = normalize( lerpResult40_g1012 );
+			float3 normalizeResult31_g1014 = normalize( normalizeResult42_g1012 );
 			float3 normalizeResult29_g1014 = normalize( cross( normalizeResult27_g1014 , normalizeResult31_g1014 ) );
 			float3 temp_output_65_22_g1010 = normalizeResult29_g1014;
 			float3 temp_output_2_0_g1010 = ( originalPosition126_g979 - DickOrigin16_g979 );
@@ -205,13 +207,16 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float3 temp_output_4_0_g1023 = temp_output_10_0_g1020;
 			float3 temp_output_7_0_g1022 = ( ( 3.0 * temp_output_8_0_g1023 * temp_output_8_0_g1023 * ( temp_output_3_0_g1023 - temp_output_8_0_g1020 ) ) + ( 6.0 * temp_output_8_0_g1023 * temp_output_1_0_g1023 * ( temp_output_4_0_g1023 - temp_output_3_0_g1023 ) ) + ( 3.0 * temp_output_1_0_g1023 * temp_output_1_0_g1023 * ( temp_output_11_0_g1020 - temp_output_4_0_g1023 ) ) );
 			float3 normalizeResult27_g1024 = normalize( temp_output_7_0_g1022 );
-			float3 bezierDerivitive32_g1022 = temp_output_7_0_g1022;
-			float3 temp_output_3_0_g1020 = DickForward18_g979;
-			float3 forward32_g1022 = temp_output_3_0_g1020;
 			float3 temp_output_4_0_g1020 = DickUp172_g979;
-			float3 up32_g1022 = temp_output_4_0_g1020;
-			float3 localBezierUpFunction32_g1022 = BezierUpFunction( bezierDerivitive32_g1022 , forward32_g1022 , up32_g1022 );
-			float3 normalizeResult31_g1024 = normalize( localBezierUpFunction32_g1022 );
+			float3 temp_output_10_0_g1022 = temp_output_4_0_g1020;
+			float3 temp_output_3_0_g1020 = DickForward18_g979;
+			float3 temp_output_13_0_g1022 = temp_output_3_0_g1020;
+			float dotResult33_g1022 = dot( temp_output_7_0_g1022 , temp_output_10_0_g1022 );
+			float3 lerpResult34_g1022 = lerp( temp_output_10_0_g1022 , -temp_output_13_0_g1022 , saturate( dotResult33_g1022 ));
+			float dotResult37_g1022 = dot( temp_output_7_0_g1022 , -temp_output_10_0_g1022 );
+			float3 lerpResult40_g1022 = lerp( lerpResult34_g1022 , temp_output_13_0_g1022 , saturate( dotResult37_g1022 ));
+			float3 normalizeResult42_g1022 = normalize( lerpResult40_g1022 );
+			float3 normalizeResult31_g1024 = normalize( normalizeResult42_g1022 );
 			float3 normalizeResult29_g1024 = normalize( cross( normalizeResult27_g1024 , normalizeResult31_g1024 ) );
 			float3 temp_output_65_22_g1020 = normalizeResult29_g1024;
 			float3 temp_output_2_0_g1020 = ( originalPosition126_g979 - DickOrigin16_g979 );
@@ -234,11 +239,14 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float3 temp_output_85_23_g1015 = normalizeResult27_g1018;
 			float3 temp_output_4_0_g1015 = DickUp172_g979;
 			float dotResult54_g1015 = dot( temp_output_4_0_g1015 , temp_output_52_0_g1015 );
-			float3 bezierDerivitive32_g1016 = temp_output_7_0_g1016;
-			float3 forward32_g1016 = temp_output_42_0_g1015;
-			float3 up32_g1016 = temp_output_4_0_g1015;
-			float3 localBezierUpFunction32_g1016 = BezierUpFunction( bezierDerivitive32_g1016 , forward32_g1016 , up32_g1016 );
-			float3 normalizeResult31_g1018 = normalize( localBezierUpFunction32_g1016 );
+			float3 temp_output_10_0_g1016 = temp_output_4_0_g1015;
+			float3 temp_output_13_0_g1016 = temp_output_42_0_g1015;
+			float dotResult33_g1016 = dot( temp_output_7_0_g1016 , temp_output_10_0_g1016 );
+			float3 lerpResult34_g1016 = lerp( temp_output_10_0_g1016 , -temp_output_13_0_g1016 , saturate( dotResult33_g1016 ));
+			float dotResult37_g1016 = dot( temp_output_7_0_g1016 , -temp_output_10_0_g1016 );
+			float3 lerpResult40_g1016 = lerp( lerpResult34_g1016 , temp_output_13_0_g1016 , saturate( dotResult37_g1016 ));
+			float3 normalizeResult42_g1016 = normalize( lerpResult40_g1016 );
+			float3 normalizeResult31_g1018 = normalize( normalizeResult42_g1016 );
 			float3 normalizeResult29_g1018 = normalize( cross( normalizeResult27_g1018 , normalizeResult31_g1018 ) );
 			float3 temp_output_85_0_g1015 = cross( normalizeResult29_g1018 , normalizeResult27_g1018 );
 			float3 temp_output_43_0_g1015 = DickRight184_g979;
@@ -323,7 +331,7 @@ Shader "PenetrationTech/Standard/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-136;209;1675;668;-5908.111;1925.368;2.675143;True;False
+7;183;1675;656;-5908.111;1901.292;2.675143;True;False
 Node;AmplifyShaderEditor.SamplerNode;100;7108.375,-1682.497;Inherit;True;Property;_MainTex;MainTex;23;0;Create;True;0;0;0;False;0;False;-1;None;a7fd0f05ef2dbbd43ac64dff86a86708;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;102;7105.585,-1265.636;Inherit;True;Property;_MaskMap;MaskMap;24;0;Create;True;0;0;0;False;0;False;-1;None;b6ba1a4a299c969449e3ec084c188366;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;101;7104.496,-1467.525;Inherit;True;Property;_BumpMap;BumpMap;25;0;Create;True;0;0;0;False;0;False;-1;None;22df23dcaaa4c974888f14b0f36d484f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
@@ -337,4 +345,4 @@ WireConnection;552;10;676;251
 WireConnection;552;11;676;0
 WireConnection;552;12;676;252
 ASEEND*/
-//CHKSM=576A6C9B21E475267DCAE0ED3E8DAFC983084F8C
+//CHKSM=E88E8F68CAA47FC91377C6CED8B0FBD19A305964
