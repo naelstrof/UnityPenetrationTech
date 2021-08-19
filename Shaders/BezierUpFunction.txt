@@ -1,6 +1,0 @@
-float3 BezierUpFunction(float3 bezierDerivitive, float3 forward, float3 up) {
-    float bezierUpness = dot( bezierDerivitive , up);
-    float3 bezierUp = lerp( up , -forward , saturate( bezierUpness ));
-    float bezierDownness = dot( bezierDerivitive , -up );
-    return normalize( lerp( bezierUp , forward , saturate( bezierDownness )) );
-}
