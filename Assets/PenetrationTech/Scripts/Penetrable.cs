@@ -464,7 +464,7 @@ namespace PenetrationTech
             up = Vector3.Cross(forward, right);
             Vector3.OrthoNormalize(ref forward, ref right, ref up);
         }
-        void Update() {
+        void LateUpdate() {
             if (path.Count < 4) {
                 return;
             }
