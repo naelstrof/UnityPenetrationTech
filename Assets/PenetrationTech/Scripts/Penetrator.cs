@@ -953,8 +953,7 @@ namespace PenetrationTech {
                 holeTarget.RemovePenetrator(this);
             }
         }
-
-        void Update() {
+        void LateUpdate() {
             if (Application.isEditor && !Application.isPlaying) {
                 SetDeforms();
                 return;
@@ -978,8 +977,6 @@ namespace PenetrationTech {
                 PushTowards(GetWorldRootPosition());
             }
             SetDeforms();
-        }
-        void LateUpdate() {
             InitiateEndMove();
         }
         //void FixedUpdate() {
