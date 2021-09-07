@@ -267,10 +267,8 @@ namespace PenetrationTech {
             set {
                 foreach (var renderer in deformationTargets) {
                     if (renderer == null) { continue; }
-                    Material[] materials = renderer.sharedMaterials;
-                    if (Application.isPlaying) {
-                        materials = renderer.materials;
-                    }
+                    if (!Application.isPlaying) { continue; }
+                    Material[] materials = renderer.materials;
                     foreach (var material in materials) {
                         if (value) {
                             material.EnableKeyword("_INVISIBLE_WHEN_INSIDE_ON");
@@ -285,10 +283,8 @@ namespace PenetrationTech {
             set {
                 foreach (var renderer in deformationTargets) {
                     if (renderer == null) { continue; }
-                    Material[] materials = renderer.sharedMaterials;
-                    if (Application.isPlaying) {
-                        materials = renderer.materials;
-                    }
+                    if (!Application.isPlaying) { continue; }
+                    Material[] materials = renderer.materials;
                     foreach (var material in materials) {
                         if (value) {
                             material.DisableKeyword("_CLIP_DICK_ON");
@@ -453,10 +449,8 @@ namespace PenetrationTech {
                 if (renderer == null) {
                     continue;
                 }
-                Material[] materials = renderer.sharedMaterials;
-                if (Application.isPlaying) {
-                    materials = renderer.materials;
-                }
+                if (!Application.isPlaying) { continue; }
+                Material[] materials = renderer.materials;
                 foreach (var material in materials) {
                     material.SetFloat("_PenetrationDepth", -1f);
                     material.SetVector("_OrificeWorldPosition", p0);
@@ -946,7 +940,15 @@ namespace PenetrationTech {
         }
         public void OnValidate() {
             GenerateBlendshapeDict();
-            SetDeforms();
+            #if UNITY_EDITOR
+            var objects = Selection.gameObjects;
+            for(int i=0;i<objects.Length;i++) {
+                if (objects[i] == gameObject) {
+                    SetDeforms();
+                    break;
+                }
+            }
+            #endif
         }
         void OnDisable() {
             if (holeTarget != null && holeTarget.ContainsPenetrator(this)) {
