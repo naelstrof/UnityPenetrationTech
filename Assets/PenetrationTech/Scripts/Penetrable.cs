@@ -300,11 +300,11 @@ namespace PenetrationTech
             [HideInInspector]
             public float pullPositionOffset;
             [HideInInspector]
-            public Dictionary<Mesh, int> expandBlendshape = new Dictionary<Mesh, int>();
+            public Dictionary<SkinnedMeshRenderer, int> expandBlendshape = new Dictionary<SkinnedMeshRenderer, int>();
             [HideInInspector]
-            public Dictionary<Mesh, int> pushBlendshape = new Dictionary<Mesh, int>();
+            public Dictionary<SkinnedMeshRenderer, int> pushBlendshape = new Dictionary<SkinnedMeshRenderer, int>();
             [HideInInspector]
-            public Dictionary<Mesh, int> pullBlendshape = new Dictionary<Mesh, int>();
+            public Dictionary<SkinnedMeshRenderer, int> pullBlendshape = new Dictionary<SkinnedMeshRenderer, int>();
             [HideInInspector]
             public bool triggeredEvent = false;
             [HideInInspector]
@@ -408,9 +408,9 @@ namespace PenetrationTech
             // Cache the blendshape IDs, so we don't have to do a lookup constantly.
             foreach(PenetrableShape shape in shapes) {
                 foreach (SkinnedMeshRenderer renderer in holeMeshes) {
-                    shape.expandBlendshape[renderer.sharedMesh] = renderer.sharedMesh.GetBlendShapeIndex(shape.expandBlendshapeName);
-                    shape.pushBlendshape[renderer.sharedMesh] = renderer.sharedMesh.GetBlendShapeIndex(shape.pushBlendshapeName);
-                    shape.pullBlendshape[renderer.sharedMesh] = renderer.sharedMesh.GetBlendShapeIndex(shape.pullBlendshapeName);
+                    shape.expandBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.expandBlendshapeName);
+                    shape.pushBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pushBlendshapeName);
+                    shape.pullBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pullBlendshapeName);
                 }
             }
         }
@@ -578,7 +578,7 @@ namespace PenetrationTech
                 }
                 float triggerAmount = (totalGirth / (shape.holeDiameter*transform.lossyScale.x));
                 foreach(var mesh in holeMeshes) {
-                    mesh.SetBlendShapeWeight(shape.expandBlendshape[mesh.sharedMesh], triggerAmount*100f);
+                    mesh.SetBlendShapeWeight(shape.expandBlendshape[mesh], triggerAmount*100f);
                 }
             }
         }
