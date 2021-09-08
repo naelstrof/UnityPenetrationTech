@@ -124,6 +124,8 @@ namespace PenetrationTech {
 
     [RequireComponent(typeof(Rigidbody))]
     public class Penetrator : MonoBehaviour {
+        public UnityEngine.Audio.AudioMixerGroup soundEffectGroup;
+
         [Header("General Penetrator Settings")]
         [Tooltip("The \"root\" object that is the highest-most transform that would still be a part of this penetratable. This would be the character, or onahole root transform. It's used in circular-dependency checks, as well as collision phasing.")]
         public Transform root;
@@ -427,10 +429,12 @@ namespace PenetrationTech {
             }
             while (slimySource == null && Application.isPlaying) {
                 slimySource = gameObject.AddComponent<AudioSource>();
+                slimySource.outputAudioMixerGroup = soundEffectGroup;
                 yield return null;
             }
             while (plapSource == null && Application.isPlaying) {
                 plapSource = gameObject.AddComponent<AudioSource>();
+                plapSource.outputAudioMixerGroup = soundEffectGroup;
                 yield return null;
             }
             if (slimySource != null) {
