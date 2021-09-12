@@ -273,9 +273,9 @@ namespace PenetrationTech {
                     Material[] materials = renderer.materials;
                     foreach (var material in materials) {
                         if (value) {
-                            material.EnableKeyword("_INVISIBLE_WHEN_INSIDE_ON");
+                            material.SetFloat("_InvisibleWhenInside", 1f);
                         } else {
-                            material.DisableKeyword("_INVISIBLE_WHEN_INSIDE_ON");
+                            material.SetFloat("_InvisibleWhenInside", 0f);
                         }
                     }
                 }
@@ -289,9 +289,9 @@ namespace PenetrationTech {
                     Material[] materials = renderer.materials;
                     foreach (var material in materials) {
                         if (value) {
-                            material.DisableKeyword("_CLIP_DICK_ON");
+                            material.SetFloat("_ClipDick", 0f);
                         } else {
-                            material.EnableKeyword("_CLIP_DICK_ON");
+                            material.SetFloat("_ClipDick", 1f);
                         }
                     }
                 }
@@ -806,9 +806,9 @@ namespace PenetrationTech {
                     }
                     foreach (var material in materials) {
                         if (shapes.Count < 4) {
-                            material.EnableKeyword("_NOBLENDSHAPES_ON");
+                            material.SetFloat("_NoBlendshapes", 1f);
                         } else {
-                            material.DisableKeyword("_NOBLENDSHAPES_ON");
+                            material.SetFloat("_NoBlendshapes", 0f);
                         }
                         material.SetVector("_PenetratorOrigin", Vector3.Scale(renderer.rootBone.worldToLocalMatrix.MultiplyPoint(dickRoot.TransformPoint(GetLocalRootPosition())), renderer.rootBone.lossyScale));
                         material.SetVector("_PenetratorForward", Vector3.Normalize(renderer.rootBone.worldToLocalMatrix.MultiplyVector(dickRoot.TransformDirection(dickForward))));
