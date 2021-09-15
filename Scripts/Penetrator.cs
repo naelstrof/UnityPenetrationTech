@@ -243,7 +243,7 @@ namespace PenetrationTech {
                     return;
                 }
                 lastTrigger = Time.timeSinceLevelLoad;
-                if (triggerClips.Count > 0) {
+                if (triggerClips.Count > 0 && source != null && triggerClips.Count > 0) {
                     source.pitch = Random.Range(0.7f,1.3f);
                     source.PlayOneShot(triggerClips[Random.Range(0,triggerClips.Count)], soundTriggerVolume);
                 }
@@ -960,6 +960,9 @@ namespace PenetrationTech {
             }
         }
         void LateUpdate() {
+            if (!isActiveAndEnabled) {
+                return;
+            }
             if (Application.isEditor && !Application.isPlaying) {
                 SetDeforms();
                 return;
@@ -1090,6 +1093,9 @@ namespace PenetrationTech {
         }
         // The function called at the very end of all movement operations. (could've been pushed in, then pushed back for clipping, so we only want one move event in the end.)
         private void InitiateEndMove() {
+            if (!isActiveAndEnabled) {
+                return;
+            }
             float diff = (penetrationDepth01 - lastPenetrationDepth01);
             float min = Mathf.Min(penetrationDepth01, lastPenetrationDepth01);
             float max = Mathf.Max(penetrationDepth01, lastPenetrationDepth01);
