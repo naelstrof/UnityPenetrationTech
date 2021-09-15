@@ -131,6 +131,7 @@ MonoBehaviour:
     right: {x: 0, y: 0, z: 0}
     up: {x: 0, y: 0, z: 0}
     forward: {x: 0, y: 0, z: 0}
+    shouldRemoveJoint: 0
     joint: {fileID: 0}
     startRotation: {x: 0, y: 0, z: 0, w: 0}
   - attachedTransform: {fileID: 168158749373385375}
@@ -139,6 +140,7 @@ MonoBehaviour:
     right: {x: 0, y: 0, z: 0}
     up: {x: 0, y: 0, z: 0}
     forward: {x: 0, y: 0, z: 0}
+    shouldRemoveJoint: 0
     joint: {fileID: 0}
     startRotation: {x: 0, y: 0, z: 0, w: 0}
   - attachedTransform: {fileID: 168158749373385375}
@@ -147,6 +149,7 @@ MonoBehaviour:
     right: {x: 0, y: 0, z: 0}
     up: {x: 0, y: 0, z: 0}
     forward: {x: 0, y: 0, z: 0}
+    shouldRemoveJoint: 0
     joint: {fileID: 0}
     startRotation: {x: 0, y: 0, z: 0, w: 0}
   - attachedTransform: {fileID: 168158749373385375}
@@ -155,6 +158,7 @@ MonoBehaviour:
     right: {x: 0, y: 0, z: 0}
     up: {x: 0, y: 0, z: 0}
     forward: {x: 0, y: 0, z: 0}
+    shouldRemoveJoint: 0
     joint: {fileID: 0}
     startRotation: {x: 0, y: 0, z: 0, w: 0}
   holeMeshes:
