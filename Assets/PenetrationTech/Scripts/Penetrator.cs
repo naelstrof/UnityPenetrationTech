@@ -175,8 +175,8 @@ namespace PenetrationTech {
         public float squishPullAmount = 0f;
 
         [Tooltip("How much friction is involved in penetration, this affects dick squish and the theortical speed at which one can fuck.")]
-        [Range(0.001f,0.1f)]
-        public float slideFriction = 0.02f;
+        [Range(0f,0.5f)]
+        public float slideFriction = 0.08f;
 
         [Range(-1f,5f)]
         [Tooltip("If autoPenetrate is turned off, this variable must be manually driven to make the dick go in and out. Otherwise it's automatically controlled.")]
@@ -504,6 +504,13 @@ namespace PenetrationTech {
             return rootPosition;
         }
 
+        public virtual float GetBaseLength() {
+            if (defaultShape == null || defaultShape.girth.length == 0) {
+                return 1f;
+            }
+            float baseLength = defaultShape.girth[defaultShape.girth.length-1].time - defaultShape.girth[0].time;
+            return baseLength * dickRoot.TransformVector(dickForward).magnitude;
+        }
         public virtual float GetLength() {
             return GetLocalLength() * dickRoot.TransformVector(dickForward).magnitude;
         }
@@ -1010,36 +1017,32 @@ namespace PenetrationTech {
             // If we cannot overpenetrate, we use a method that simply uses the distance to the hole to determine how deep we are.
             if (!canOverpenetrate) {
                 float dist = Vector3.Distance(worldPosition, holeTarget.GetPoint(0,backwards));
-                float diff = ((1f-(dist/GetLength()))-penetrationDepth01);
+                float diff = (1f-(dist/GetBaseLength()))-penetrationDepth01;
                 // Start squishing or pulling based purely on the distance to the crotch
-                squishPullAmount = Mathf.MoveTowards(squishPullAmount, 0f, Time.deltaTime);
-                squishPullAmount -= diff*Time.deltaTime*(1f/slideFriction);
-                squishPullAmount = Mathf.Clamp(squishPullAmount, -1f, 1f);
-                // If we're fully squished or pulled, we finally start sliding.
-                if (Mathf.Abs(squishPullAmount) == 1f) {
-                    float move = diff*Time.deltaTime*8f;
-                    // Calculate the tangents, which is used for knot forces at both the entrance and exit shape.
-                    float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
-                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
-                    move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
-                    penetrationDepth01 = Mathf.Clamp(penetrationDepth01+move, -1f, 1f);
-                }
+                squishPullAmount = Mathf.Clamp(diff/(slideFriction*length), -1f, 1f);
+
+                float moveMulti = squishPullAmount*squishPullAmount;
+                float move = diff*Time.deltaTime*8f*moveMulti;
+                // Calculate the tangents, which is used for knot forces at both the entrance and exit shape.
+                float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
+                girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
+                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
+                penetrationDepth01 = Mathf.Clamp(penetrationDepth01+move, -1f, 1f);
             // Otherwise, we use a moving plane that follows the normal of the orifice path, and use the plane distance to the desired point to determine which way we should go.
             } else {
-                float orificeDepth01 = ((penetrationDepth01-1f))*GetLength()/holeTarget.orificeLength;
+                float orificeDepth01 = ((penetrationDepth01-1f))*GetBaseLength()/holeTarget.orificeLength;
                 Vector3 holePos = holeTarget.GetPoint(orificeDepth01, backwards);
                 Vector3 holeTangent = holeTarget.GetTangent(Mathf.Clamp01(orificeDepth01), backwards).normalized;
                 Vector3 holeToMouse = worldPosition - holePos;
                 float squishMove = Vector3.Dot(holeToMouse, holeTangent);
-                squishPullAmount -= squishMove*Time.deltaTime*(1f/slideFriction);
-                squishPullAmount = Mathf.Clamp(squishPullAmount, -1f, 1f);
-                if (Mathf.Abs(squishPullAmount) == 1f) {
-                    float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*15f;
-                    float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
-                    girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
-                    move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
-                    penetrationDepth01 = Mathf.Max(penetrationDepth01+move, -1f);
-                }
+                squishPullAmount = Mathf.Clamp(squishMove/(slideFriction*length), -1f, 1f);
+
+                float moveMulti = squishPullAmount*squishPullAmount;
+                float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*8f*moveMulti;
+                float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
+                girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
+                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
+                penetrationDepth01 = Mathf.Max(penetrationDepth01+move, -1f);
             }
             // Prevent the dick from penetrating futher than intended.
             if (!holeTarget.canAllTheWayThrough) {

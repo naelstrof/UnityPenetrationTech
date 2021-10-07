@@ -124,6 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16a8ad35fdacd844981bbed64757f6dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  soundEffectGroup: {fileID: 0}
   root: {fileID: 2959209534099850874}
   dickLayer: 0
   holeLayer: 0
@@ -150,8 +151,8 @@ MonoBehaviour:
   cumActive: 0
   cumProgress: 0
   squishPullAmount: 0
-  slideFriction: 0.02
-  internalPenetrationDepth01: -1
+  slideFriction: 0.05
+  penetrationDepth01: -1
   depthEvents:
   - soundTriggerVolume: 1
     triggerCooldown: 0.1
@@ -173,6 +174,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnEndPenetrate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCumEmit:
     m_PersistentCalls:
       m_Calls: []
   OnMove:
