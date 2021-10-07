@@ -371,7 +371,7 @@ namespace PenetrationTech {
                 }
                 if (shapeType == PenetratorShape.ShapeType.Cum) {
                     float fullLength = d.GetLocalLength();
-                    weight = d.cumActive * Easing.Circular.Out(1f-Mathf.Clamp01(Mathf.Abs(length - ((d.cumProgress+girth.keys[0].time) * fullLength)) / (fullLength * d.bulgePercentage)));
+                    weight = d.cumActive * Easing.Circular.Out(1f-Mathf.Clamp01(Mathf.Abs(length - ((d.cumProgress+Vector3.Dot(d.defaultShape.localPenetratorRoot, d.dickForward)) * fullLength)) / (fullLength * d.bulgePercentage)));
                 }
                 return weight;
             }
@@ -508,7 +508,7 @@ namespace PenetrationTech {
             if (defaultShape == null || defaultShape.girth.length == 0) {
                 return 1f;
             }
-            float baseLength = defaultShape.girth[defaultShape.girth.length-1].time - defaultShape.girth[0].time;
+            float baseLength = (defaultShape.girth[defaultShape.girth.length-1].time - Vector3.Dot(defaultShape.localPenetratorRoot, dickForward));
             return baseLength * dickRoot.TransformVector(dickForward).magnitude;
         }
         public virtual float GetLength() {
@@ -518,14 +518,14 @@ namespace PenetrationTech {
             if (defaultShape == null || defaultShape.girth.length == 0) {
                 return 1f;
             }
-            float baseLength = defaultShape.girth[defaultShape.girth.length-1].time - defaultShape.girth[0].time;
+            float baseLength = defaultShape.girth[defaultShape.girth.length-1].time - Vector3.Dot(defaultShape.localPenetratorRoot, dickForward);
             float length = baseLength;
             foreach(PenetratorShape shape in shapes) {
                 if (shape.girth == null || shape.girth.length <= 0) {
                     continue;
                 }
                 float weight = shape.GetWeight(this);
-                float shapeLength = shape.girth[shape.girth.length - 1].time - shape.girth[0].time;
+                float shapeLength = (shape.girth[shape.girth.length - 1].time - Vector3.Dot(shape.localPenetratorRoot, dickForward));
                 length += (shapeLength - baseLength) * weight;
             }
             return length;
@@ -536,11 +536,11 @@ namespace PenetrationTech {
             }
             float fullLength = GetLocalLength();
             float localLength = (1f-penetrationDepth01) * fullLength;
-            float baseTangent = defaultShape.girth.Differentiate(localLength+defaultShape.girth[0].time);
+            float baseTangent = defaultShape.girth.Differentiate(localLength+Vector3.Dot(defaultShape.localPenetratorRoot, dickForward));
             float tangent = baseTangent;
             foreach(PenetratorShape shape in shapes) {
-                float weight = shape.GetWeight(this, localLength+shape.girth[0].time);
-                tangent += (shape.girth.Differentiate(localLength+shape.girth[0].time) - baseTangent) * weight;
+                float weight = shape.GetWeight(this, localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward));
+                tangent += (shape.girth.Differentiate(localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward)) - baseTangent) * weight;
             }
             return tangent;
         }
@@ -548,14 +548,14 @@ namespace PenetrationTech {
         public virtual float GetWorldGirth(float penetrationDepth01) {
             float fullLength = GetLocalLength();
             float localLength = (1f-penetrationDepth01) * fullLength;
-            float baseGirth = defaultShape.girth.Evaluate(localLength+defaultShape.girth[0].time);
+            float baseGirth = defaultShape.girth.Evaluate(localLength+Vector3.Dot(defaultShape.localPenetratorRoot, dickForward));
             float girth = baseGirth;
             foreach(PenetratorShape shape in shapes) {
                 if (shape.girth == null || shape.girth.length <= 0) {
                     continue;
                 }
-                float weight = shape.GetWeight(this, localLength+shape.girth[0].time);
-                girth += (shape.girth.Evaluate(localLength+shape.girth[0].time) - baseGirth) * weight;
+                float weight = shape.GetWeight(this, localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward));
+                girth += (shape.girth.Evaluate(localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward)) - baseGirth) * weight;
             }
             return girth*dickRoot.TransformVector(dickUp).magnitude;
         }
@@ -568,16 +568,16 @@ namespace PenetrationTech {
             }
             float fullLength = GetLocalLength();
             float localLength = (1f-penetrationDepth01) * fullLength;
-            Vector3 baseOffset = dickRight * defaultShape.xOffset.Evaluate(localLength+defaultShape.xOffset[0].time) +
-                                dickUp * defaultShape.yOffset.Evaluate(localLength+defaultShape.yOffset[0].time);
+            Vector3 baseOffset = dickRight * defaultShape.xOffset.Evaluate(localLength+Vector3.Dot(defaultShape.localPenetratorRoot, dickForward)) +
+                                dickUp * defaultShape.yOffset.Evaluate(localLength+Vector3.Dot(defaultShape.localPenetratorRoot, dickForward));
             Vector3 offset = baseOffset;
             foreach(PenetratorShape shape in shapes) {
                 if (shape.xOffset == null || shape.xOffset.length <= 0) {
                     continue;
                 }
-                float weight = shape.GetWeight(this, localLength+shape.xOffset[0].time);
-                Vector3 evalOffset = dickRight * shape.xOffset.Evaluate(localLength+shape.xOffset[0].time) +
-                                    dickUp * shape.yOffset.Evaluate(localLength+shape.yOffset[0].time);
+                float weight = shape.GetWeight(this, localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward));
+                Vector3 evalOffset = dickRight * shape.xOffset.Evaluate(localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward)) +
+                                    dickUp * shape.yOffset.Evaluate(localLength+Vector3.Dot(shape.localPenetratorRoot, dickForward));
                 offset += (evalOffset - baseOffset) * weight;
             }
             return offset;
