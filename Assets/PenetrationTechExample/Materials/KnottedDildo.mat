@@ -68,10 +68,12 @@ Material:
     - _BulgePercentage: 0.1
     - _BumpScale: 1
     - _CLIP_DICK: 0
+    - _ClipDick: 0
     - _CumActive: 0
     - _CumProgress: 0
     - _Cutoff: 0.5
     - _DEFORM_BALLS: 1
+    - _DeformBalls: 0
     - _DetailNormalMapScale: 1
     - _DickLength: 0.52327734
     - _DstBlend: 0
@@ -79,19 +81,21 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _INVISIBLE_WHEN_INSIDE: 0
+    - _InvisibleWhenInside: 0
     - _Metallic: 0
     - _Mode: 0
     - _NOBLENDSHAPES: 0
+    - _NoBlendshapes: 0
     - _OcclusionStrength: 1
     - _OrifaceLength: 1
-    - _OrificeLength: 1
+    - _OrificeLength: 0.55888176
     - _Parallax: 0.02
     - _PenetrationDepth: -1
-    - _PenetratorBlendshapeMultiplier: 1.2645653
+    - _PenetratorBlendshapeMultiplier: 2.2577765
     - _PenetratorBulgePercentage: 0.1
     - _PenetratorCumActive: 0
     - _PenetratorCumProgress: 0
-    - _PenetratorLength: 0.52327734
+    - _PenetratorLength: 0.810022
     - _PenetratorSquishPullAmount: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -102,6 +106,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DeformOrigin: {r: -0.0000006888933, g: 0.02680413, b: 0.000000676036, a: 0}
     - _DickForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
     - _DickOrigin: {r: -0.0000006903836, g: 0.026804144, b: 0.0000006770761, a: 0}
     - _DickRight: {r: 1, g: -0.000000008648601, b: -0.00000008334374, a: 0}
@@ -113,13 +118,13 @@ Material:
     - _OrifaceOutWorldPosition3: {r: -0.0015807097, g: -0.991149, b: 0.0000000036077863, a: 0}
     - _OrifaceWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
     - _OrifaceWorldPosition: {r: -0.0015929719, g: 0.008848807, b: 0.0000000025250497, a: 0}
-    - _OrificeOutWorldPosition1: {r: -0.0015929719, g: -0.3211512, b: 0.0000000025250497, a: 0}
-    - _OrificeOutWorldPosition2: {r: -0.0015807097, g: -0.65114903, b: 0.0000000036077863, a: 0}
-    - _OrificeOutWorldPosition3: {r: -0.0015807097, g: -0.991149, b: 0.0000000036077863, a: 0}
+    - _OrificeOutWorldPosition1: {r: -0.0015918921, g: -0.32115152, b: 0.0000000022763633, a: 0}
+    - _OrificeOutWorldPosition2: {r: -0.0015796303, g: -0.65114933, b: 0.0000000033590613, a: 0}
+    - _OrificeOutWorldPosition3: {r: -0.0015796303, g: -0.9911493, b: 0.0000000033590613, a: 0}
     - _OrificeWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
-    - _OrificeWorldPosition: {r: -0.0015929719, g: 0.008848807, b: 0.0000000025250497, a: 0}
-    - _PenetratorForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
-    - _PenetratorOrigin: {r: -0.000000026220915, g: -0.0000001190531, b: 0.000000721949, a: 0}
-    - _PenetratorRight: {r: 1, g: -0.000000008648601, b: -0.00000008334374, a: 0}
-    - _PenetratorUp: {r: -0.00000007563644, g: -0.00000027305444, b: 1, a: 0}
+    - _OrificeWorldPosition: {r: -0.0015918921, g: 0.00884849, b: 0.0000000022763633, a: 0}
+    - _PenetratorForward: {r: -0.042226467, g: 0.07983277, b: 0.9959135, a: 0}
+    - _PenetratorOrigin: {r: -0.008181606, g: -0.05722975, b: 0.23608437, a: 0}
+    - _PenetratorRight: {r: 0.99854076, g: 0.0369581, b: 0.03937532, a: 0}
+    - _PenetratorUp: {r: 0.03366355, g: -0.99612296, b: 0.0812768, a: 0}
   m_BuildTextureStacks: []

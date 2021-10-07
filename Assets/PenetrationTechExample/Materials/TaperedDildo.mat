@@ -68,10 +68,12 @@ Material:
     - _BulgePercentage: 0.1
     - _BumpScale: 1
     - _CLIP_DICK: 0
+    - _ClipDick: 0
     - _CumActive: 0
     - _CumProgress: 0
     - _Cutoff: 0.5
     - _DEFORM_BALLS: 0
+    - _DeformBalls: 0
     - _DetailNormalMapScale: 1
     - _DickLength: 0.5962886
     - _DstBlend: 0
@@ -79,9 +81,11 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _INVISIBLE_WHEN_INSIDE: 0
+    - _InvisibleWhenInside: 0
     - _Metallic: 0
     - _Mode: 0
     - _NOBLENDSHAPES: 0
+    - _NoBlendshapes: 0
     - _OcclusionStrength: 1
     - _OrifaceLength: 1
     - _OrificeLength: 1
@@ -102,6 +106,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DeformOrigin: {r: 0.0000084121, g: -0.0841286, b: -0.055189036, a: 0}
     - _DickForward: {r: 0.00035357193, g: 0.060714263, b: 0.9981551, a: 0}
     - _DickOrigin: {r: 0.000009365775, g: -0.0841286, b: -0.05518907, a: 0}
     - _DickRight: {r: 0.99960357, g: 0.028078862, b: -0.0020620248, a: 0}
@@ -118,8 +123,8 @@ Material:
     - _OrificeOutWorldPosition3: {r: 0, g: 1, b: 0, a: 0}
     - _OrificeWorldNormal: {r: 0, g: -1, b: 0, a: 0}
     - _OrificeWorldPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _PenetratorForward: {r: 0.00035357193, g: 0.060714263, b: 0.9981551, a: 0}
-    - _PenetratorOrigin: {r: 0.000052281033, g: -0.07669264, b: 0.067069344, a: 0}
+    - _PenetratorForward: {r: 0.0003535132, g: 0.06071641, b: 0.998155, a: 0}
+    - _PenetratorOrigin: {r: 0.0000084121, g: -0.0841286, b: -0.055189036, a: 0}
     - _PenetratorRight: {r: 0.99960357, g: 0.028078862, b: -0.0020620248, a: 0}
     - _PenetratorUp: {r: 0.028152265, g: -0.9977602, b: 0.060680106, a: 0}
   m_BuildTextureStacks: []

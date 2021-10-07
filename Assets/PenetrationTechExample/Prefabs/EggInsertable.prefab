@@ -342,6 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16a8ad35fdacd844981bbed64757f6dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  soundEffectGroup: {fileID: 0}
   root: {fileID: 7569233734649328564}
   dickLayer: 0
   holeLayer: 0
@@ -379,6 +380,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnEndPenetrate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCumEmit:
     m_PersistentCalls:
       m_Calls: []
   OnMove:
@@ -681,6 +685,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     localPenetratorRoot: {x: -0, y: -0.0077823326, z: -0.0000000013915897}
+    localPenetratorDeformOrigin: {x: -0, y: -0.0077823326, z: -0.0000000013915897}
   dickForward: {x: 0, y: 1, z: 0.00000017881396}
   dickUp: {x: 0, y: -0.00000017881396, z: 1}
   dickRight: {x: 1, y: 0, z: 0}
