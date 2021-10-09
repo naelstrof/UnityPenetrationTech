@@ -178,6 +178,9 @@ namespace PenetrationTech {
         [Range(0f,0.5f)]
         public float slideFriction = 0.08f;
 
+        [Tooltip("After reaching maximum stretch/squish, this is a speed multiplier for how fast it slides.")]
+        public float slideSpeed = 16f;
+
         [Range(-1f,5f)]
         [Tooltip("If autoPenetrate is turned off, this variable must be manually driven to make the dick go in and out. Otherwise it's automatically controlled.")]
         public float penetrationDepth01 = -1f;
@@ -1022,7 +1025,7 @@ namespace PenetrationTech {
                 squishPullAmount = Mathf.Clamp(diff/(slideFriction*length), -1f, 1f);
 
                 float moveMulti = squishPullAmount*squishPullAmount;
-                float move = diff*Time.deltaTime*8f*moveMulti;
+                float move = diff*Time.deltaTime*slideSpeed*moveMulti;
                 // Calculate the tangents, which is used for knot forces at both the entrance and exit shape.
                 float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
                 girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
@@ -1038,7 +1041,7 @@ namespace PenetrationTech {
                 squishPullAmount = Mathf.Clamp(squishMove/(slideFriction*length), -1f, 1f);
 
                 float moveMulti = squishPullAmount*squishPullAmount;
-                float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*8f*moveMulti;
+                float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*slideSpeed*moveMulti;
                 float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
                 girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
                 move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
