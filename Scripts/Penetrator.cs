@@ -124,6 +124,7 @@ namespace PenetrationTech {
 
     [RequireComponent(typeof(Rigidbody))]
     public class Penetrator : MonoBehaviour {
+        private static List<Material> staticMaterials = new List<Material>(16);
         public UnityEngine.Audio.AudioMixerGroup soundEffectGroup;
 
         [Header("General Penetrator Settings")]
@@ -273,8 +274,8 @@ namespace PenetrationTech {
                 foreach (var renderer in deformationTargets) {
                     if (renderer == null) { continue; }
                     if (!Application.isPlaying) { continue; }
-                    Material[] materials = renderer.materials;
-                    foreach (var material in materials) {
+                    renderer.GetMaterials(staticMaterials);
+                    foreach (var material in staticMaterials) {
                         if (value) {
                             material.SetFloat("_InvisibleWhenInside", 1f);
                         } else {
@@ -289,8 +290,8 @@ namespace PenetrationTech {
                 foreach (var renderer in deformationTargets) {
                     if (renderer == null) { continue; }
                     if (!Application.isPlaying) { continue; }
-                    Material[] materials = renderer.materials;
-                    foreach (var material in materials) {
+                    renderer.GetMaterials(staticMaterials);
+                    foreach (var material in staticMaterials) {
                         if (value) {
                             material.SetFloat("_ClipDick", 0f);
                         } else {
@@ -457,8 +458,8 @@ namespace PenetrationTech {
                     continue;
                 }
                 if (!Application.isPlaying) { continue; }
-                Material[] materials = renderer.materials;
-                foreach (var material in materials) {
+                renderer.GetMaterials(staticMaterials);
+                foreach (var material in staticMaterials) {
                     material.SetFloat("_PenetrationDepth", -1f);
                     material.SetVector("_OrificeWorldPosition", p0);
                     material.SetVector("_OrificeOutWorldPosition1", p1);
@@ -810,11 +811,12 @@ namespace PenetrationTech {
                     if (renderer == null) {
                         continue;
                     }
-                    Material[] materials = renderer.sharedMaterials;
                     if (Application.isPlaying) {
-                        materials = renderer.materials;
+                        renderer.GetMaterials(staticMaterials);
+                    } else {
+                        renderer.GetSharedMaterials(staticMaterials);
                     }
-                    foreach (var material in materials) {
+                    foreach (var material in staticMaterials) {
                         if (shapes.Count < 4) {
                             material.SetFloat("_NoBlendshapes", 1f);
                         } else {
