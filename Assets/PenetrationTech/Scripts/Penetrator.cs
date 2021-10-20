@@ -442,14 +442,18 @@ namespace PenetrationTech {
                 yield return null;
             }
             if (slimySource != null) {
-                slimySource.rolloffMode = AudioRolloffMode.Logarithmic;
                 slimySource.loop = true;
                 slimySource.spatialBlend = 1f;
+                slimySource.rolloffMode = AudioRolloffMode.Linear;
+                slimySource.maxDistance = 15f;
+                slimySource.minDistance = 1f;
             }
             if (plapSource != null) {
-                plapSource.rolloffMode = AudioRolloffMode.Logarithmic;
                 plapSource.loop = false;
                 plapSource.spatialBlend = 1f;
+                plapSource.rolloffMode = AudioRolloffMode.Linear;
+                plapSource.maxDistance = 15f;
+                plapSource.minDistance = 1f;
             }
         }
         void OnEnable() {
