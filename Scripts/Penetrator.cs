@@ -445,15 +445,16 @@ namespace PenetrationTech {
                 slimySource.loop = true;
                 slimySource.spatialBlend = 1f;
                 slimySource.rolloffMode = AudioRolloffMode.Linear;
-                slimySource.maxDistance = 15f;
-                slimySource.minDistance = 1f;
+                slimySource.maxDistance = 8f;
+                slimySource.minDistance = 0.5f;
+                slimySource.volume = 0.5f;
             }
             if (plapSource != null) {
                 plapSource.loop = false;
                 plapSource.spatialBlend = 1f;
                 plapSource.rolloffMode = AudioRolloffMode.Linear;
-                plapSource.maxDistance = 15f;
-                plapSource.minDistance = 1f;
+                plapSource.maxDistance = 8f;
+                plapSource.minDistance = 0.5f;
             }
         }
         void OnEnable() {
