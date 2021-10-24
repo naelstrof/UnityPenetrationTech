@@ -1022,8 +1022,12 @@ namespace PenetrationTech {
             }
             float length = GetLength();
             // Calculate where the "first" shape is located along the orifice path.
-            float firstShapeOffset = ((backwards?1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01:holeTarget.shapes[0].alongPathAmount01)*holeTarget.orificeLength)/length;
-            float lastShapeOffset = ((backwards?holeTarget.shapes[0].alongPathAmount01:1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01)*holeTarget.orificeLength)/length;
+            float firstShapeOffset = 0f;
+            float lastShapeOffset = 1f;
+            if (holeTarget.shapes.Count > 0) {
+                firstShapeOffset = ((backwards?1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01:holeTarget.shapes[0].alongPathAmount01)*holeTarget.orificeLength)/length;
+                lastShapeOffset = ((backwards?holeTarget.shapes[0].alongPathAmount01:1f-holeTarget.shapes[holeTarget.shapes.Count-1].alongPathAmount01)*holeTarget.orificeLength)/length;
+            }
             // If we cannot overpenetrate, we use a method that simply uses the distance to the hole to determine how deep we are.
             if (!canOverpenetrate) {
                 float dist = Vector3.Distance(worldPosition, holeTarget.GetPoint(0,backwards));
