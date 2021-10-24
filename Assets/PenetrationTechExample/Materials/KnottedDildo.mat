@@ -88,14 +88,14 @@ Material:
     - _NoBlendshapes: 0
     - _OcclusionStrength: 1
     - _OrifaceLength: 1
-    - _OrificeLength: 0.55888176
+    - _OrificeLength: 0.43613625
     - _Parallax: 0.02
     - _PenetrationDepth: -1
-    - _PenetratorBlendshapeMultiplier: 2.2577765
+    - _PenetratorBlendshapeMultiplier: 1.9878294
     - _PenetratorBulgePercentage: 0.1
     - _PenetratorCumActive: 0
     - _PenetratorCumProgress: 0
-    - _PenetratorLength: 0.810022
+    - _PenetratorLength: 0.71317315
     - _PenetratorSquishPullAmount: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -118,13 +118,13 @@ Material:
     - _OrifaceOutWorldPosition3: {r: -0.0015807097, g: -0.991149, b: 0.0000000036077863, a: 0}
     - _OrifaceWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
     - _OrifaceWorldPosition: {r: -0.0015929719, g: 0.008848807, b: 0.0000000025250497, a: 0}
-    - _OrificeOutWorldPosition1: {r: -0.0015918921, g: -0.32115152, b: 0.0000000022763633, a: 0}
-    - _OrificeOutWorldPosition2: {r: -0.0015796303, g: -0.65114933, b: 0.0000000033590613, a: 0}
-    - _OrificeOutWorldPosition3: {r: -0.0015796303, g: -0.9911493, b: 0.0000000033590613, a: 0}
-    - _OrificeWorldNormal: {r: -0, g: 0.00000008940697, b: -0.48998737, a: 0}
-    - _OrificeWorldPosition: {r: -0.0015918921, g: 0.00884849, b: 0.0000000022763633, a: 0}
+    - _OrificeOutWorldPosition1: {r: -0.00065779604, g: -0.32492995, b: -0.006043063, a: 0}
+    - _OrificeOutWorldPosition2: {r: -0.001246341, g: -0.65419525, b: -0.005235295, a: 0}
+    - _OrificeOutWorldPosition3: {r: -0.001246341, g: -0.9941952, b: -0.005235295, a: 0}
+    - _OrificeWorldNormal: {r: 0.02254486, g: -0.48609674, b: -0.41028357, a: 0}
+    - _OrificeWorldPosition: {r: -0.00065779604, g: 0.005070059, b: -0.006043063, a: 0}
     - _PenetratorForward: {r: -0.042226467, g: 0.07983277, b: 0.9959135, a: 0}
-    - _PenetratorOrigin: {r: -0.008181606, g: -0.05722975, b: 0.23608437, a: 0}
+    - _PenetratorOrigin: {r: -0.0073128575, g: -0.05887074, b: 0.21560934, a: 0}
     - _PenetratorRight: {r: 0.99854076, g: 0.0369581, b: 0.03937532, a: 0}
     - _PenetratorUp: {r: 0.03366355, g: -0.99612296, b: 0.0812768, a: 0}
   m_BuildTextureStacks: []
