@@ -191,6 +191,7 @@ namespace PenetrationTech {
         public Collider dickCollider = null;
         [Tooltip("Optional audio source override for slimy sounds. One will automatically be created on Awake otherwise.")]
         public AudioSource slimySource;
+        private bool slimySourceStartingVolumeInitialized = false;
         private float slimySourceStartingVolume = 1f;
         private float slimySourceCurrentVolume = 1f;
         [Tooltip("Optional audio source override for playing plap sounds. One will automatically be created on Awake otherwise.")]
@@ -438,26 +439,31 @@ namespace PenetrationTech {
                 slimySource.outputAudioMixerGroup = soundEffectGroup;
                 slimySource.volume = 1f;
                 slimySourceStartingVolume = 1f;
+                slimySourceStartingVolumeInitialized = true;
+                slimySource.spatialBlend = 1f;
+                slimySource.rolloffMode = AudioRolloffMode.Linear;
+                slimySource.maxDistance = 8f;
+                slimySource.minDistance = 0.5f;
                 yield return null;
             }
             while (plapSource == null && Application.isPlaying) {
                 plapSource = gameObject.AddComponent<AudioSource>();
                 plapSource.outputAudioMixerGroup = soundEffectGroup;
-                yield return null;
-            }
-            if (slimySource != null) {
-                slimySource.loop = true;
-                slimySource.spatialBlend = 1f;
-                slimySource.rolloffMode = AudioRolloffMode.Linear;
-                slimySource.maxDistance = 8f;
-                slimySource.minDistance = 0.5f;
-            }
-            if (plapSource != null) {
-                plapSource.loop = false;
                 plapSource.spatialBlend = 1f;
                 plapSource.rolloffMode = AudioRolloffMode.Linear;
                 plapSource.maxDistance = 8f;
                 plapSource.minDistance = 0.5f;
+                yield return null;
+            }
+            if (slimySource != null) {
+                if (!slimySourceStartingVolumeInitialized) {
+                    slimySourceStartingVolume = slimySource.volume;
+                }
+                slimySourceStartingVolumeInitialized = true;
+                slimySource.loop = true;
+            }
+            if (plapSource != null) {
+                plapSource.loop = false;
             }
         }
         void OnEnable() {
@@ -1134,7 +1140,9 @@ namespace PenetrationTech {
                     slimySourceCurrentVolume += Mathf.Abs(diff*GetLength()*5f);
                 }
                 slimySourceCurrentVolume = Mathf.Clamp01(slimySourceCurrentVolume);
-                slimySource.volume = slimySourceCurrentVolume * slimySourceStartingVolume;
+                if (slimySourceStartingVolumeInitialized) {
+                    slimySource.volume = slimySourceCurrentVolume * slimySourceStartingVolume;
+                }
             }
             OnMove.Invoke(diff);
             lastPenetrationDepth01 = penetrationDepth01;
