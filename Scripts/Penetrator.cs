@@ -191,6 +191,8 @@ namespace PenetrationTech {
         public Collider dickCollider = null;
         [Tooltip("Optional audio source override for slimy sounds. One will automatically be created on Awake otherwise.")]
         public AudioSource slimySource;
+        private float slimySourceStartingVolume = 1f;
+        private float slimySourceCurrentVolume = 1f;
         [Tooltip("Optional audio source override for playing plap sounds. One will automatically be created on Awake otherwise.")]
         public AudioSource plapSource;
 
@@ -434,6 +436,8 @@ namespace PenetrationTech {
             while (slimySource == null && Application.isPlaying) {
                 slimySource = gameObject.AddComponent<AudioSource>();
                 slimySource.outputAudioMixerGroup = soundEffectGroup;
+                slimySource.volume = 1f;
+                slimySourceStartingVolume = 1f;
                 yield return null;
             }
             while (plapSource == null && Application.isPlaying) {
@@ -447,7 +451,6 @@ namespace PenetrationTech {
                 slimySource.rolloffMode = AudioRolloffMode.Linear;
                 slimySource.maxDistance = 8f;
                 slimySource.minDistance = 0.5f;
-                slimySource.volume = 0.5f;
             }
             if (plapSource != null) {
                 plapSource.loop = false;
@@ -763,7 +766,7 @@ namespace PenetrationTech {
             allTheWayThrough = holeTarget.canAllTheWayThrough;
             if (slimySource != null && slimySlidingSounds.Count > 0) {
                 slimySource.clip = slimySlidingSounds[Random.Range(0,slimySlidingSounds.Count)];
-                slimySource.volume = 0f;
+                slimySourceCurrentVolume = 0f;
                 slimySource.timeSamples = Random.Range(0,slimySource.clip.samples);
                 slimySource.Play();
             }
@@ -991,7 +994,7 @@ namespace PenetrationTech {
                 dickTipDetector.center = transform.InverseTransformPoint(dickTip.position);
             }
             if (slimySource != null) {
-                slimySource.volume = Mathf.MoveTowards(slimySource.volume, 0f, Time.deltaTime);
+                slimySourceCurrentVolume = Mathf.MoveTowards(slimySourceCurrentVolume, 0f, Time.deltaTime);
             }
             if (holeTarget != null) {
                 //penetrationDepth01 += GetTangent(penetrationDepth01)*Time.deltaTime;
@@ -1127,8 +1130,11 @@ namespace PenetrationTech {
                 }
             }
             if(slimySource != null) {
-                slimySource.volume += Mathf.Abs(diff*GetLength()*5f);
-                slimySource.volume = Mathf.Clamp01(slimySource.volume);
+                if (IsInside(0.25f)) {
+                    slimySourceCurrentVolume += Mathf.Abs(diff*GetLength()*5f);
+                }
+                slimySourceCurrentVolume = Mathf.Clamp01(slimySourceCurrentVolume);
+                slimySource.volume = slimySourceCurrentVolume * slimySourceStartingVolume;
             }
             OnMove.Invoke(diff);
             lastPenetrationDepth01 = penetrationDepth01;
