@@ -25,6 +25,7 @@ Shader "PenetrationTech/Standard/Penetrator"
 		_DeformBalls("DeformBalls", Range( 0 , 1)) = 0
 		_ClipDick("ClipDick", Range( 0 , 1)) = 0
 		_NoBlendshapes("NoBlendshapes", Range( 0 , 1)) = 0
+		_PinchBuffer("PinchBuffer", Range( 0 , 0.5)) = 0.25
 		_Cutoff( "Mask Clip Value", Float ) = 0.5
 		_MainTex("MainTex", 2D) = "white" {}
 		_MaskMap("MaskMap", 2D) = "gray" {}
@@ -58,6 +59,7 @@ Shader "PenetrationTech/Standard/Penetrator"
 		uniform float _PenetratorCumProgress;
 		uniform float _PenetratorCumActive;
 		uniform float _NoBlendshapes;
+		uniform float _PinchBuffer;
 		uniform float _OrificeLength;
 		uniform float _ClipDick;
 		uniform float _InvisibleWhenInside;
@@ -114,7 +116,7 @@ Shader "PenetrationTech/Standard/Penetrator"
 			float PenetrationDepth39_g979 = _PenetrationDepth;
 			float temp_output_65_0_g979 = ( PenetrationDepth39_g979 * DickLength19_g979 );
 			float OrifaceLength34_g979 = _OrificeLength;
-			float temp_output_73_0_g979 = ( 0.25 * OrifaceLength34_g979 );
+			float temp_output_73_0_g979 = ( _PinchBuffer * OrifaceLength34_g979 );
 			float dotResult80_g979 = dot( ( lerpResult410_g979 - DickOrigin16_g979 ) , DickForward18_g979 );
 			float temp_output_112_0_g979 = ( -( ( ( temp_output_65_0_g979 - temp_output_73_0_g979 ) + dotResult80_g979 ) - DickLength19_g979 ) * 10.0 );
 			float ClipDick413_g979 = _ClipDick;
@@ -302,12 +304,12 @@ Shader "PenetrationTech/Standard/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-996;295;1696;809;-5880.022;2097.915;2.675143;True;False
-Node;AmplifyShaderEditor.SamplerNode;100;7108.375,-1682.497;Inherit;True;Property;_MainTex;MainTex;23;0;Create;True;0;0;0;False;0;False;-1;None;a7fd0f05ef2dbbd43ac64dff86a86708;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SamplerNode;102;7105.585,-1265.636;Inherit;True;Property;_MaskMap;MaskMap;24;0;Create;True;0;0;0;False;0;False;-1;None;b6ba1a4a299c969449e3ec084c188366;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SamplerNode;101;7104.496,-1467.525;Inherit;True;Property;_BumpMap;BumpMap;25;0;Create;True;0;0;0;False;0;False;-1;None;22df23dcaaa4c974888f14b0f36d484f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+206;80;1671;686;-5913.461;1925.368;2.675143;True;True
+Node;AmplifyShaderEditor.SamplerNode;100;7108.375,-1682.497;Inherit;True;Property;_MainTex;MainTex;24;0;Create;True;0;0;0;False;0;False;-1;None;a7fd0f05ef2dbbd43ac64dff86a86708;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;102;7105.585,-1265.636;Inherit;True;Property;_MaskMap;MaskMap;25;0;Create;True;0;0;0;False;0;False;-1;None;b6ba1a4a299c969449e3ec084c188366;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;101;7104.496,-1467.525;Inherit;True;Property;_BumpMap;BumpMap;26;0;Create;True;0;0;0;False;0;False;-1;None;22df23dcaaa4c974888f14b0f36d484f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;676;7008.464,-1016.773;Inherit;False;PenetrationTechDeformation;0;;979;cb4db099da64a8846a0c6877ff8e2b5f;0;3;253;FLOAT3;0,0,0;False;258;FLOAT3;0,0,0;False;265;FLOAT3;0,0,0;False;3;FLOAT3;0;FLOAT;251;FLOAT3;252
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;552;7623.605,-1459.329;Float;False;True;-1;2;ASEMaterialInspector;0;0;Standard;PenetrationTech/Standard/Penetrator;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Back;0;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0.5;True;True;0;True;TransparentCutout;;Geometry;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;0;0;False;-1;0;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;Absolute;0;;22;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;0;0;0;False;0.1;False;-1;0;False;-1;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;552;7623.605,-1459.329;Float;False;True;-1;2;ASEMaterialInspector;0;0;Standard;PenetrationTech/Standard/Penetrator;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Back;0;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0.5;True;True;0;True;TransparentCutout;;Geometry;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;0;0;False;-1;0;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;Absolute;0;;23;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;0;0;0;False;0.1;False;-1;0;False;-1;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 WireConnection;552;0;100;0
 WireConnection;552;1;101;0
 WireConnection;552;3;102;1
@@ -316,4 +318,4 @@ WireConnection;552;10;676;251
 WireConnection;552;11;676;0
 WireConnection;552;12;676;252
 ASEEND*/
-//CHKSM=C742848623220A3B279AA07AFACFDA68A847C69C
+//CHKSM=9FBED225628EC816F904AC498920DF8D03291486
