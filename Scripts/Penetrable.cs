@@ -337,6 +337,14 @@ namespace PenetrationTech
                 colliderExit.radius = averageGirth*2f;
                 colliderExit.isTrigger = true;
             }
+            // Cache the blendshape IDs, so we don't have to do a lookup constantly.
+            foreach(PenetrableShape shape in shapes) {
+                foreach (SkinnedMeshRenderer renderer in holeMeshes) {
+                    shape.expandBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.expandBlendshapeName);
+                    shape.pushBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pushBlendshapeName);
+                    shape.pullBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pullBlendshapeName);
+                }
+            }
         }
         public void AddPenetrator(Penetrator d) {
             if (penetrators.Contains(d)){
@@ -347,6 +355,8 @@ namespace PenetrationTech
                 shape.girths.Add(0f);
             }
             sortedPenetrators.Add(d);
+            // Quickly do an update, so that the penetrator has the right values;
+            LateUpdate();
         }
         public void RemovePenetrator(Penetrator d) {
             if (!penetrators.Contains(d)) {
@@ -404,15 +414,6 @@ namespace PenetrationTech
             }
             currentn.right = mostPerpendicularn;
             Vector3.OrthoNormalize(ref currentn.forward, ref currentn.right, ref currentn.up);
-
-            // Cache the blendshape IDs, so we don't have to do a lookup constantly.
-            foreach(PenetrableShape shape in shapes) {
-                foreach (SkinnedMeshRenderer renderer in holeMeshes) {
-                    shape.expandBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.expandBlendshapeName);
-                    shape.pushBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pushBlendshapeName);
-                    shape.pullBlendshape[renderer] = renderer.sharedMesh.GetBlendShapeIndex(shape.pullBlendshapeName);
-                }
-            }
         }
         public void OnValidate() {
             if (path != null && path.Count >= 4) {

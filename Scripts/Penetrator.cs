@@ -1049,7 +1049,7 @@ namespace PenetrationTech {
                 // Calculate the tangents, which is used for knot forces at both the entrance and exit shape.
                 float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
                 girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
-                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
+                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.1f, 2f);
                 penetrationDepth01 = Mathf.Clamp(penetrationDepth01+move, -1f, 1f);
             // Otherwise, we use a moving plane that follows the normal of the orifice path, and use the plane distance to the desired point to determine which way we should go.
             } else {
@@ -1064,7 +1064,7 @@ namespace PenetrationTech {
                 float move = Vector3.Dot(holeToMouse, holeTangent)*Time.deltaTime*slideSpeed*moveMulti;
                 float girthTangents = GetTangent(penetrationDepth01 - firstShapeOffset);
                 girthTangents += GetTangent(penetrationDepth01-(holeTarget.orificeLength/length) + lastShapeOffset);
-                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.2f, 2f);
+                move *= Mathf.Clamp(1f+girthTangents*Mathf.Sign(move), 0.1f, 2f);
                 penetrationDepth01 = Mathf.Max(penetrationDepth01+move, -1f);
             }
             // Prevent the dick from penetrating futher than intended.
