@@ -174,6 +174,9 @@ namespace PenetrationTech {
         [Tooltip("Controls how much the dick squishes or tugs.")]
         [Range(-1f,1f)]
         public float squishPullAmount = 0f;
+        [Tooltip("How loud cum pumps are.")]
+        [Range(0f,1f)]
+        public float cumPumpVolume = 0.5f;
 
         [Tooltip("How much friction is involved in penetration, this affects dick squish and the theortical speed at which one can fuck.")]
         [Range(0f,0.5f)]
@@ -1099,7 +1102,7 @@ namespace PenetrationTech {
                 cumProgress = -bulgePercentage;
                 if (pumpingSounds.Count > 0 && plapSource != null) {
                     plapSource.pitch = Random.Range(0.7f,1.3f);
-                    plapSource.PlayOneShot(pumpingSounds[Random.Range(0,pumpingSounds.Count)], 1f);
+                    plapSource.PlayOneShot(pumpingSounds[Random.Range(0,pumpingSounds.Count)], cumPumpVolume);
                 }
                 while (cumProgress < 1f+bulgePercentage) {
                     cumProgress = Mathf.MoveTowards(cumProgress, 1f+bulgePercentage+0.1f, Time.deltaTime);
