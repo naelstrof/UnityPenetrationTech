@@ -435,7 +435,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2750688567730260255}
-  - component: {fileID: 8199469902633847765}
   m_Layer: 0
   m_Name: BaseBreast.R
   m_TagString: Untagged
@@ -458,82 +457,6 @@ Transform:
   m_Father: {fileID: 4847037771068930038}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8199469902633847765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1390590045568283912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad81d0e4bb086504a8c900ce29a95cc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cullOffscreen: 1
-  targetRenderers:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  updateMode: 2
-  root: {fileID: 2750688567730260255}
-  elasticity:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 6
-      inSlope: 0.26135716
-      outSlope: 0.26135716
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.0372191
-    - serializedVersion: 3
-      time: 1
-      value: 5
-      inSlope: -3.353672
-      outSlope: -3.353672
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.040028095
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  friction:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 8
-      inSlope: 22.425707
-      outSlope: 22.425707
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.040828265
-    - serializedVersion: 3
-      time: 1
-      value: 16
-      inSlope: -0.28433374
-      outSlope: -0.28433374
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.07189107
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  rotateRoot: 1
-  accelerationBased: 1
-  maxStretch: 1.1
-  maxSquish: 0.1
-  gravity: {x: 0, y: -6, z: 0}
-  excludedTransforms:
-  - {fileID: 2644428201597599799}
-  - {fileID: 6682366459221574745}
-  - {fileID: 0}
-  - {fileID: 3503151327203273011}
 --- !u!1 &1444663199134164428
 GameObject:
   m_ObjectHideFlags: 0
@@ -968,23 +891,23 @@ SkinnedMeshRenderer:
   - 0
   - 0
   - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 20
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
   - 100
+  - 0
+  - 0
+  - 0
+  - 15
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   m_RootBone: {fileID: 4766473574349541950}
   m_AABB:
     m_Center: {x: 0.0023137033, y: 0.032011718, z: -0.098742455}
@@ -1707,7 +1630,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9025877290093989458}
-  - component: {fileID: 8199469904174757478}
   m_Layer: 0
   m_Name: Tail
   m_TagString: Untagged
@@ -1730,78 +1652,6 @@ Transform:
   m_Father: {fileID: 4766473574349541950}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8199469904174757478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5651662084608718315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad81d0e4bb086504a8c900ce29a95cc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cullOffscreen: 1
-  targetRenderers:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  updateMode: 2
-  root: {fileID: 9025877290093989458}
-  elasticity:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 2.9890668
-      inSlope: 0.18865088
-      outSlope: 0.18865088
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.08752126
-    - serializedVersion: 3
-      time: 0.99871826
-      value: 1.0035095
-      inSlope: -6.2430487
-      outSlope: -6.2430487
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.04461211
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  friction:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 10
-      inSlope: 23.146091
-      outSlope: 23.146091
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.099378645
-    - serializedVersion: 3
-      time: 1
-      value: 20
-      inSlope: -0.01195521
-      outSlope: -0.01195521
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 1
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  rotateRoot: 1
-  accelerationBased: 1
-  maxStretch: 1.1
-  maxSquish: 0.1
-  gravity: {x: 0, y: -3, z: 0}
-  excludedTransforms: []
 --- !u!1 &5664433795354512687
 GameObject:
   m_ObjectHideFlags: 0
@@ -2092,7 +1942,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9137130835870465155}
-  - component: {fileID: 8199469904179612915}
   m_Layer: 0
   m_Name: BaseBreast.L
   m_TagString: Untagged
@@ -2115,82 +1964,6 @@ Transform:
   m_Father: {fileID: 4847037771068930038}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8199469904179612915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6202365367592545478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad81d0e4bb086504a8c900ce29a95cc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cullOffscreen: 1
-  targetRenderers:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  updateMode: 2
-  root: {fileID: 9137130835870465155}
-  elasticity:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 6
-      inSlope: 0.26135716
-      outSlope: 0.26135716
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.0372191
-    - serializedVersion: 3
-      time: 1
-      value: 5
-      inSlope: -3.353672
-      outSlope: -3.353672
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.040028095
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  friction:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 8
-      inSlope: 22.425707
-      outSlope: 22.425707
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.040828265
-    - serializedVersion: 3
-      time: 1
-      value: 16
-      inSlope: -0.28433374
-      outSlope: -0.28433374
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.07189107
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  rotateRoot: 1
-  accelerationBased: 1
-  maxStretch: 1.1
-  maxSquish: 0.1
-  gravity: {x: 0, y: -6, z: 0}
-  excludedTransforms:
-  - {fileID: 1718477820591895899}
-  - {fileID: 9046240371238109359}
-  - {fileID: 0}
-  - {fileID: 1724048758613649194}
 --- !u!1 &6663738809834999277
 GameObject:
   m_ObjectHideFlags: 0
@@ -2576,7 +2349,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3952444606842804954}
-  - component: {fileID: 4507929515091674408}
   m_Layer: 0
   m_Name: Vag
   m_TagString: Untagged
@@ -2598,139 +2370,6 @@ Transform:
   m_Father: {fileID: 4766473574349541950}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4507929515091674408
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8624934603947805863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cad28ed5e589e44ebc65868cddcf576, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  root: {fileID: 8521064559583617395}
-  holeLayer: 0
-  allowedPenetrationDepth01: 0.99
-  canSeePenetratorInside: 0
-  path:
-  - attachedTransform: {fileID: 3952444606842804954}
-    localOffset: {x: 0, y: 0, z: 0}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 3952444606842804954}
-    localOffset: {x: -0.0027101557, y: -0.21211135, z: 0.0039866823}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 8147590919340718613}
-    localOffset: {x: -0.000000979635, y: 0.027935151, z: 0.111168556}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 8147590919340718613}
-    localOffset: {x: 0.00000077251764, y: 0.20782122, z: 0.08629059}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  holeMeshes:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  shapes:
-  - expandBlendshapeName: VagExpand
-    holeDiameter: 0.1
-    alongPathAmount01: 0
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: VagDepthBulge1
-    holeDiameter: 0.1
-    alongPathAmount01: 0.2819278
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: VagDepthBulge2
-    holeDiameter: 0.1
-    alongPathAmount01: 0.43270326
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: VagDepthBulge3
-    holeDiameter: 0.1
-    alongPathAmount01: 0.7442566
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: VagDepthBulge4
-    holeDiameter: 0.06
-    alongPathAmount01: 0.9265321
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
 --- !u!1 &8683823414975682963
 GameObject:
   m_ObjectHideFlags: 0
@@ -2984,7 +2623,7 @@ SkinnedMeshRenderer:
   - 0
   - 0
   - 0
-  - 20
+  - 15
   - 0
   - 0
   - 0
@@ -2996,7 +2635,7 @@ SkinnedMeshRenderer:
   - 0
   - 0
   - 0
-  - 100
+  - 0
   m_RootBone: {fileID: 4766473574349541950}
   m_AABB:
     m_Center: {x: 0.0023066401, y: 0.03304416, z: -0.09644547}
@@ -3114,7 +2753,8 @@ GameObject:
   - component: {fileID: 8521064559583617395}
   - component: {fileID: 2351103058955156233}
   - component: {fileID: 8199469904439248558}
-  - component: {fileID: 8199469904439248559}
+  - component: {fileID: 3211205310960297328}
+  - component: {fileID: 7073146862328817110}
   m_Layer: 0
   m_Name: JigglyKobold
   m_TagString: Untagged
@@ -3181,7 +2821,7 @@ LODGroup:
     renderers:
     - renderer: {fileID: 5330333750980878102}
   m_Enabled: 1
---- !u!114 &8199469904439248559
+--- !u!114 &3211205310960297328
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3190,71 +2830,54 @@ MonoBehaviour:
   m_GameObject: {fileID: 9010356771295247305}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e81cfbc61bafbb45a3ca4060b22c905, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d76f24409a39604ca3986f91ce6d28a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cullOffscreen: 1
-  updateMode: 2
-  randomization: 0.1
-  targetRenderers:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  zones:
-  - origin: {fileID: 7912904831010786695}
-    radius: 0.25
-    amplitude: 2
-    elastic: 3
-    friction: 4
-    gravity: {x: 0, y: 30, z: 0}
-    colorMask: {r: 1, g: 0, b: 0, a: 0}
-    lastPosition: {x: 0, y: 0, z: 0}
-    lastVelocityGuess: {x: 0, y: 0, z: 0}
-    velocity: {x: 0, y: 0, z: 0}
-    virtualPos: {x: 0, y: 0, z: 0}
-  - origin: {fileID: 8887449293578775514}
-    radius: 0.25
-    amplitude: 2
-    elastic: 3
-    friction: 4
-    gravity: {x: 0, y: 30, z: 0}
-    colorMask: {r: 0, g: 1, b: 0, a: 0}
-    lastPosition: {x: 0, y: 0, z: 0}
-    lastVelocityGuess: {x: 0, y: 0, z: 0}
-    velocity: {x: 0, y: 0, z: 0}
-    virtualPos: {x: 0, y: 0, z: 0}
-  - origin: {fileID: 8197358249053959768}
-    radius: 0.5
-    amplitude: 3.5
-    elastic: 3
-    friction: 5
-    gravity: {x: 0, y: 20, z: 0}
-    colorMask: {r: 0, g: 0, b: 1, a: 0}
-    lastPosition: {x: 0, y: 0, z: 0}
-    lastVelocityGuess: {x: 0, y: 0, z: 0}
-    velocity: {x: 0, y: 0, z: 0}
-    virtualPos: {x: 0, y: 0, z: 0}
-  - origin: {fileID: 8424650258899061604}
+  interpolate: 1
+  jiggleRigs:
+  - rootTransform: {fileID: 9025877290093989458}
+    jiggleSettings: {fileID: 11400000, guid: 83be3ab522a0f3d4e8d52c3459b0a957, type: 2}
+    ignoredTransforms: []
+  - rootTransform: {fileID: 9137130835870465155}
+    jiggleSettings: {fileID: 11400000, guid: 6c5ed7523248ee242a6535ea44472935, type: 2}
+    ignoredTransforms: []
+  - rootTransform: {fileID: 2750688567730260255}
+    jiggleSettings: {fileID: 11400000, guid: 6c5ed7523248ee242a6535ea44472935, type: 2}
+    ignoredTransforms: []
+  wind: {x: 0, y: 0, z: 0}
+  debugDraw: 0
+--- !u!114 &7073146862328817110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010356771295247305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63eef503a567ef4eaf3898b5732b105, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interpolate: 1
+  jiggleZones:
+  - target: {fileID: 7912904831010786695}
+    radius: 0.15
+    jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
+  - target: {fileID: 8887449293578775514}
+    radius: 0.15
+    jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
+  - target: {fileID: 8197358249053959768}
     radius: 0.3
-    amplitude: 3
-    elastic: 3
-    friction: 5
-    gravity: {x: 0, y: 9, z: 0}
-    colorMask: {r: 1, g: 0, b: 0, a: 0}
-    lastPosition: {x: 0, y: 0, z: 0}
-    lastVelocityGuess: {x: 0, y: 0, z: 0}
-    velocity: {x: 0, y: 0, z: 0}
-    virtualPos: {x: 0, y: 0, z: 0}
-  - origin: {fileID: 3333062064093237365}
+    jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
+  - target: {fileID: 3333062064093237365}
     radius: 0.3
-    amplitude: 3
-    elastic: 3
-    friction: 5
-    gravity: {x: 0, y: 9, z: 0}
-    colorMask: {r: 0, g: 1, b: 0, a: 0}
-    lastPosition: {x: 0, y: 0, z: 0}
-    lastVelocityGuess: {x: 0, y: 0, z: 0}
-    velocity: {x: 0, y: 0, z: 0}
-    virtualPos: {x: 0, y: 0, z: 0}
+    jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
+  - target: {fileID: 8424650258899061604}
+    radius: 0.3
+    jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
+  targetSkins: []
+  wind: {x: 0, y: 0, z: 0}
+  debugDraw: 0
 --- !u!1 &9125386716202120455
 GameObject:
   m_ObjectHideFlags: 0
@@ -3295,7 +2918,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 807804077407153469}
-  - component: {fileID: 8232774080245781815}
   m_Layer: 0
   m_Name: Butt
   m_TagString: Untagged
@@ -3317,203 +2939,6 @@ Transform:
   m_Father: {fileID: 4766473574349541950}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8232774080245781815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9142001686618130418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cad28ed5e589e44ebc65868cddcf576, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  root: {fileID: 8521064559583617395}
-  holeLayer: 0
-  allowedPenetrationDepth01: 1
-  canSeePenetratorInside: 0
-  path:
-  - attachedTransform: {fileID: 807804077407153469}
-    localOffset: {x: 0.00000160285, y: 0.042049088, z: 0.006422377}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 2260063079708388744}
-    localOffset: {x: -0.0000007505515, y: -0.01427073, z: 0.13438146}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 6264746551454101909}
-    localOffset: {x: 0.0000065672148, y: 0.2612604, z: -0.15706947}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  - attachedTransform: {fileID: 4368218104630050956}
-    localOffset: {x: -0.0000042379033, y: 0.050538838, z: 0.12629314}
-    connectedBody: {fileID: 0}
-    right: {x: 0, y: 0, z: 0}
-    up: {x: 0, y: 0, z: 0}
-    forward: {x: 0, y: 0, z: 0}
-    joint: {fileID: 0}
-    startRotation: {x: 0, y: 0, z: 0, w: 0}
-  holeMeshes:
-  - {fileID: 7452297451520482250}
-  - {fileID: 5330333750980878102}
-  shapes:
-  - expandBlendshapeName: ButtExpand
-    holeDiameter: 0.11
-    alongPathAmount01: 0.033688582
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: ButtDepthBulge1
-    holeDiameter: 0.09
-    alongPathAmount01: 0.15324299
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: ButtDepthBulge2
-    holeDiameter: 0.09
-    alongPathAmount01: 0.2239264
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: ButtDepthBulge3
-    holeDiameter: 0.09
-    alongPathAmount01: 0.2936109
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: NeckDepthBulge1
-    holeDiameter: 0.05
-    alongPathAmount01: 0.6966999
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: NeckDepthBulge2
-    holeDiameter: 0.05
-    alongPathAmount01: 0.65264857
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: NeckDepthBulge3
-    holeDiameter: 0.05
-    alongPathAmount01: 0.62064767
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: NeckDepthBulge4
-    holeDiameter: 0.05
-    alongPathAmount01: 0.5990651
-    canOverdriveShapes: 1
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
-  - expandBlendshapeName: vrc.v_aa
-    holeDiameter: 0.08
-    alongPathAmount01: 0.94189274
-    canOverdriveShapes: 0
-    OnExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEndExpand:
-      m_PersistentCalls:
-        m_Calls: []
-    pushBlendshapeName: 
-    pullBlendshapeName: 
-    pushPositionOffset: 0
-    pullPositionOffset: 0
-    triggeredEvent: 0
-    girths: []
 --- !u!1 &9205961825114127862
 GameObject:
   m_ObjectHideFlags: 0

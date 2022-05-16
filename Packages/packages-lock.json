@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.naelstrof.jigglephysics": {
-      "version": "https://github.com/naelstrof/UnityJigglePhysics.git#upm",
+      "version": "https://github.com/naelstrof/UnityJigglePhysics.git#v3.6.4",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "b9d5c783a31d37fa4d4c1c7dd423b3b50380fc2a"
+      "hash": "234da1f89803edcc297d5bc1e9b0cfb4353b9cdb"
     },
     "com.unity.collab-proxy": {
       "version": "1.7.1",
