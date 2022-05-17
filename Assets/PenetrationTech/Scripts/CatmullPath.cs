@@ -3,8 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace PenetrationTech {
-
+public static class ExtensionFloat {
+    public static float Remap (this float value, float from1, float to1, float from2, float to2) {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }
+}
 public class CatmullPath {
+    public CatmullPath(Vector3[] newPoints) {
+        weights = new List<Vector3>();
+        SetPoints(newPoints);
+    }
     private static Vector3 GetPosition(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
         // Using the expanded form of a Hermite basis functions
         // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
@@ -36,25 +44,74 @@ public class CatmullPath {
     private List<Vector3> weights;
     private List<Vector3> points;
     private float[] LUT;
-    public void SetPoints(Vector3[] points, int lutResolution=8) {
+    public float arcLength {get; private set;}
+    private float GetSubT(float t, out int weightIndex) {
+        int curveNumber = Mathf.FloorToInt(t*(points.Count-1));
+        weightIndex = curveNumber*4;
+        float offseted = t-((float)curveNumber/(float)(points.Count-1));
+        return offseted * (float)(points.Count-1);
+    }
+    private float DistToT(float distance) {
+        if (distance > 0f && distance < arcLength) {
+            for(int i=0;i<LUT.Length-1;i++) {
+                if (distance>LUT[i] && distance<LUT[i]) {
+                    return distance.Remap(LUT[i],LUT[i+1],(float)i/(LUT.Length-1f),(float)(i+1)/(LUT.Length-1f));
+                }
+            }
+        }
+        return distance/arcLength;
+    }
+    private void GenerateLUT(int resolution) {
+        float dist = 0f;
+        Vector3 lastPosition = GetPosition(weights[0],weights[1],weights[2],weights[3],0f);
+        LUT = new float[resolution];
+        for(int i=0;i<resolution;i++) {
+            float t = (((float)i)/(float)resolution);
+            int weightIndex;
+            float subT = GetSubT(t, out weightIndex);
+            Vector3 position = GetPosition(weights[weightIndex], weights[weightIndex+1], weights[weightIndex+2], weights[weightIndex+3], subT);
+            dist += Vector3.Distance(lastPosition, position);
+            LUT[i] = dist;
+        }
+        arcLength = dist;
+    }
+    public void SetPoints(Vector3[] newPoints, int lutResolution=8) {
+        points = new List<Vector3>(newPoints);
         weights.Clear();
-        for (int i=0;i<points.Length;i++) {
+        for (int i=0;i<points.Count-1;i++) {
             Vector3 p0 = points[i];
             Vector3 p1 = points[i+1];
 
+            Vector3 m0;
             // Tangent M[k] = (P[k+1] - P[k-1]) / 2
-            Vector3 m0 = (p1 - p0)*0.5f;
-            Vector3 m1 = (p1 - p0)*0.5f;
-            if (i < points.Length - 2) {
-                m1 = points[(i + 2) % points.Length] - p0;
+            if (i==0) {
+                m0 = (p1 - p0)*0.5f;
             } else {
-                m1 = p1 - p0;
+                m0 = (p1 - points[i-1])*0.5f;
+            }
+            Vector3 m1;
+            if (i < points.Count - 2) {
+                m1 = (points[(i + 2) % points.Count] - p0)*0.5f;
+            } else {
+                m1 = (p1 - p0)*0.5f;
             }
             weights.Add(p0);
             weights.Add(m0);
             weights.Add(m1);
             weights.Add(p1);
         }
+        GenerateLUT(16);
+    }
+    public Vector3 GetPositionFromT(float t) {
+        int weightIndex;
+        float subT = GetSubT(t, out weightIndex);
+        return GetPosition(weights[weightIndex], weights[weightIndex+1], weights[weightIndex+2], weights[weightIndex+3], subT);
+    }
+    public Vector3 GetPositionFromDistance(float distance) {
+        float t = DistToT(distance);
+        int weightIndex;
+        float subT = GetSubT(t, out weightIndex);
+        return GetPosition(weights[weightIndex], weights[weightIndex+1], weights[weightIndex+2], weights[weightIndex+3], subT);
     }
 }
 
