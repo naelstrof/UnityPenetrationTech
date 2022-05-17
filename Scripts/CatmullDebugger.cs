@@ -26,8 +26,8 @@ public class CatmullDebugger : MonoBehaviour {
         for (int i=0;i<points.Length;i++) {
             Gizmos.DrawSphere(points[i], 0.1f);
         }
-        //for (int i=0;i<10;i++) {
-            //Gizmos.DrawWireSphere(path.GetPositionFromDistance(Mathf.Repeat(Time.time+i*0.25f, path.arcLength)), 0.1f);
-        //}
+        for (int i=0;i<path.arcLength/0.5f;i++) {
+            Gizmos.DrawWireSphere(path.GetPositionFromDistance(Mathf.Repeat(Time.time+i*0.5f, path.arcLength)), 0.1f);
+        }
     }
 }

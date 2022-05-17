@@ -11,6 +11,7 @@ public static class ExtensionFloat {
 public class CatmullPath {
     public CatmullPath(Vector3[] newPoints) {
         weights = new List<Vector3>();
+        LUT = new List<float>();
         SetPoints(newPoints);
     }
     private static Vector3 GetPosition(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
@@ -43,7 +44,7 @@ public class CatmullPath {
     }
     private List<Vector3> weights;
     private List<Vector3> points;
-    private float[] LUT;
+    private List<float> LUT;
     public float arcLength {get; private set;}
     private float GetSubT(float t, out int weightIndex) {
         int curveNumber = Mathf.FloorToInt(t*(points.Count-1));
@@ -53,9 +54,9 @@ public class CatmullPath {
     }
     private float DistToT(float distance) {
         if (distance > 0f && distance < arcLength) {
-            for(int i=0;i<LUT.Length-1;i++) {
-                if (distance>LUT[i] && distance<LUT[i]) {
-                    return distance.Remap(LUT[i],LUT[i+1],(float)i/(LUT.Length-1f),(float)(i+1)/(LUT.Length-1f));
+            for(int i=0;i<LUT.Count-1;i++) {
+                if (distance>LUT[i] && distance<LUT[i+1]) {
+                    return distance.Remap(LUT[i],LUT[i+1],(float)i/(LUT.Count-1f),(float)(i+1)/(LUT.Count-1f));
                 }
             }
         }
@@ -64,14 +65,15 @@ public class CatmullPath {
     private void GenerateLUT(int resolution) {
         float dist = 0f;
         Vector3 lastPosition = GetPosition(weights[0],weights[1],weights[2],weights[3],0f);
-        LUT = new float[resolution];
+        LUT.Clear();
         for(int i=0;i<resolution;i++) {
             float t = (((float)i)/(float)resolution);
             int weightIndex;
             float subT = GetSubT(t, out weightIndex);
             Vector3 position = GetPosition(weights[weightIndex], weights[weightIndex+1], weights[weightIndex+2], weights[weightIndex+3], subT);
             dist += Vector3.Distance(lastPosition, position);
-            LUT[i] = dist;
+            lastPosition = position;
+            LUT.Add(dist);
         }
         arcLength = dist;
     }
@@ -83,7 +85,6 @@ public class CatmullPath {
             Vector3 p1 = points[i+1];
 
             Vector3 m0;
-            // Tangent M[k] = (P[k+1] - P[k-1]) / 2
             if (i==0) {
                 m0 = (p1 - p0)*0.5f;
             } else {
@@ -100,7 +101,7 @@ public class CatmullPath {
             weights.Add(m1);
             weights.Add(p1);
         }
-        GenerateLUT(16);
+        GenerateLUT(32);
     }
     public Vector3 GetPositionFromT(float t) {
         int weightIndex;
