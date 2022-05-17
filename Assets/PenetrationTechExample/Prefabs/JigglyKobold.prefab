@@ -2875,7 +2875,9 @@ MonoBehaviour:
   - target: {fileID: 8424650258899061604}
     radius: 0.3
     jiggleSettings: {fileID: 11400000, guid: 78c03b7fa9978ad4a8f6d4d5b217b365, type: 2}
-  targetSkins: []
+  targetSkins:
+  - {fileID: 7452297451520482250}
+  - {fileID: 5330333750980878102}
   wind: {x: 0, y: 0, z: 0}
   debugDraw: 0
 --- !u!1 &9125386716202120455
