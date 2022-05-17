@@ -34,10 +34,10 @@ namespace PenetrationTech {
         private static Vector3 GetAcceleration(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
             // Second derivative (jerk)
             // p''(t) = (12t - 6)p₀ + (6t - 4)m₀ + (-12t + 6)p₁ + (6t - 2)m₁
-            Vector3 curvature = (12 * t - 6) * start
-                + (6 * t - 4) * tanPoint1
-                + (-12 * t + 6) * end
-                + (6 * t - 2) * tanPoint2;
+            Vector3 curvature = (12f * t - 6f) * start
+                + (6f * t - 4f) * tanPoint1
+                + (-12f * t + 6f) * end
+                + (6f * t - 2f) * tanPoint2;
             return curvature;
         }
         
@@ -58,6 +58,12 @@ namespace PenetrationTech {
 
         private Vector3 SampleCurveSegmentPosition(int curveSegmentIndex, float t) {
             return GetPosition(weights[curveSegmentIndex*4], weights[curveSegmentIndex*4+1], weights[curveSegmentIndex*4+2], weights[curveSegmentIndex*4+3], t);
+        }
+        private Vector3 SampleCurveSegmentTangent(int curveSegmentIndex, float t) {
+            return GetVelocity(weights[curveSegmentIndex*4], weights[curveSegmentIndex*4+1], weights[curveSegmentIndex*4+2], weights[curveSegmentIndex*4+3], t);
+        }
+        private Vector3 SampleCurveSegmentAcceleration(int curveSegmentIndex, float t) {
+            return GetAcceleration(weights[curveSegmentIndex*4], weights[curveSegmentIndex*4+1], weights[curveSegmentIndex*4+2], weights[curveSegmentIndex*4+3], t);
         }
 
         private float GetCurveSegmentTimeFromCurveTime(out int curveSegmentIndex, float t) {
@@ -124,6 +130,24 @@ namespace PenetrationTech {
             int curveSegmentIndex;
             float subT = GetCurveSegmentTimeFromCurveTime(out curveSegmentIndex, t);
             return SampleCurveSegmentPosition(curveSegmentIndex, subT);
+        }
+        public Vector3 GetTangentFromDistance(float distance) {
+            float t = DistToTime(distance);
+            return GetTangentFromT(t);
+        }
+        public Vector3 GetAccelerationFromDistance(float distance) {
+            float t = DistToTime(distance);
+            return GetAccelerationFromT(t);
+        }
+        public Vector3 GetTangentFromT(float t) {
+            int curveSegmentIndex;
+            float subT = GetCurveSegmentTimeFromCurveTime(out curveSegmentIndex, t);
+            return SampleCurveSegmentTangent(curveSegmentIndex, subT);
+        }
+        public Vector3 GetAccelerationFromT(float t) {
+            int curveSegmentIndex;
+            float subT = GetCurveSegmentTimeFromCurveTime(out curveSegmentIndex, t);
+            return SampleCurveSegmentAcceleration(curveSegmentIndex, subT);
         }
 
     }
