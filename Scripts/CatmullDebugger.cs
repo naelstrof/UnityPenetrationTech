@@ -18,7 +18,7 @@ public class CatmullDebugger : MonoBehaviour {
         if (path == null) {
             path = new CatmullPath(points);
         }
-        path.SetPoints(points);
+        path.SetWeightsFromPoints(points);
         Vector3 lastPoint = path.GetPositionFromT(0f);
         for (int i=0;i<64;i++) {
             Vector3 newPoint = path.GetPositionFromT((float)i/64f);
