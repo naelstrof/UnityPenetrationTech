@@ -34,7 +34,7 @@ public class CatmullPath {
         return tangent;
     }
     private static Vector3 GetAcceleration(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
-        // Second derivative (curvature)
+        // Second derivative (jerk)
         // p''(t) = (12t - 6)p₀ + (6t - 4)m₀ + (-12t + 6)p₁ + (6t - 2)m₁
         Vector3 curvature = (12 * t - 6) * start
             + (6 * t - 4) * tanPoint1
@@ -77,7 +77,7 @@ public class CatmullPath {
         }
         arcLength = dist;
     }
-    public void SetPoints(Vector3[] newPoints, int lutResolution=8) {
+    public void SetPoints(Vector3[] newPoints) {
         points = new List<Vector3>(newPoints);
         weights.Clear();
         for (int i=0;i<points.Count-1;i++) {
