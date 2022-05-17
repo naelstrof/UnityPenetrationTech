@@ -114,6 +114,8 @@ public class CatmullPath {
         float subT = GetSubT(t, out weightIndex);
         return GetPosition(weights[weightIndex], weights[weightIndex+1], weights[weightIndex+2], weights[weightIndex+3], subT);
     }
+    public List<Vector3> GetWeights() => weights;
+    public List<float> GetDistanceLUT() => LUT;
 }
 
 }

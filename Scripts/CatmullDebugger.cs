@@ -5,8 +5,11 @@ using PenetrationTech;
 
 public class CatmullDebugger : MonoBehaviour {
     [SerializeField]
-    private Vector3[] points;
-    CatmullPath path;
+    protected Vector3[] points;
+    protected CatmullPath path;
+    protected virtual void Start() {
+        path = new CatmullPath(points);
+    }
     void OnDrawGizmos() {
         Gizmos.color = Color.red;
         if (points == null || points.Length < 2) {
