@@ -12,13 +12,16 @@ namespace PenetrationTech {
         private int distanceLUTID;
         private int arcLengthID;
         private int pointCountID;
+        private int binormalLUTID;
         private List<float> packedVectors;
         private List<float> packedLUT;
+        private List<float> packedBinormalLUT;
         protected override void Start() {
             base.Start();
             packedVectors = new List<float>();
             packedLUT = new List<float>();
             targetMaterials = new List<Material>();
+            packedBinormalLUT = new List<float>();
             List<Material> tempMaterials = new List<Material>();
             foreach(Renderer renderer in targetRenderers) {
                 renderer.GetMaterials(tempMaterials);
@@ -28,6 +31,7 @@ namespace PenetrationTech {
             distanceLUTID = Shader.PropertyToID("_DistanceLUT");
             arcLengthID = Shader.PropertyToID("_ArcLength");
             pointCountID = Shader.PropertyToID("_PointCount");
+            binormalLUTID = Shader.PropertyToID("_BinormalLUT");
         }
         void Update() {
             List<Vector3> weights = path.GetWeights();
@@ -42,9 +46,18 @@ namespace PenetrationTech {
             foreach(float dist in LUT) {
                 packedLUT.Add(dist);
             }
+            List<Vector3> binormals = path.GetBinormalLUT();
+            packedBinormalLUT.Clear();
+            foreach(Vector3 binormal in binormals) {
+                packedBinormalLUT.Add(binormal.x);
+                packedBinormalLUT.Add(binormal.y);
+                packedBinormalLUT.Add(binormal.z);
+            }
+
             foreach(Material material in targetMaterials) {
                 material.SetFloatArray(weightArrayID, packedVectors);
                 material.SetFloatArray(distanceLUTID, packedLUT);
+                material.SetFloatArray(binormalLUTID, packedBinormalLUT);
                 material.SetFloat(arcLengthID, path.arcLength);
                 material.SetInt(pointCountID, pointCountID);
             }

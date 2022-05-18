@@ -29,22 +29,17 @@ public class CatmullDebugger : MonoBehaviour {
         for (int i=0;i<points.Length;i++) {
             Gizmos.DrawSphere(points[i], 0.1f);
         }
-        //for (int i=0;i<path.arcLength/0.5f;i++) {
-            //Gizmos.DrawWireSphere(path.GetPositionFromDistance(Mathf.Repeat(Time.time+i*0.5f, path.arcLength)), 0.1f);
-        //}
         Matrix4x4 savedMatrix = Gizmos.matrix;
         int frames = 128;
         for (int i=0;i<frames;i++) {
             float t = (float)i/(float)frames;
-            Gizmos.matrix = path.GetReferenceFrameFromTime(t);
-            //Gizmos.DrawMesh(debugMesh);
+            Gizmos.matrix = path.GetReferenceFrameFromT(t);
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(Vector3.zero, Vector3.forward*0.2f);
             Gizmos.color = Color.red;
             Gizmos.DrawLine(Vector3.zero, Vector3.right*0.2f);
             Gizmos.color = Color.green;
             Gizmos.DrawLine(Vector3.zero, Vector3.up*0.2f);
-            //Gizmos.DrawLine(point, point+tangent*0.1f);
         }
         Gizmos.matrix = savedMatrix;
     }
