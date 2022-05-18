@@ -59,7 +59,7 @@ namespace PenetrationTech {
                 material.SetFloatArray(distanceLUTID, packedLUT);
                 material.SetFloatArray(binormalLUTID, packedBinormalLUT);
                 material.SetFloat(arcLengthID, path.arcLength);
-                material.SetInt(pointCountID, pointCountID);
+                material.SetInt(pointCountID, points.Length);
             }
         }
     }

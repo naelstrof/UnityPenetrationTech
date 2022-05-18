@@ -2393,7 +2393,7 @@ Shader "Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-203;732;1712;973;1461.682;38.8361;1.353166;False;True
+348;794;1712;525;1461.682;30.7171;1.353166;False;True
 Node;AmplifyShaderEditor.WorldToObjectMatrix;13;-843.5535,648.2072;Inherit;False;0;1;FLOAT4x4;0
 Node;AmplifyShaderEditor.ObjectToWorldMatrixNode;15;-767.284,827.0938;Inherit;False;0;1;FLOAT4x4;0
 Node;AmplifyShaderEditor.PosVertexDataNode;5;-1136.649,278.2486;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
@@ -2421,4 +2421,4 @@ WireConnection;17;0;27;0
 WireConnection;17;6;27;4
 WireConnection;17;8;24;0
 ASEEND*/
-//CHKSM=9BBBDBE720C76F3F6779BE30B0FB526BCF71439B
+//CHKSM=20DABAE8F4D7521C7B4E44C740ECB4926B60D9C4
