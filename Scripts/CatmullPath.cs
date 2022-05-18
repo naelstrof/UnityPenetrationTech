@@ -42,6 +42,7 @@ namespace PenetrationTech {
         public float arcLength {get; private set;}
         public List<Vector3> GetWeights() => weights;
         public List<float> GetDistanceLUT() => distanceLUT;
+        public List<Vector3> GetBinormalLUT() => binormalLUT;
 
         public CatmullPath(Vector3[] newPoints) {
             points = new List<Vector3>();
@@ -90,13 +91,16 @@ namespace PenetrationTech {
             }
             arcLength = dist;
         }
-        private void GenerateNormalLUT(int resolution) {
+        private void GenerateBinormalLUT(int resolution) {
             // https://en.wikipedia.org/wiki/Frenet%E2%80%93Serret_formulas
             // https://janakiev.com/blog/framing-parametric-curves/
             binormalLUT.Clear();
             Vector3 lastTangent = GetVelocityFromT(0).normalized;
             // Initial reference frame, uses Vector3.up
             Vector3 lastBinormal = Vector3.Cross(GetVelocityFromT(0),Vector3.up).normalized;
+            if (lastBinormal.magnitude == 0f) {
+                lastBinormal = Vector3.Cross(GetVelocityFromT(0),Vector3.right).normalized;
+            }
             for(int i=0;i<resolution;i++) {
                 float t = (((float)i)/(float)resolution);
                 Vector3 point = GetPositionFromT(t);
@@ -147,7 +151,7 @@ namespace PenetrationTech {
                 weights.Add(p1);
             }
             GenerateDistanceLUT(32);
-            GenerateNormalLUT(32);
+            GenerateBinormalLUT(16);
         }
         public Vector3 GetPositionFromDistance(float distance) {
             float t = DistToTime(distance);
@@ -191,8 +195,8 @@ namespace PenetrationTech {
             // Change of basis https://math.stackexchange.com/questions/3540973/change-of-coordinates-and-change-of-basis-matrices
             // It also shows up here: https://docs.unity3d.com/ScriptReference/Vector3.OrthoNormalize.html
             Matrix4x4 BezierBasis = new Matrix4x4();
-            BezierBasis.SetRow(0,binormal); // Our X axis
-            BezierBasis.SetRow(1,normal); // Y Axis
+            BezierBasis.SetRow(0,-binormal); // Our X axis
+            BezierBasis.SetRow(1,-normal); // Y Axis
             BezierBasis.SetRow(2,tangent); // Z Axis
             BezierBasis[3,3] = 1f;
             // Change of basis formula is B = P⁻¹ * A * P, where P is the basis transform.
