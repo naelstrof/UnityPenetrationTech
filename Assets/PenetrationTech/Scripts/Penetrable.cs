@@ -12,7 +12,7 @@ namespace PenetrationTech {
             foreach(Vector3 point in points) {
                 worldPoints.Add(transform.TransformPoint(point));
             }
-            path = new CatmullPath(worldPoints);
+            path = new CatmullPath().SetWeightsFromPoints(worldPoints);
         }
         // This is all really nasty, it'd be nice if I can just set a transform on the path directly.
         private void CheckUpdate() {
@@ -25,9 +25,9 @@ namespace PenetrationTech {
                     worldPoints.Add(transform.TransformPoint(points[i]));
                 }
                 if (path == null) {
-                    path = new CatmullPath(worldPoints);
+                    path = new CatmullPath().SetWeightsFromPoints(worldPoints);
                 } else {
-                    path.SetWeightsFromPoints(worldPoints);
+                    (path as CatmullPath).SetWeightsFromPoints(worldPoints);
                 }
                 transform.hasChanged = false;
             }

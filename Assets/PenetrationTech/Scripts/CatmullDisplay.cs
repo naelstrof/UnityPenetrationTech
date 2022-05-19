@@ -6,7 +6,7 @@ namespace PenetrationTech {
     public class CatmullDisplay : CatmullBehaviour {
         protected virtual void OnDrawGizmosSelected() {
             Gizmos.color = Color.red;
-            if (path == null || path.GetPoints().Count < 2) {
+            if (path == null || path.GetWeights().Count < 4) {
                 return;
             }
             Vector3 lastPoint = path.GetPositionFromT(0f);
@@ -15,9 +15,15 @@ namespace PenetrationTech {
                 Gizmos.DrawLine(lastPoint, newPoint);
                 lastPoint = newPoint;
             }
-            Gizmos.color = Color.green;
-            foreach(Vector3 point in path.GetPoints()) {
-                Gizmos.DrawSphere(point, 0.1f);
+            for (int i=0;i<path.GetWeights().Count;i+=4) {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(path.GetWeights()[i], 0.05f);
+                Gizmos.DrawSphere(path.GetWeights()[i+3], 0.05f);
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLine(path.GetWeights()[i], path.GetWeights()[i]+path.GetWeights()[i+1]);
+                Gizmos.DrawWireSphere(path.GetWeights()[i]+path.GetWeights()[i+1], 0.025f);
+                Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.025f);
+                Gizmos.DrawLine(path.GetWeights()[i+3], path.GetWeights()[i+3]+path.GetWeights()[i+2]);
             }
             /*Matrix4x4 savedMatrix = Gizmos.matrix;
             int frames = 32;

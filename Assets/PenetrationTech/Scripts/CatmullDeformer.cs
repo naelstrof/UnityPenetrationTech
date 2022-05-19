@@ -49,19 +49,19 @@ namespace PenetrationTech {
             binormalLUTID = Shader.PropertyToID("_BinormalLUT");
         }
         protected virtual void Update() {
-            List<Vector3> weights = path.GetWeights();
+            IList<Vector3> weights = path.GetWeights();
             packedVectors.Clear();
             foreach(Vector3 weight in weights) {
                 packedVectors.Add(weight.x);
                 packedVectors.Add(weight.y);
                 packedVectors.Add(weight.z);
             }
-            List<float> LUT = path.GetDistanceLUT();
+            IList<float> LUT = path.GetDistanceLUT();
             packedLUT.Clear();
             foreach(float dist in LUT) {
                 packedLUT.Add(dist);
             }
-            List<Vector3> binormals = path.GetBinormalLUT();
+            IList<Vector3> binormals = path.GetBinormalLUT();
             packedBinormalLUT.Clear();
             foreach(Vector3 binormal in binormals) {
                 packedBinormalLUT.Add(binormal.x);
@@ -74,7 +74,7 @@ namespace PenetrationTech {
                 material.SetFloatArray(distanceLUTID, packedLUT);
                 material.SetFloatArray(binormalLUTID, packedBinormalLUT);
                 material.SetFloat(arcLengthID, path.arcLength);
-                material.SetInt(pointCountID, path.GetPoints().Count);
+                material.SetInt(pointCountID, path.GetWeights().Count/4);
             }
         }
     }
