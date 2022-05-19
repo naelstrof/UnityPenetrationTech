@@ -195,8 +195,8 @@ namespace PenetrationTech {
             // Change of basis https://math.stackexchange.com/questions/3540973/change-of-coordinates-and-change-of-basis-matrices
             // It also shows up here: https://docs.unity3d.com/ScriptReference/Vector3.OrthoNormalize.html
             Matrix4x4 BezierBasis = new Matrix4x4();
-            BezierBasis.SetRow(0,-binormal); // Our X axis
-            BezierBasis.SetRow(1,-normal); // Y Axis
+            BezierBasis.SetRow(0,binormal); // Our X axis
+            BezierBasis.SetRow(1,normal); // Y Axis
             BezierBasis.SetRow(2,tangent); // Z Axis
             BezierBasis[3,3] = 1f;
             // Change of basis formula is B = P⁻¹ * A * P, where P is the basis transform.
