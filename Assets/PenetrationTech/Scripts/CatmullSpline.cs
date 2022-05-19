@@ -130,7 +130,7 @@ namespace PenetrationTech {
                 binormalLUT[i] = Quaternion.AngleAxis(-overallAngle*t, GetVelocityFromT(t).normalized)*binormalLUT[i];
             }
         }
-        public CatmullSpline SetWeights(ICollection<Vector3> newWeights) {
+        public CatmullSpline SetWeights(IList<Vector3> newWeights) {
             // weights come in pairs of 4, otherwise there's been a problem!
             UnityEngine.Assertions.Assert.AreEqual(newWeights.Count%4,0);
             weights.Clear();
@@ -140,23 +140,21 @@ namespace PenetrationTech {
             return this;
         }
 
-        /*public void SetWeightsFromPoints(ICollection<Vector3> newPoints) {
-            points.Clear();
-            points.AddRange(newPoints);
+        public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints) {
             weights.Clear();
-            for (int i=0;i<points.Count-1;i++) {
-                Vector3 p0 = points[i];
-                Vector3 p1 = points[i+1];
+            for (int i=0;i<newPoints.Count-1;i++) {
+                Vector3 p0 = newPoints[i];
+                Vector3 p1 = newPoints[i+1];
 
                 Vector3 m0;
                 if (i==0) {
                     m0 = (p1 - p0)*0.5f;
                 } else {
-                    m0 = (p1 - points[i-1])*0.5f;
+                    m0 = (p1 - newPoints[i-1])*0.5f;
                 }
                 Vector3 m1;
-                if (i < points.Count - 2) {
-                    m1 = (points[(i + 2) % points.Count] - p0)*0.5f;
+                if (i < newPoints.Count - 2) {
+                    m1 = (newPoints[(i + 2) % newPoints.Count] - p0)*0.5f;
                 } else {
                     m1 = (p1 - p0)*0.5f;
                 }
@@ -167,7 +165,8 @@ namespace PenetrationTech {
             }
             GenerateDistanceLUT(32);
             GenerateBinormalLUT(16);
-        }*/
+            return this;
+        }
         public Vector3 GetPositionFromDistance(float distance) {
             float t = DistToTime(distance);
             return GetPositionFromT(t);
