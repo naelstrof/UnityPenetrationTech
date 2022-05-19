@@ -60,6 +60,36 @@ float3 RotateAroundAxisPenetration(float3 original, float3 axis, float angle ) {
     float3x3 finalMatrix = float3x3( m00, m01, m02, m10, m11, m12, m20, m21, m22 );
     return mul( finalMatrix, original );
 }
+float3 SampleCurveSegmentPosition(int curveSegmentIndex, float t) {
+    int index = curveSegmentIndex*3*4;
+    float3 start =      float3(_WeightArray[index], _WeightArray[index+1], _WeightArray[index+2]);
+    float3 tanPoint1 =  float3(_WeightArray[index+3], _WeightArray[index+4], _WeightArray[index+5]);
+    float3 tanPoint2 =  float3(_WeightArray[index+6], _WeightArray[index+7], _WeightArray[index+8]);
+    float3 end =        float3(_WeightArray[index+9], _WeightArray[index+10], _WeightArray[index+11]);
+    // Using the expanded form of a Hermite basis functions
+    // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
+    // p(t) = (2t³ - 3t² + 1)p₀ + (t³ - 2t² + t)m₀ + (-2t³ + 3t²)p₁ + (t³ - t²)m₁
+    return  (2.0 * t * t * t - 3.0 * t * t + 1.0) * start
+            + (t * t * t - 2.0 * t * t + t) * tanPoint1
+            + (-2.0 * t * t * t + 3.0 * t * t) * end
+            + (t * t * t - t * t) * tanPoint2;
+
+}
+float3 SampleCurveSegmentVelocity(int curveSegmentIndex, float t) {
+    int index = curveSegmentIndex*3*4;
+    float3 start =      float3(_WeightArray[index], _WeightArray[index+1], _WeightArray[index+2]);
+    float3 tanPoint1 =  float3(_WeightArray[index+3], _WeightArray[index+4], _WeightArray[index+5]);
+    float3 tanPoint2 =  float3(_WeightArray[index+6], _WeightArray[index+7], _WeightArray[index+8]);
+    float3 end =        float3(_WeightArray[index+9], _WeightArray[index+10], _WeightArray[index+11]);
+    // Using the expanded form of a Hermite basis functions
+    // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
+    // First derivative (velocity)
+    // p'(t) = (6t² - 6t)p₀ + (3t² - 4t + 1)m₀ + (-6t² + 6t)p₁ + (3t² - 2t)m₁
+    return  (6.0 * t * t - 6.0 * t) * start
+            + (3.0 * t * t - 4.0 * t + 1.0) * tanPoint1
+            + (-6.0 * t * t + 6.0 * t) * end
+            + (3.0 * t * t - 2.0 * t) * tanPoint2;
+}
 void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in float3 normal, in float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
     // This depends on the model, blender defaults to Y forward, X right, and Z up.
     float3 dickForward = float3(0,1,0);
@@ -85,30 +115,9 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
     float subT = GetCurveSegment(t, curveSegmentIndex);
-    
-    // Grab the weights, unfortunately they're packed as floats so we access them like this. I don't think this has any effective slowdown though.
-    int index = curveSegmentIndex*3*4;
-    float3 start =      float3(_WeightArray[index], _WeightArray[index+1], _WeightArray[index+2]);
-    float3 tanPoint1 =  float3(_WeightArray[index+3], _WeightArray[index+4], _WeightArray[index+5]);
-    float3 tanPoint2 =  float3(_WeightArray[index+6], _WeightArray[index+7], _WeightArray[index+8]);
-    float3 end =        float3(_WeightArray[index+9], _WeightArray[index+10], _WeightArray[index+11]);
 
-    // Using the expanded form of a Hermite basis functions
-    // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
-    // p(t) = (2t³ - 3t² + 1)p₀ + (t³ - 2t² + t)m₀ + (-2t³ + 3t²)p₁ + (t³ - t²)m₁
-    float3 catPosition = (2.0 * subT * subT * subT - 3.0 * subT * subT + 1.0) * start
-                    + (subT * subT * subT - 2.0 * subT * subT + subT) * tanPoint1
-                    + (-2.0 * subT * subT * subT + 3.0 * subT * subT) * end
-                    + (subT * subT * subT - subT * subT) * tanPoint2;
-
-    // First derivative (velocity)
-    // p'(t) = (6t² - 6t)p₀ + (3t² - 4t + 1)m₀ + (-6t² + 6t)p₁ + (3t² - 2t)m₁
-    float3 catTangent = (6.0 * subT * subT - 6.0 * subT) * start
-                    + (3.0 * subT * subT - 4.0 * subT + 1.0) * tanPoint1
-                    + (-6.0 * subT * subT + 6.0 * subT) * end
-                    + (3.0 * subT * subT - 2.0 * subT) * tanPoint2;
-
-    // Forward would be our tangent.
+    float3 catPosition = SampleCurveSegmentPosition(curveSegmentIndex, subT);
+    float3 catTangent = SampleCurveSegmentVelocity(curveSegmentIndex, subT);
     float3 catForward = normalize(catTangent);
     // We sample the Binormal from a lookup-table, to prevent flipping and twisting.
     // https://en.wikipedia.org/wiki/Frenet%E2%80%93Serret_formulas
@@ -116,6 +125,10 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     float3 catRight = GetBinormalFromT(t);
     // We can just figure out our normal with a cross product.
     float3 catUp = normalize(cross(catForward,catRight));
+
+    float3 initialRight = GetBinormalFromT(0);
+    float3 initialForward = normalize(SampleCurveSegmentVelocity(0,0));
+    float3 initialUp = normalize(cross(initialForward, initialRight));
 
 
     // Change of basis https://math.stackexchange.com/questions/3540973/change-of-coordinates-and-change-of-basis-matrices
@@ -145,7 +158,7 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     worldToDickBasisTransform[2][1] = worldDickForward.y;
     worldToDickBasisTransform[2][2] = worldDickForward.z;
     // Get the rotation around dickforward that we need to do.
-    float2 worldDickUpFlat = float2(dot(worldDickUp,catRight), dot(worldDickUp,catUp));
+    float2 worldDickUpFlat = float2(dot(worldDickUp,initialRight), dot(worldDickUp,initialUp));
     float angle = atan2(worldDickUpFlat.y, worldDickUpFlat.x)-1.57079632679;
 
     // Frame refers to the particular slice of the model we're working on, normals don't really have anything special about them in the frame.
