@@ -41,20 +41,41 @@ float DistanceToTime(float distance) {
     }
     return distance/_ArcLength;
 }
-float3 ToCatmullRomSpace(float3 dickRootPosition, float3 position, float4x4 worldToObject, float4x4 objectToWorld) {
+float GetVectorAngle(float3 a, float3 b) {
+    return acos(dot(a,b));
+}
+float3 RotateAroundAxisPenetration(float3 original, float3 axis, float angle ) {
+    float C = cos( angle );
+    float S = sin( angle );
+    float t = 1 - C;
+    float m00 = t * axis.x * axis.x + C;
+    float m01 = t * axis.x * axis.y - S * axis.z;
+    float m02 = t * axis.x * axis.z + S * axis.y;
+    float m10 = t * axis.x * axis.y + S * axis.z;
+    float m11 = t * axis.y * axis.y + C;
+    float m12 = t * axis.y * axis.z - S * axis.x;
+    float m20 = t * axis.x * axis.z - S * axis.y;
+    float m21 = t * axis.y * axis.z + S * axis.x;
+    float m22 = t * axis.z * axis.z + C;
+    float3x3 finalMatrix = float3x3( m00, m01, m02, m10, m11, m12, m20, m21, m22 );
+    return mul( finalMatrix, original );
+}
+void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in float3 normal, in float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
     // This depends on the model, blender defaults to Y forward, X right, and Z up.
     float3 dickForward = float3(0,1,0);
     float3 dickRight = float3(1,0,0);
-    float3 dickUp = float3(0,0,1);
+    float3 dickUp = float3(0,0,-1);
 
     // We want to work in world space, as everything we're working with is there. Here we convert everything into world space.
     float3 worldPosition = mul(objectToWorld,float4(position.xyz,1)).xyz;
     float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
 
-    // Ensure these are world space directions by normalizing and discarding the w component.
+    // Ensure these are world space directions by normalizing and using 0 in the w component.
     float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
     float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
     float3 worldDickUp = normalize(mul(objectToWorld,float4(dickUp.xyz,0)).xyz);
+    float3 worldNormal = normalize(mul(objectToWorld,float4(normal.xyz,0)).xyz);
+    float3 worldTangent = normalize(mul(objectToWorld,float4(tangent.xyz,0)).xyz);
     
     // Dot product gives us how far along an axis a position is. This is the dick length distance from the dick root to the particular position.
     float dist = dot(worldDickForward, (worldPosition - worldDickRootPos));
@@ -101,12 +122,12 @@ float3 ToCatmullRomSpace(float3 dickRootPosition, float3 position, float4x4 worl
     // It also shows up here: https://docs.unity3d.com/ScriptReference/Vector3.OrthoNormalize.html
     // Goes from dick space into catmull rom space.
     float3x3 dickToCatmullBasisTransform = 0;
-    dickToCatmullBasisTransform[0][0] = catRight.x;
-    dickToCatmullBasisTransform[0][1] = catRight.y;
-    dickToCatmullBasisTransform[0][2] = catRight.z;
-    dickToCatmullBasisTransform[1][0] = catUp.x;
-    dickToCatmullBasisTransform[1][1] = catUp.y;
-    dickToCatmullBasisTransform[1][2] = catUp.z;
+    dickToCatmullBasisTransform[0][0] = -catRight.x;
+    dickToCatmullBasisTransform[0][1] = -catRight.y;
+    dickToCatmullBasisTransform[0][2] = -catRight.z;
+    dickToCatmullBasisTransform[1][0] = -catUp.x;
+    dickToCatmullBasisTransform[1][1] = -catUp.y;
+    dickToCatmullBasisTransform[1][2] = -catUp.z;
     dickToCatmullBasisTransform[2][0] = catForward.x;
     dickToCatmullBasisTransform[2][1] = catForward.y;
     dickToCatmullBasisTransform[2][2] = catForward.z;
@@ -117,12 +138,23 @@ float3 ToCatmullRomSpace(float3 dickRootPosition, float3 position, float4x4 worl
     worldToDickBasisTransform[0][0] = worldDickRight.x;
     worldToDickBasisTransform[0][1] = worldDickRight.y;
     worldToDickBasisTransform[0][2] = worldDickRight.z;
-    worldToDickBasisTransform[1][0] = -worldDickUp.x; // FIXME: Not sure why some of these need to be inverted. I'm guessing it has to do with the model's orientation-- or the bitangent of the curve is backwards.
-    worldToDickBasisTransform[1][1] = -worldDickUp.y;
-    worldToDickBasisTransform[1][2] = -worldDickUp.z;
+    worldToDickBasisTransform[1][0] = worldDickUp.x;
+    worldToDickBasisTransform[1][1] = worldDickUp.y;
+    worldToDickBasisTransform[1][2] = worldDickUp.z;
     worldToDickBasisTransform[2][0] = worldDickForward.x;
     worldToDickBasisTransform[2][1] = worldDickForward.y;
     worldToDickBasisTransform[2][2] = worldDickForward.z;
+
+    // Frame refers to the particular slice of the model we're working on, normals don't really have anything special about them in the frame.
+    float3 worldFrameNormal = worldNormal;
+    float3 localFrameNormal = mul(worldToDickBasisTransform, worldFrameNormal.xyz).xyz;
+    float3 worldFrameNormalRotated = mul(dickToCatmullBasisTransform, localFrameNormal.xyz);
+    normalOUT = normalize(mul(worldToObject, float4(worldFrameNormalRotated,0)).xyz);
+
+    float3 worldFrameTangent = worldTangent;
+    float3 localFrameTangent = mul(worldToDickBasisTransform, worldFrameTangent.xyz).xyz;
+    float3 worldFrameTangentRotated = mul(dickToCatmullBasisTransform, localFrameTangent.xyz).xyz;
+    tangentOUT = float4(normalize(mul(worldToObject, float4(worldFrameTangentRotated,0)).xyz).xyz, tangent.w);
 
     // Frame refers to the particular slice of the model we're working on, 0,0,0 being the core of the cylinder.
     float3 worldFrame = (worldPosition - (worldDickRootPos+worldDickForward*dist));
@@ -132,9 +164,16 @@ float3 ToCatmullRomSpace(float3 dickRootPosition, float3 position, float4x4 worl
     // Then we basis transform it again into catmull rom-space, with another basis transform.
     float3 worldFrameRotated = mul(dickToCatmullBasisTransform,localFrame).xyz;
 
+    // NASTY SOLUTION
+    //float3 worldDickUpFlat = normalize(worldDickUp + dot(-worldDickUp,catForward)*catForward);
+    // Find the angle between our real dick-up, and the catmull up:
+    //float angle = GetVectorAngle(catUp,worldDickUpFlat);
+    // Use that angle to respect our original rotation.
+    //worldFrameRotated = RotateAroundAxisPenetration(worldFrameRotated, catForward, angle);
+
     // It will still be centered around 0,0,0, so we simply add the curve sample position we made earlier.
     float3 catmullSpacePosition = catPosition+worldFrameRotated;
 
     // Bring it back into object space, now that we're done working on it.
-    return mul(worldToObject,float4(catmullSpacePosition,1)).xyz;
+    positionOUT = mul(worldToObject,float4(catmullSpacePosition,1)).xyz;
 }
