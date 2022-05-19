@@ -122,12 +122,12 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     // It also shows up here: https://docs.unity3d.com/ScriptReference/Vector3.OrthoNormalize.html
     // Goes from dick space into catmull rom space.
     float3x3 dickToCatmullBasisTransform = 0;
-    dickToCatmullBasisTransform[0][0] = -catRight.x;
-    dickToCatmullBasisTransform[0][1] = -catRight.y;
-    dickToCatmullBasisTransform[0][2] = -catRight.z;
-    dickToCatmullBasisTransform[1][0] = -catUp.x;
-    dickToCatmullBasisTransform[1][1] = -catUp.y;
-    dickToCatmullBasisTransform[1][2] = -catUp.z;
+    dickToCatmullBasisTransform[0][0] = catRight.x;
+    dickToCatmullBasisTransform[0][1] = catRight.y;
+    dickToCatmullBasisTransform[0][2] = catRight.z;
+    dickToCatmullBasisTransform[1][0] = catUp.x;
+    dickToCatmullBasisTransform[1][1] = catUp.y;
+    dickToCatmullBasisTransform[1][2] = catUp.z;
     dickToCatmullBasisTransform[2][0] = catForward.x;
     dickToCatmullBasisTransform[2][1] = catForward.y;
     dickToCatmullBasisTransform[2][2] = catForward.z;
@@ -144,32 +144,31 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     worldToDickBasisTransform[2][0] = worldDickForward.x;
     worldToDickBasisTransform[2][1] = worldDickForward.y;
     worldToDickBasisTransform[2][2] = worldDickForward.z;
+    // Get the rotation around dickforward that we need to do.
+    float2 worldDickUpFlat = float2(dot(worldDickUp,catRight), dot(worldDickUp,catUp));
+    float angle = atan2(worldDickUpFlat.y, worldDickUpFlat.x)-1.57079632679;
 
     // Frame refers to the particular slice of the model we're working on, normals don't really have anything special about them in the frame.
     float3 worldFrameNormal = worldNormal;
     float3 localFrameNormal = mul(worldToDickBasisTransform, worldFrameNormal.xyz).xyz;
     float3 worldFrameNormalRotated = mul(dickToCatmullBasisTransform, localFrameNormal.xyz);
+    worldFrameNormalRotated = RotateAroundAxisPenetration(worldFrameNormalRotated, catForward, angle);
     normalOUT = normalize(mul(worldToObject, float4(worldFrameNormalRotated,0)).xyz);
 
     float3 worldFrameTangent = worldTangent;
     float3 localFrameTangent = mul(worldToDickBasisTransform, worldFrameTangent.xyz).xyz;
     float3 worldFrameTangentRotated = mul(dickToCatmullBasisTransform, localFrameTangent.xyz).xyz;
+    worldFrameTangentRotated = RotateAroundAxisPenetration(worldFrameTangentRotated, catForward, angle);
     tangentOUT = float4(normalize(mul(worldToObject, float4(worldFrameTangentRotated,0)).xyz).xyz, tangent.w);
 
     // Frame refers to the particular slice of the model we're working on, 0,0,0 being the core of the cylinder.
     float3 worldFrame = (worldPosition - (worldDickRootPos+worldDickForward*dist));
     // Rotate into dick space, using the basis transform
     float3 localFrame = mul(worldToDickBasisTransform, worldFrame.xyz).xyz;
-
     // Then we basis transform it again into catmull rom-space, with another basis transform.
     float3 worldFrameRotated = mul(dickToCatmullBasisTransform,localFrame).xyz;
-
-    // NASTY SOLUTION
-    //float3 worldDickUpFlat = normalize(worldDickUp + dot(-worldDickUp,catForward)*catForward);
-    // Find the angle between our real dick-up, and the catmull up:
-    //float angle = GetVectorAngle(catUp,worldDickUpFlat);
-    // Use that angle to respect our original rotation.
-    //worldFrameRotated = RotateAroundAxisPenetration(worldFrameRotated, catForward, angle);
+    // Finally rotate it to face our original updir
+    worldFrameRotated = RotateAroundAxisPenetration(worldFrameRotated, catForward, angle);
 
     // It will still be centered around 0,0,0, so we simply add the curve sample position we made earlier.
     float3 catmullSpacePosition = catPosition+worldFrameRotated;
