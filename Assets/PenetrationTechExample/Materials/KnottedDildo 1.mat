@@ -7,19 +7,24 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: KnottedDildo
-  m_Shader: {fileID: 4800000, guid: e8ffc09d5c96c374bb13dd365fa61d41, type: 3}
-  m_ShaderKeywords: _DEFORM_BALLS_ON
+  m_Name: KnottedDildo 1
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_ShaderKeywords: _METALLICSPECGLOSSMAP _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseColorMap:
+        m_Texture: {fileID: 2800000, guid: a7fd0f05ef2dbbd43ac64dff86a86708, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
         m_Texture: {fileID: 2800000, guid: a7fd0f05ef2dbbd43ac64dff86a86708, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -52,7 +57,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b6ba1a4a299c969449e3ec084c188366, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
@@ -64,6 +69,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -85,20 +94,27 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - Vector1_c6bbb8ee021d4ae4adcd4c77bc5824cf: 0
+    - _AlphaClip: 0
     - _AlphaCutoff: 0.5
+    - _Blend: 0
     - _BlendshapeMultiplier: 1.4747995
     - _BulgePercentage: 0.1
     - _BumpScale: 1
     - _CLIP_DICK: 0
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
     - _ClipDick: 0
+    - _Cull: 2
     - _CumActive: 0
     - _CumProgress: 0
     - _Cutoff: 0.5
     - _DEFORM_BALLS: 1
     - _DeformBalls: 0
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DickLength: 0.52327734
     - _DstBlend: 0
+    - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -119,15 +135,21 @@ Material:
     - _PenetratorCumProgress: 0
     - _PenetratorLength: 0.71317315
     - _PenetratorSquishPullAmount: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SquishPullAmount: 0
     - _SrcBlend: 1
-    - _Testing: 1
+    - _Surface: 0
+    - _Testing: 0
     - _UVSec: 0
+    - _WorkflowMode: 1
     - _ZWrite: 1
     - __dirty: 0
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DeformOrigin: {r: -0.0000006888933, g: 0.02680413, b: 0.000000676036, a: 0}
     - _DickForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
@@ -150,4 +172,18 @@ Material:
     - _PenetratorOrigin: {r: -0.0073128575, g: -0.05887074, b: 0.21560934, a: 0}
     - _PenetratorRight: {r: 0.99854076, g: 0.0369581, b: 0.03937532, a: 0}
     - _PenetratorUp: {r: 0.03366355, g: -0.99612296, b: 0.0812768, a: 0}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &7923559374163130137
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 4

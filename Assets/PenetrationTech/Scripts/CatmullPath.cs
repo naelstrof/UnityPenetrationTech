@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PenetrationTech {
     public class CatmullPath {
-        public static float Remap (float value, float from1, float to1, float from2, float to2) {
+        private static float Remap (float value, float from1, float to1, float from2, float to2) {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
         private static Vector3 GetPosition(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
@@ -40,11 +40,14 @@ namespace PenetrationTech {
         private List<float> distanceLUT;
         private List<Vector3> binormalLUT;
         public float arcLength {get; private set;}
+
+        // FIXME: How do we prevent users from editing these arrays? Do we only return copies?
         public List<Vector3> GetWeights() => weights;
         public List<float> GetDistanceLUT() => distanceLUT;
         public List<Vector3> GetBinormalLUT() => binormalLUT;
+        public List<Vector3> GetPoints() => points;
 
-        public CatmullPath(Vector3[] newPoints) {
+        public CatmullPath(ICollection<Vector3> newPoints) {
             points = new List<Vector3>();
             weights = new List<Vector3>();
             distanceLUT = new List<float>();
@@ -125,7 +128,7 @@ namespace PenetrationTech {
                 binormalLUT[i] = Quaternion.AngleAxis(-overallAngle*t, GetVelocityFromT(t).normalized)*binormalLUT[i];
             }
         }
-        public void SetWeightsFromPoints(Vector3[] newPoints) {
+        public void SetWeightsFromPoints(ICollection<Vector3> newPoints) {
             points.Clear();
             points.AddRange(newPoints);
             weights.Clear();
