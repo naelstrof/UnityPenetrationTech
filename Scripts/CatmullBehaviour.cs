@@ -4,6 +4,6 @@ using UnityEngine;
 using PenetrationTech;
 
 public class CatmullBehaviour : MonoBehaviour {
-    protected CatmullPath path;
-    public CatmullPath GetPath() => path;
+    protected CatmullSpline path;
+    public CatmullSpline GetPath() => path;
 }
