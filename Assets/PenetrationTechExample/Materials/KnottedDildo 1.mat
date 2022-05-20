@@ -95,7 +95,7 @@ Material:
     - Vector1_c6bbb8ee021d4ae4adcd4c77bc5824cf: 0
     - _AlphaClip: 0
     - _AlphaCutoff: 0.5
-    - _Blend: 1
+    - _Blend: 0
     - _BlendshapeMultiplier: 1.4747995
     - _BulgePercentage: 0.1
     - _BumpScale: 1

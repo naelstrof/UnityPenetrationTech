@@ -6,6 +6,10 @@ namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
         private List<Vector3> weights = new List<Vector3>();
         [SerializeField]
+        private Transform rootBone;
+        [SerializeField]
+        private GirthData girthData;
+        [SerializeField]
         private Penetrable targetHole;
         protected override void Start() {
             base.Start();
@@ -15,6 +19,7 @@ namespace PenetrationTech {
             weights.Add(transform.position+transform.forward*0.5f);
             weights.Add(transform.position+transform.forward);
             path = new CatmullSpline().SetWeights(weights);
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, -Vector3.up, Vector3.forward);
         }
         protected override void Update() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
