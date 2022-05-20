@@ -14,13 +14,17 @@ public class GirthData {
         changeOfBasis.SetRow(2, localDickForward);
         changeOfBasis[3,3] = 1f;
         Vector3 worldSpaceDickRoot = root.TransformPoint(localDickRoot);
-        Vector3 dickSpaceDickRoot;
+        Vector3 localSpaceDickRoot;
         if (renderer is SkinnedMeshRenderer) {
-            dickSpaceDickRoot = (renderer as SkinnedMeshRenderer).rootBone.InverseTransformPoint(worldSpaceDickRoot);
+            localSpaceDickRoot = (renderer as SkinnedMeshRenderer).rootBone.InverseTransformPoint(worldSpaceDickRoot);
         } else {
-            dickSpaceDickRoot = renderer.transform.InverseTransformPoint(worldSpaceDickRoot);
+            localSpaceDickRoot = renderer.transform.InverseTransformPoint(worldSpaceDickRoot);
         }
-        
+
+        Vector3 dickSpaceDickRoot = changeOfBasis.MultiplyPoint(localSpaceDickRoot);
+        foreach(Vector3 vertexPosition in mesh.vertices) {
+            
+        }
 
     }
 }
