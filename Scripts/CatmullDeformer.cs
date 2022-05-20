@@ -16,6 +16,7 @@ namespace PenetrationTech {
         private List<float> packedVectors;
         private List<float> packedLUT;
         private List<float> packedBinormalLUT;
+        public System.Collections.ObjectModel.ReadOnlyCollection<Renderer> GetTargetRenderers() => targetRenderers.AsReadOnly();
         public void AddTargetRenderer(Renderer renderer) {
             List<Material> tempMaterials = new List<Material>();
             renderer.GetMaterials(tempMaterials);
