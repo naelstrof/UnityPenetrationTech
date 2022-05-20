@@ -7,14 +7,15 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: KnottedDildo 1
-  m_Shader: {fileID: 4800000, guid: 98f6c14a296578642a0aa3d859b72867, type: 3}
+  m_Name: KnottedDildo 2
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_ShaderKeywords: _METALLICSPECGLOSSMAP _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -95,7 +96,7 @@ Material:
     - Vector1_c6bbb8ee021d4ae4adcd4c77bc5824cf: 0
     - _AlphaClip: 0
     - _AlphaCutoff: 0.5
-    - _Blend: 1
+    - _Blend: 0
     - _BlendshapeMultiplier: 1.4747995
     - _BulgePercentage: 0.1
     - _BumpScale: 1
@@ -111,7 +112,7 @@ Material:
     - _DeformBalls: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DickLength: 0.443
+    - _DickLength: 0.52327734
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 1
@@ -144,7 +145,6 @@ Material:
     - _Surface: 0
     - _Testing: 0
     - _UVSec: 0
-    - _Unwrap: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     - __dirty: 0
@@ -153,7 +153,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DeformOrigin: {r: -0.0000006888933, g: 0.02680413, b: 0.000000676036, a: 0}
     - _DickForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
-    - _DickOrigin: {r: -0.0000006903836, g: 0, b: 0.0000006770761, a: 0}
+    - _DickOrigin: {r: -0.0000006903836, g: 0.026804144, b: 0.0000006770761, a: 0}
     - _DickRight: {r: 1, g: -0.000000008648601, b: -0.00000008334374, a: 0}
     - _DickUp: {r: -0.00000007563644, g: -0.00000027305444, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
