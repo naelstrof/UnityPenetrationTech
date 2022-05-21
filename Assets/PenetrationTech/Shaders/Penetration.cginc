@@ -1,45 +1,51 @@
-// Each of these are float3's
-#define WEIGHT_COUNT 24 
+#define SUB_SPLINE_COUNT 6 
 #define BINORMAL_COUNT 16
-// These are just floats, we can have more
 #define DISTANCE_COUNT 32
 
-uniform int _PointCount;
-uniform float _ArcLength;
-uniform float _WeightArray[WEIGHT_COUNT*3];
-uniform float _DistanceLUT[DISTANCE_COUNT];
-uniform float _BinormalLUT[BINORMAL_COUNT*3];
+struct CatmullSplineData {
+    int pointCount;
+    float arcLength;
+    float weightArray[SUB_SPLINE_COUNT*4*3];
+    float distanceLUT[DISTANCE_COUNT];
+    float binormalLUT[BINORMAL_COUNT*3];
+};
 
-float3 GetBinormalFromT(float t) {
+uniform int _CatmullSplineCount;
+// FIXME: I'm not actually sure this can even compile on mobile platforms. We need to double check.
+// Thoeretically there's no reason to use dynamic buffers like this (we should have static spline counts anyway).
+// But this was the most convienient way I could think of for the programming side of things.
+StructuredBuffer<CatmullSplineData> _CatmullSplines;
+
+float3 GetBinormalFromT(int curveIndex, float t) {
     int count = BINORMAL_COUNT;
     int index = floor(t*(float)(count-1));
     float offseted = t-((float)index/(float)(count-1));
     float lerpT = offseted * (float)(count-1);
-    float3 a = float3(_BinormalLUT[index*3],_BinormalLUT[index*3+1], _BinormalLUT[index*3+2]);
-    float3 b = float3(_BinormalLUT[(index+1)*3],_BinormalLUT[(index+1)*3+1], _BinormalLUT[(index+1)*3+2]);
+    float3 a = float3(_CatmullSplines[curveIndex].binormalLUT[index*3],_CatmullSplines[curveIndex].binormalLUT[index*3+1], _CatmullSplines[curveIndex].binormalLUT[index*3+2]);
+    float3 b = float3(_CatmullSplines[curveIndex].binormalLUT[(index+1)*3],_CatmullSplines[curveIndex].binormalLUT[(index+1)*3+1], _CatmullSplines[curveIndex].binormalLUT[(index+1)*3+2]);
     return lerp(a, b, lerpT);
 }
-float GetCurveSegment(float t, out int curveSegmentIndex) {
-    curveSegmentIndex = clamp((int)floor(t*(_PointCount-1)),0,_PointCount-1);
-    float offset = t-((float)curveSegmentIndex/(float)(_PointCount-1));
-    return offset * (float)(_PointCount-1);
+float GetCurveSegment(int curveIndex, float t, out int curveSegmentIndex) {
+    curveSegmentIndex = clamp((int)floor(t*(_CatmullSplines[curveIndex].pointCount-1)),0,_CatmullSplines[curveIndex].pointCount-1);
+    float offset = t-((float)curveSegmentIndex/(float)(_CatmullSplines[curveIndex].pointCount-1));
+    return offset * (float)(_CatmullSplines[curveIndex].pointCount-1);
 }
-float DistanceToTime(float distance) {
+float DistanceToTime(int curveIndex, float distance) {
     int count = DISTANCE_COUNT;
-    if (distance > 0 && distance < _ArcLength) {
+    if (distance > 0 && distance < _CatmullSplines[curveIndex].arcLength) {
         for(int i=0;i<count-1;i++) {
-            if (distance>_DistanceLUT[i] && distance<_DistanceLUT[i+1]) {
+            if (distance>_CatmullSplines[curveIndex].distanceLUT[i] && distance<_CatmullSplines[curveIndex].distanceLUT[i+1]) {
                 // Remap
                 float value = distance;
-                float from1 = _DistanceLUT[i];
-                float to1 = _DistanceLUT[i+1];
+                float from1 = _CatmullSplines[curveIndex].distanceLUT[i];
+                float to1 = _CatmullSplines[curveIndex].distanceLUT[i+1];
                 float from2 = (float)i/(float)(count-1);
                 float to2 = (float)(i+1)/(float)(count-1);
                 return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
             }
         }
     }
-    return distance/_ArcLength;
+    return distance/_CatmullSplines[curveIndex].arcLength;
 }
 float GetVectorAngle(float3 a, float3 b) {
     return acos(dot(a,b));
@@ -60,12 +66,12 @@ float3 RotateAroundAxisPenetration(float3 original, float3 axis, float angle ) {
     float3x3 finalMatrix = float3x3( m00, m01, m02, m10, m11, m12, m20, m21, m22 );
     return mul( finalMatrix, original );
 }
-float3 SampleCurveSegmentPosition(int curveSegmentIndex, float t) {
+float3 SampleCurveSegmentPosition(int curveIndex, int curveSegmentIndex, float t) {
     int index = curveSegmentIndex*3*4;
-    float3 start =      float3(_WeightArray[index], _WeightArray[index+1], _WeightArray[index+2]);
-    float3 tanPoint1 =  float3(_WeightArray[index+3], _WeightArray[index+4], _WeightArray[index+5]);
-    float3 tanPoint2 =  float3(_WeightArray[index+6], _WeightArray[index+7], _WeightArray[index+8]);
-    float3 end =        float3(_WeightArray[index+9], _WeightArray[index+10], _WeightArray[index+11]);
+    float3 start =      float3(_CatmullSplines[curveIndex].weightArray[index],   _CatmullSplines[curveIndex].weightArray[index+1], _CatmullSplines[curveIndex].weightArray[index+2]);
+    float3 tanPoint1 =  float3(_CatmullSplines[curveIndex].weightArray[index+3], _CatmullSplines[curveIndex].weightArray[index+4], _CatmullSplines[curveIndex].weightArray[index+5]);
+    float3 tanPoint2 =  float3(_CatmullSplines[curveIndex].weightArray[index+6], _CatmullSplines[curveIndex].weightArray[index+7], _CatmullSplines[curveIndex].weightArray[index+8]);
+    float3 end =        float3(_CatmullSplines[curveIndex].weightArray[index+9], _CatmullSplines[curveIndex].weightArray[index+10], _CatmullSplines[curveIndex].weightArray[index+11]);
     // Using the expanded form of a Hermite basis functions
     // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
     // p(t) = (2t³ - 3t² + 1)p₀ + (t³ - 2t² + t)m₀ + (-2t³ + 3t²)p₁ + (t³ - t²)m₁
@@ -75,12 +81,12 @@ float3 SampleCurveSegmentPosition(int curveSegmentIndex, float t) {
             + (t * t * t - t * t) * tanPoint2;
 
 }
-float3 SampleCurveSegmentVelocity(int curveSegmentIndex, float t) {
+float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t) {
     int index = curveSegmentIndex*3*4;
-    float3 start =      float3(_WeightArray[index], _WeightArray[index+1], _WeightArray[index+2]);
-    float3 tanPoint1 =  float3(_WeightArray[index+3], _WeightArray[index+4], _WeightArray[index+5]);
-    float3 tanPoint2 =  float3(_WeightArray[index+6], _WeightArray[index+7], _WeightArray[index+8]);
-    float3 end =        float3(_WeightArray[index+9], _WeightArray[index+10], _WeightArray[index+11]);
+    float3 start =      float3(_CatmullSplines[curveIndex].weightArray[index], _CatmullSplines[curveIndex].weightArray[index+1], _CatmullSplines[curveIndex].weightArray[index+2]);
+    float3 tanPoint1 =  float3(_CatmullSplines[curveIndex].weightArray[index+3], _CatmullSplines[curveIndex].weightArray[index+4], _CatmullSplines[curveIndex].weightArray[index+5]);
+    float3 tanPoint2 =  float3(_CatmullSplines[curveIndex].weightArray[index+6], _CatmullSplines[curveIndex].weightArray[index+7], _CatmullSplines[curveIndex].weightArray[index+8]);
+    float3 end =        float3(_CatmullSplines[curveIndex].weightArray[index+9], _CatmullSplines[curveIndex].weightArray[index+10], _CatmullSplines[curveIndex].weightArray[index+11]);
     // Using the expanded form of a Hermite basis functions
     // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
     // First derivative (velocity)
@@ -111,23 +117,23 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     float dist = dot(worldDickForward, (worldPosition - worldDickRootPos));
 
     // Convert the distance into an overall t sample value
-    float t = DistanceToTime(dist);
+    float t = DistanceToTime(0,dist);
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
-    float subT = GetCurveSegment(t, curveSegmentIndex);
+    float subT = GetCurveSegment(0, t, curveSegmentIndex);
 
-    float3 catPosition = SampleCurveSegmentPosition(curveSegmentIndex, subT);
-    float3 catTangent = SampleCurveSegmentVelocity(curveSegmentIndex, subT);
+    float3 catPosition = SampleCurveSegmentPosition(0,curveSegmentIndex, subT);
+    float3 catTangent = SampleCurveSegmentVelocity(0,curveSegmentIndex, subT);
     float3 catForward = normalize(catTangent);
     // We sample the Binormal from a lookup-table, to prevent flipping and twisting.
     // https://en.wikipedia.org/wiki/Frenet%E2%80%93Serret_formulas
     // https://janakiev.com/blog/framing-parametric-curves/
-    float3 catRight = GetBinormalFromT(t);
+    float3 catRight = GetBinormalFromT(0,t);
     // We can just figure out our normal with a cross product.
     float3 catUp = normalize(cross(catForward,catRight));
 
-    float3 initialRight = GetBinormalFromT(0);
-    float3 initialForward = normalize(SampleCurveSegmentVelocity(0,0));
+    float3 initialRight = GetBinormalFromT(0,0);
+    float3 initialForward = normalize(SampleCurveSegmentVelocity(0,0,0));
     float3 initialUp = normalize(cross(initialForward, initialRight));
 
 
