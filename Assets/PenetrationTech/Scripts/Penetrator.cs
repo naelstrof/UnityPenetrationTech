@@ -14,6 +14,8 @@ namespace PenetrationTech {
         private float length;
         private bool inserted;
         private float insertionFactor;
+        public float GetWorldLength() => girthData.GetWorldLength();
+        public float GetWorldGirth(float worldDistanceAlongDick) => girthData.GetWorldGirth(worldDistanceAlongDick);
         protected override void Start() {
             base.Start();
             weights = new List<Vector3>();
@@ -25,13 +27,16 @@ namespace PenetrationTech {
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, -Vector3.up, Vector3.forward);
         }
         protected override void Update() {
-            ConstructPath();
+            Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
+            Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
+            ConstructPath(holePos, holeForward);
+            if (inserted) {
+                targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
+            }
             base.Update();
         }
 
-        private void ConstructPath() {
-            Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
-            Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
+        private void ConstructPath(Vector3 holePos, Vector3 holeForward) {
             float dist = Vector3.Distance(rootBone.position, holePos);
             Vector3 tipPosition = rootBone.position + transform.forward * girthData.GetWorldLength();
             weights.Clear();

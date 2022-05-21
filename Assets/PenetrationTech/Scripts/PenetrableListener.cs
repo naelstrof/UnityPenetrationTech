@@ -7,11 +7,24 @@ namespace PenetrationTech {
 
     [System.Serializable]
     public class PenetrableListener {
+        [HideInInspector]
         public float t;
-        public virtual void OnGirthChange(float newGirth) { }
-        public virtual void OnPenetrateStart() { }
-        public virtual void OnPenetrateEnd() { }
-        public virtual void OnPenetrationDepthChange(float newDepth) { }
+        public float dist;
+        [HideInInspector]
+        public float penetratedGirth;
+        [HideInInspector]
+        public float penetratedDepth;
+        public virtual void OnEnable() { }
+        public virtual void OnDisable() { }
+        public virtual void OnPenetrationGirthChange(float newGirth) {
+            penetratedGirth = newGirth;
+        }
+        public virtual void OnPenetrationDepthChange(float newDepth) {
+            penetratedDepth = newDepth;
+        }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
+        public virtual void OnValidate(Penetrable p) {
+            t = p.GetPath().GetTimeFromDistance(dist);
+        }
     }
 }

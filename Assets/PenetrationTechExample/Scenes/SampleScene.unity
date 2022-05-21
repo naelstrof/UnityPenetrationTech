@@ -450,6 +450,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 788923038}
   m_CullTransparentMesh: 1
+--- !u!137 &878373758 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+  m_PrefabInstance: {fileID: 1042027686}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &950036134
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,11 +666,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[0]
       value: Naelstrof.PenetrationTech PenetrationTech.BlendshapeListener
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].t
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[0].data
@@ -676,7 +685,43 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].blendShapeGirth
+      value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[0].targetRenderers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targetRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.data[0].blendshapeID
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.data[1].blendshapeID
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.data[0].blendshapeName
+      value: ButtExpand
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.data[0].skinnedMeshRenderer
+      value: 
+      objectReference: {fileID: 878373758}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].targets.Array.data[1].skinnedMeshRenderer
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[26]
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
