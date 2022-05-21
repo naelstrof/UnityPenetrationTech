@@ -2619,7 +2619,7 @@ SkinnedMeshRenderer:
   - 0
   - 0
   - 0
-  - 100
+  - 50
   - 0
   - 0
   - 0
@@ -2958,6 +2958,9 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: -0.29, z: 0}
   - {x: 0, y: -0.66, z: 0.19}
+  listeners: []
+  references:
+    version: 1
 --- !u!1 &9205961825114127862
 GameObject:
   m_ObjectHideFlags: 0

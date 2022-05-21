@@ -681,12 +681,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].dist
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[1].data
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[0].blendShapeGirth
       value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].penetratedDepth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[0].penetratedGirth
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6026123279155826189, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.data[0].targets.Array.size
@@ -991,6 +1003,12 @@ MonoBehaviour:
     texture: {fileID: 0}
     maxLocalLength: 0
     maxLocalGirth: 0
+    localGirthCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   targetHole: {fileID: 1042027688}
 --- !u!137 &1293928328 stripped
 SkinnedMeshRenderer:

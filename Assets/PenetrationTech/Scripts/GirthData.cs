@@ -16,17 +16,30 @@ namespace PenetrationTech {
         [ReadOnly][SerializeField]
         private AnimationCurve localGirthCurve;
         private Renderer renderer;
+        private Vector3 localDickForward;
+        private Vector3 localDickUp;
+        private Vector3 localDickRight;
+        private Transform meshTransform {
+            get {
+                // TODO: SkinnedMeshRenderer transform selection probably isn't exactly correct, if the mesh is a skinned humanoid-- we probably want the base dick bone rather than the root bone.
+                // We currently don't pass that down yet though, we probably need to define our parameters better now that GirthData is being used more.
+                if (renderer is SkinnedMeshRenderer) return (renderer as SkinnedMeshRenderer).rootBone; 
+                if (renderer is MeshRenderer) return (renderer as MeshRenderer).transform; 
+                throw new UnityException("This should never happen! GirthData needs a MeshRenderer or a SkinnedMeshRenderer.");
+            }
+        }
         public float GetWorldLength() {
-            float scaleFactor = 1f;
-            if (renderer is SkinnedMeshRenderer) scaleFactor = (renderer as SkinnedMeshRenderer).rootBone.lossyScale.x; 
-            if (renderer is MeshRenderer) scaleFactor = (renderer as MeshRenderer).transform.lossyScale.x; 
-            return maxLocalLength * scaleFactor;
+            // This handles skewed forwards, and even non-proportional scales of the dick (making it stubbier or longer)
+            Vector3 length = maxLocalLength * localDickForward;
+            return meshTransform.TransformVector(length).magnitude;
         }
         public float GetWorldGirth(float worldDistanceAlongDick) {
-            float scaleFactor = 1f;
-            if (renderer is SkinnedMeshRenderer) scaleFactor = (renderer as SkinnedMeshRenderer).rootBone.lossyScale.x; 
-            if (renderer is MeshRenderer) scaleFactor = (renderer as MeshRenderer).transform.lossyScale.x; 
-            return localGirthCurve.Evaluate(worldDistanceAlongDick/scaleFactor)*scaleFactor;
+            float localDistanceAlongDick = meshTransform.InverseTransformVector(worldDistanceAlongDick*meshTransform.TransformDirection(localDickForward)).magnitude;
+            // TODO: There's no real way to actually get the girth correctly, since we cannot interpret skewed scales.
+            // I currently just choose a single axis, though users shouldn't skew scale on the up/right axis anyway.
+            float localGirthSample = localGirthCurve.Evaluate(localDistanceAlongDick);
+            Vector3 localGirth = localDickUp*localGirthSample;
+            return meshTransform.TransformVector(localGirth).magnitude;
         }
         private void PopulateGirthCurve(RenderTexture girthMap) {
             // First we use the GPU to scrunch the 2D girthmap into a 1D one. This averages all the pixels.
@@ -52,6 +65,9 @@ namespace PenetrationTech {
             Mesh mesh;
             texture = new RenderTexture(512,512,16);
             Vector3 localDickRight = Vector3.Cross(localDickForward, localDickUp);
+            this.localDickForward = localDickForward;
+            this.localDickUp = localDickUp;
+            this.localDickRight = localDickRight;
             Vector3 worldSpaceDickRoot = root.TransformPoint(localDickRoot);
             Vector3 localSpaceDickRoot;
             if (renderer is SkinnedMeshRenderer) {
