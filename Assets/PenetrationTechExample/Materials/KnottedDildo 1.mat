@@ -95,7 +95,9 @@ Material:
     - Vector1_c6bbb8ee021d4ae4adcd4c77bc5824cf: 0
     - _AlphaClip: 0
     - _AlphaCutoff: 0.5
+    - _AngleOffset2: 0.8
     - _Blend: 0
+    - _Blend2: 1
     - _BlendshapeMultiplier: 1.4747995
     - _BulgePercentage: 0.1
     - _BumpScale: 1
@@ -119,6 +121,8 @@ Material:
     - _GlossyReflections: 1
     - _INVISIBLE_WHEN_INSIDE: 0
     - _InvisibleWhenInside: 0
+    - _MaxGirth2: 0.25
+    - _MaxLength2: 0.42
     - _Metallic: 0
     - _Mode: 0
     - _NOBLENDSHAPES: 0
@@ -148,13 +152,18 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - __dirty: 0
+    - _stepA: 2.91
+    - _stepB: -2.85
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DeformOrigin: {r: -0.0000006888933, g: 0.02680413, b: 0.000000676036, a: 0}
     - _DickForward: {r: 0.00000020832906, g: 1, b: 0.0000003626013, a: 0}
+    - _DickForward2: {r: 0, g: 1, b: 0, a: 0}
     - _DickOrigin: {r: -0.0000006903836, g: 0, b: 0.0000006770761, a: 0}
+    - _DickOrigin2: {r: 0, g: 0, b: 0, a: 0}
     - _DickRight: {r: 1, g: -0.000000008648601, b: -0.00000008334374, a: 0}
+    - _DickRight2: {r: 1, g: 0, b: 0, a: 0}
     - _DickUp: {r: -0.00000007563644, g: -0.00000027305444, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OrifaceOutWorldNormal: {r: 0, g: 1, b: 0, a: 0}
