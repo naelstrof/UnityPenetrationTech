@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace PenetrationTech {
-    [System.Serializable][PenetrableListener]
-    public class BlendshapeListener : PenetrableListener {
+    [System.Serializable]
+    [PenetrableListener(typeof(SimpleBlendshapeListener), "Simple Blendshape Listener")]
+    public class SimpleBlendshapeListener : PenetrableListener {
         [SerializeField]
         SkinnedMeshBlendshapePair[] targets;
         [SerializeField]
@@ -15,8 +16,8 @@ namespace PenetrationTech {
                 target.OnEnable();
             }
         }
-        public override void OnPenetrationGirthChange(float newGirth) {
-            base.OnPenetrationGirthChange(newGirth);
+        public override void OnPenetrationGirthChange(Penetrator penis, float newGirth) {
+            base.OnPenetrationGirthChange(penis, newGirth);
             foreach(SkinnedMeshBlendshapePair target in targets) {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, (newGirth/blendShapeGirth)*100f);
             }

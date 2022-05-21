@@ -13,10 +13,11 @@ namespace PenetrationTech {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(Penetrable))]
     public class PenetrableEditor : Editor {
-        static IEnumerable<Type> GetTypesWithPenetrableListenerAttribute() {
+        static IEnumerable<PenetrableListenerAttribute> GetPenetrableListenerAttributes() {
             foreach(Type type in Assembly.GetExecutingAssembly().GetTypes()) {
-                if (type.GetCustomAttributes(typeof(PenetrableListenerAttribute), true).Length > 0) {
-                    yield return type;
+                var attributes = (PenetrableListenerAttribute[])type.GetCustomAttributes(typeof(PenetrableListenerAttribute), true);
+                if (attributes.Length > 0) {
+                    yield return attributes[0];
                 }
             }
         }
@@ -28,15 +29,16 @@ namespace PenetrationTech {
             }
 
             GenericMenu menu = new GenericMenu();
-            List<Type> types = new List<Type>(GetTypesWithPenetrableListenerAttribute());
-            foreach(var type in types) {
-                menu.AddItem(new GUIContent(type.Name), false, ()=>{
+            List<PenetrableListenerAttribute> attributes = new List<PenetrableListenerAttribute>(GetPenetrableListenerAttributes());
+            foreach(var attribute in attributes) {
+                menu.AddItem(new GUIContent(attribute.name), false, ()=>{
                     foreach (var t in targets) {
                         Penetrable p = t as Penetrable;
                         if (p.listeners == null) {
                             p.listeners = new List<PenetrableListener>();
                         }
-                        p.listeners.Add((PenetrableListener)Activator.CreateInstance(type));
+                        p.listeners.Add((PenetrableListener)Activator.CreateInstance(attribute.type));
+                        serializedObject.ApplyModifiedProperties();
                         EditorUtility.SetDirty(p);
                     }
                 });
@@ -87,10 +89,16 @@ namespace PenetrationTech {
         }
         void Update() {
             CheckUpdate();
+            foreach(PenetrableListener listener in listeners) {
+                listener.Update();
+            }
         }
         protected override void OnDrawGizmosSelected() {
             CheckUpdate();
             foreach(PenetrableListener listener in listeners) {
+                if (listener == null) {
+                    continue;
+                }
                 listener.OnDrawGizmosSelected(this);
             }
             base.OnDrawGizmosSelected();
@@ -99,28 +107,23 @@ namespace PenetrationTech {
             transform.hasChanged = true;
             CheckUpdate();
             foreach(PenetrableListener listener in listeners) {
+                if (listener == null) {
+                    continue;
+                }
                 listener.OnValidate(this);
             }
         }
         public void SetPenetrationDepth(Penetrator penis, float worldSpaceDistanceToPenisRoot) {
             float penetratedAmount = penis.GetWorldLength()-worldSpaceDistanceToPenisRoot;
             foreach(PenetrableListener listener in listeners) {
-                if (listener.dist < penetratedAmount) {
-                    float newGirth = penis.GetWorldGirth(worldSpaceDistanceToPenisRoot+listener.dist);
-                    if (newGirth != listener.penetratedGirth) {
-                        listener.OnPenetrationGirthChange(newGirth);
-                    }
-                    float newDepth = Mathf.Max(penetratedAmount-listener.dist,0f);
-                    if (newDepth != listener.penetratedDepth) {
-                        listener.OnPenetrationDepthChange(newDepth);
-                    }
+                if (listener.GetDist() < penetratedAmount) {
+                    float newGirth = penis.GetWorldGirth(worldSpaceDistanceToPenisRoot+listener.GetDist());
+                    listener.OnPenetrationGirthChange(penis, newGirth);
+                    float newDepth = Mathf.Max(penetratedAmount-listener.GetDist(),0f);
+                    listener.OnPenetrationDepthChange(penis, newDepth);
                 } else {
-                    if (listener.penetratedGirth != 0f) {
-                        listener.OnPenetrationGirthChange(0f);
-                    }
-                    if (listener.penetratedDepth != 0f) {
-                        listener.OnPenetrationDepthChange(0f);
-                    }
+                    listener.OnPenetrationGirthChange(penis, 0f);
+                    listener.OnPenetrationDepthChange(penis, 0f);
                 }
             }
         }

@@ -16,7 +16,7 @@ namespace PenetrationTech {
                 lastPoint = newPoint;
             }
             for (int i=0;i<path.GetWeights().Count;i+=4) {
-                Gizmos.color = Color.green;
+                Gizmos.color = new Color(0,1,0,0.5f);
                 Gizmos.DrawSphere(path.GetWeights()[i], 0.05f);
                 Gizmos.DrawSphere(path.GetWeights()[i+3], 0.05f);
                 //Gizmos.color = Color.blue;

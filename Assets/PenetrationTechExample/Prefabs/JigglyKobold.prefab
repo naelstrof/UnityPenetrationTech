@@ -2958,9 +2958,32 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: -0.29, z: 0}
   - {x: 0, y: -0.66, z: 0.19}
-  listeners: []
+  listeners:
+  - id: 0
   references:
     version: 1
+    00000000:
+      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        dist: 0
+        targets:
+        - skinnedMeshRenderer: {fileID: 7452297451520482250}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        - skinnedMeshRenderer: {fileID: 5330333750980878102}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        blendShapeGirth: 0.055
+        pullDist: -0.028
+        pushDist: 0.02
 --- !u!1 &9205961825114127862
 GameObject:
   m_ObjectHideFlags: 0
