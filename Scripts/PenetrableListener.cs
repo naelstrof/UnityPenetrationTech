@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PenetrableListener : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+namespace PenetrationTech {
+    public class PenetrableListenerAttribute : System.Attribute { }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    [System.Serializable]
+    public class PenetrableListener {
+        public virtual void OnGirthChange(float newGirth) { }
+        public virtual void OnPenetrateStart() { }
+        public virtual void OnPenetrateEnd() { }
+        public virtual void OnPenetrationDepthChange(float newDepth) { }
     }
 }

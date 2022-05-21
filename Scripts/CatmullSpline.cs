@@ -68,9 +68,9 @@ namespace PenetrationTech {
         }
 
         private float GetCurveSegmentTimeFromCurveTime(out int curveSegmentIndex, float t) {
-            curveSegmentIndex = Mathf.FloorToInt(t*((weights.Count/4)-1));
-            float offseted = t-((float)curveSegmentIndex/(float)((weights.Count/4)-1));
-            return offseted * (float)((weights.Count/4)-1);
+            curveSegmentIndex = Mathf.FloorToInt(t*(weights.Count/4));
+            float offseted = t-((float)curveSegmentIndex/(float)(weights.Count/4));
+            return offseted * (float)(weights.Count/4);
         }
         
         private float DistToTime(float distance) {

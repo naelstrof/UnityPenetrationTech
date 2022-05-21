@@ -44,7 +44,7 @@ namespace PenetrationTech {
             Vector3 insertionTangent = Vector3.Lerp(
                 -transform.forward * dist * 0.5f, holeForward * dist * 0.5f,
                 insertionFactor);
-            Debug.Log(Vector3.forward * girthData.GetWorldLength());
+            //Debug.Log(Vector3.forward * girthData.GetWorldLength());
             Vector3 insertionPoint = Vector3.Lerp(
                 transform.TransformPoint(Vector3.forward * girthData.GetWorldLength()),
                 holePos,

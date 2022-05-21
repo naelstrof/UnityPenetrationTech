@@ -25,7 +25,7 @@ namespace PenetrationTech {
             public fixed float distanceLUT[distanceCount];
             public fixed float binormalLUT[binormalCount*3];
             public CatmullSplineData(CatmullSpline spline) {
-                pointCount = spline.GetWeights().Count/4;
+                pointCount = (spline.GetWeights().Count/4)+1;
                 arcLength = spline.arcLength;
                 for(int i=0;i<subSplineCount*4&&i<spline.GetWeights().Count;i++) {
                     Vector3 weight = spline.GetWeights()[i];
