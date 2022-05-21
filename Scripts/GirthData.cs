@@ -13,7 +13,17 @@ namespace PenetrationTech {
         private float maxLocalLength;
         [ReadOnly][SerializeField]
         private float maxLocalGirth;
+        private Renderer renderer;
+
+        public float GetWorldLength() {
+            float scaleFactor = 1f;
+            if (renderer is SkinnedMeshRenderer) scaleFactor = (renderer as SkinnedMeshRenderer).rootBone.lossyScale.x; 
+            if (renderer is MeshRenderer) scaleFactor = (renderer as MeshRenderer).transform.lossyScale.x; 
+            return maxLocalLength * scaleFactor;
+        }
+        
         public GirthData(Renderer renderer, Transform root, Vector3 localDickRoot, Vector3 localDickForward, Vector3 localDickUp) {
+            this.renderer = renderer;
             Mesh mesh;
             texture = new RenderTexture(512,512,16);
             Vector3 localDickRight = Vector3.Cross(localDickForward, localDickUp);
