@@ -2,8 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using System;
+using UnityEditor;
+using System.Reflection;
+#endif
+
 namespace PenetrationTech {
+    #if UNITY_EDITOR
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(Penetrable))]
+    public class PenetrableEditor : Editor {
+        static IEnumerable<Type> GetTypesWithHelpAttribute(Assembly assembly) {
+            foreach(Type type in assembly.GetTypes()) {
+                if (type.GetCustomAttributes(typeof(PenetrableListenerAttribute), true).Length > 0) {
+                    yield return type;
+                }
+            }
+        }
+        public override void OnInspectorGUI() {
+            DrawDefaultInspector();
+            
+            //if (GUILayout.Dr)
+            if (GUILayout.Button("Add Blendshape Listener")) {
+                foreach (var t in targets) {
+                    Penetrable p = t as Penetrable;
+                    if (p.listeners == null) {
+                        p.listeners = new List<PenetrableListener>();
+                    }
+                    //foreach
+                }
+            }
+        }
+    }
+    #endif
     public class Penetrable : CatmullDisplay {
+        [SerializeReference]
+        public List<PenetrableListener> listeners;
         [SerializeField]
         private Vector3[] points;
         private List<Vector3> worldPoints;
