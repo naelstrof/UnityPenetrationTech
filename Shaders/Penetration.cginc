@@ -31,17 +31,15 @@ float GetCurveSegment(int curveIndex, float t, out int curveSegmentIndex) {
     return offset * (float)(_CatmullSplines[curveIndex].pointCount-1);
 }
 float DistanceToTime(int curveIndex, float distance) {
-    int count = DISTANCE_COUNT;
     if (distance > 0 && distance < _CatmullSplines[curveIndex].arcLength) {
-        for(int i=0;i<count-1;i++) {
+        for(int i=0;i<DISTANCE_COUNT-1;i++) {
             if (distance>_CatmullSplines[curveIndex].distanceLUT[i] && distance<_CatmullSplines[curveIndex].distanceLUT[i+1]) {
                 // Remap
-                float value = distance;
                 float from1 = _CatmullSplines[curveIndex].distanceLUT[i];
                 float to1 = _CatmullSplines[curveIndex].distanceLUT[i+1];
-                float from2 = (float)i/(float)(count-1);
-                float to2 = (float)(i+1)/(float)(count-1);
-                return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+                float from2 = (float)i/(float)(DISTANCE_COUNT);
+                float to2 = (float)(i+1)/(float)(DISTANCE_COUNT);
+                return (distance - from1) / (to1 - from1) * (to2 - from2) + from2;
             }
         }
     }
@@ -114,7 +112,7 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     float3 worldTangent = normalize(mul(objectToWorld,float4(tangent.xyz,0)).xyz);
     
     // Dot product gives us how far along an axis a position is. This is the dick length distance from the dick root to the particular position.
-    float dist = dot(worldDickForward, (worldPosition - worldDickRootPos));
+    float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));
 
     // Convert the distance into an overall t sample value
     float t = DistanceToTime(0,dist);
@@ -163,6 +161,7 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
     worldToDickBasisTransform[2][0] = worldDickForward.x;
     worldToDickBasisTransform[2][1] = worldDickForward.y;
     worldToDickBasisTransform[2][2] = worldDickForward.z;
+
     // Get the rotation around dickforward that we need to do.
     float2 worldDickUpFlat = float2(dot(worldDickUp,initialRight), dot(worldDickUp,initialUp));
     float angle = atan2(worldDickUpFlat.y, worldDickUpFlat.x)-1.57079632679;
