@@ -33,20 +33,34 @@ namespace PenetrationTech {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
             Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
             float dist = Vector3.Distance(transform.position, holePos);
+            Vector3 tipPosition = transform.position + transform.forward * girthData.GetWorldLength();
             weights.Clear();
+            if (inserted) {
+                insertionFactor = 1f;
+                if (dist > girthData.GetWorldLength()) inserted = false;
+            } else {
+                insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
+                insertionFactor = Mathf.Max(
+                    insertionFactor,
+                    Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * 0.4f) * 2f)
+                );
+                if (insertionFactor >= 0.99f) inserted = true;
+            }
+
             Vector3 PenetratorTangent = Vector3.Lerp(
-                transform.forward * girthData.GetWorldLength() * 0.5f,
-                transform.forward * dist * 0.5f,
+                transform.forward * girthData.GetWorldLength() * 0.66f,
+                transform.forward * dist * 0.66f,
                 insertionFactor
             );
             weights.Add(transform.position);
             weights.Add(PenetratorTangent);
             Vector3 insertionTangent = Vector3.Lerp(
-                -transform.forward * dist * 0.5f, holeForward * dist * 0.5f,
-                insertionFactor);
-            //Debug.Log(Vector3.forward * girthData.GetWorldLength());
+                -transform.forward * girthData.GetWorldLength() * 0.66f, 
+                holeForward * dist * 0.66f,
+                insertionFactor
+            );
             Vector3 insertionPoint = Vector3.Lerp(
-                transform.TransformPoint(Vector3.forward * girthData.GetWorldLength()),
+                tipPosition + (tipPosition - transform.position) * girthData.GetWorldLength() * 0.1f,
                 holePos,
                 insertionFactor
                 );
