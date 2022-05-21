@@ -37,6 +37,7 @@ namespace PenetrationTech {
                             p.listeners = new List<PenetrableListener>();
                         }
                         p.listeners.Add((PenetrableListener)Activator.CreateInstance(type));
+                        EditorUtility.SetDirty(p);
                     }
                 });
             }
@@ -51,12 +52,20 @@ namespace PenetrationTech {
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference]
         public List<PenetrableListener> listeners;
-        void Start() {
+        void OnEnable() {
             worldPoints = new List<Vector3>();
             foreach(Vector3 point in points) {
                 worldPoints.Add(transform.TransformPoint(point));
             }
             path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
+            foreach(PenetrableListener listener in listeners) {
+                listener.OnEnable();
+            }
+        }
+        void OnDisable() {
+            foreach(PenetrableListener listener in listeners) {
+                listener.OnDisable();
+            }
         }
         // This is all really nasty, it'd be nice if I can just set a transform on the path directly.
         private void CheckUpdate() {
@@ -81,10 +90,39 @@ namespace PenetrationTech {
         }
         protected override void OnDrawGizmosSelected() {
             CheckUpdate();
+            foreach(PenetrableListener listener in listeners) {
+                listener.OnDrawGizmosSelected(this);
+            }
             base.OnDrawGizmosSelected();
         }
         void OnValidate() {
             transform.hasChanged = true;
+            CheckUpdate();
+            foreach(PenetrableListener listener in listeners) {
+                listener.OnValidate(this);
+            }
+        }
+        public void SetPenetrationDepth(Penetrator penis, float worldSpaceDistanceToPenisRoot) {
+            float penetratedAmount = penis.GetWorldLength()-worldSpaceDistanceToPenisRoot;
+            foreach(PenetrableListener listener in listeners) {
+                if (listener.dist < penetratedAmount) {
+                    float newGirth = penis.GetWorldGirth(worldSpaceDistanceToPenisRoot+listener.dist);
+                    if (newGirth != listener.penetratedGirth) {
+                        listener.OnPenetrationGirthChange(newGirth);
+                    }
+                    float newDepth = Mathf.Max(penetratedAmount-listener.dist,0f);
+                    if (newDepth != listener.penetratedDepth) {
+                        listener.OnPenetrationDepthChange(newDepth);
+                    }
+                } else {
+                    if (listener.penetratedGirth != 0f) {
+                        listener.OnPenetrationGirthChange(0f);
+                    }
+                    if (listener.penetratedDepth != 0f) {
+                        listener.OnPenetrationDepthChange(0f);
+                    }
+                }
+            }
         }
     }
 }

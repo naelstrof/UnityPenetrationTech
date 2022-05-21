@@ -13,13 +13,38 @@ namespace PenetrationTech {
         private float maxLocalLength;
         [ReadOnly][SerializeField]
         private float maxLocalGirth;
+        [ReadOnly][SerializeField]
+        private AnimationCurve localGirthCurve;
         private Renderer renderer;
-
         public float GetWorldLength() {
             float scaleFactor = 1f;
             if (renderer is SkinnedMeshRenderer) scaleFactor = (renderer as SkinnedMeshRenderer).rootBone.lossyScale.x; 
             if (renderer is MeshRenderer) scaleFactor = (renderer as MeshRenderer).transform.lossyScale.x; 
             return maxLocalLength * scaleFactor;
+        }
+        public float GetWorldGirth(float worldDistanceAlongDick) {
+            float scaleFactor = 1f;
+            if (renderer is SkinnedMeshRenderer) scaleFactor = (renderer as SkinnedMeshRenderer).rootBone.lossyScale.x; 
+            if (renderer is MeshRenderer) scaleFactor = (renderer as MeshRenderer).transform.lossyScale.x; 
+            return localGirthCurve.Evaluate(worldDistanceAlongDick/scaleFactor)*scaleFactor;
+        }
+        private void PopulateGirthCurve(RenderTexture girthMap) {
+            // First we use the GPU to scrunch the 2D girthmap into a 1D one. This averages all the pixels.
+            RenderTexture temp = RenderTexture.GetTemporary(32,1);
+            Graphics.Blit(girthMap, temp);
+            Texture2D cpuTex = new Texture2D(32,1, TextureFormat.RGB24, false);
+            RenderTexture.active = temp;
+            cpuTex.ReadPixels(new Rect(0,0,girthMap.width, girthMap.height), 0, 0);
+            cpuTex.Apply();
+            RenderTexture.ReleaseTemporary(temp);
+            // Then after we got it on the CPU, we use it to generate some curves that we can visualize in the editor (and easily sample).
+            localGirthCurve = new AnimationCurve();
+            localGirthCurve.postWrapMode = WrapMode.ClampForever;
+            localGirthCurve.preWrapMode = WrapMode.ClampForever;
+            for (int i=0;i<32;i++) {
+                float t = (float)i/(float)32;
+                localGirthCurve.AddKey(t*maxLocalLength,cpuTex.GetPixel(i,0).r*maxLocalGirth);
+            }
         }
         
         public GirthData(Renderer renderer, Transform root, Vector3 localDickRoot, Vector3 localDickForward, Vector3 localDickUp) {
@@ -70,6 +95,7 @@ namespace PenetrationTech {
             additiveBuffer.DrawMesh(mesh, Matrix4x4.identity, mat, 0, 0);
             mat.SetFloat("_AngleOffset", -Mathf.PI/2f);
             Graphics.ExecuteCommandBuffer(additiveBuffer);
+            PopulateGirthCurve(texture);
         }
         ~GirthData() {
             texture.Release();

@@ -73,7 +73,7 @@ namespace PenetrationTech {
             return offseted * (float)(weights.Count/4);
         }
         
-        private float DistToTime(float distance) {
+        public float GetTimeFromDistance(float distance) {
             if (distance > 0f && distance < arcLength) {
                 for(int i=0;i<distanceLUT.Count-1;i++) {
                     if (distance>distanceLUT[i] && distance<distanceLUT[i+1]) {
@@ -168,7 +168,7 @@ namespace PenetrationTech {
             return this;
         }
         public Vector3 GetPositionFromDistance(float distance) {
-            float t = DistToTime(distance);
+            float t = GetTimeFromDistance(distance);
             return GetPositionFromT(t);
         }
         public Vector3 GetPositionFromT(float t) {
@@ -177,11 +177,11 @@ namespace PenetrationTech {
             return SampleCurveSegmentPosition(curveSegmentIndex, subT);
         }
         public Vector3 GetVelocityFromDistance(float distance) {
-            float t = DistToTime(distance);
+            float t = GetTimeFromDistance(distance);
             return GetVelocityFromT(t);
         }
         public Vector3 GetAccelerationFromDistance(float distance) {
-            float t = DistToTime(distance);
+            float t = GetTimeFromDistance(distance);
             return GetAccelerationFromT(t);
         }
         public Vector3 GetVelocityFromT(float t) {
