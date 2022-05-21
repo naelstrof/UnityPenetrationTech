@@ -32,8 +32,8 @@ namespace PenetrationTech {
         private void ConstructPath() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
             Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
-            float dist = Vector3.Distance(transform.position, holePos);
-            Vector3 tipPosition = transform.position + transform.forward * girthData.GetWorldLength();
+            float dist = Vector3.Distance(rootBone.position, holePos);
+            Vector3 tipPosition = rootBone.position + transform.forward * girthData.GetWorldLength();
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
@@ -52,7 +52,7 @@ namespace PenetrationTech {
                 transform.forward * dist * 0.66f,
                 insertionFactor
             );
-            weights.Add(transform.position);
+            weights.Add(rootBone.position);
             weights.Add(PenetratorTangent);
             Vector3 insertionTangent = Vector3.Lerp(
                 -transform.forward * girthData.GetWorldLength() * 0.66f, 
@@ -60,7 +60,7 @@ namespace PenetrationTech {
                 insertionFactor
             );
             Vector3 insertionPoint = Vector3.Lerp(
-                tipPosition + (tipPosition - transform.position) * girthData.GetWorldLength() * 0.1f,
+                tipPosition + (tipPosition - rootBone.position) * girthData.GetWorldLength() * 0.1f,
                 holePos,
                 insertionFactor
                 );

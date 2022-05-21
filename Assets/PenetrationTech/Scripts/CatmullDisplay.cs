@@ -19,11 +19,11 @@ namespace PenetrationTech {
                 Gizmos.color = Color.green;
                 Gizmos.DrawSphere(path.GetWeights()[i], 0.05f);
                 Gizmos.DrawSphere(path.GetWeights()[i+3], 0.05f);
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(path.GetWeights()[i], path.GetWeights()[i]+path.GetWeights()[i+1]);
-                Gizmos.DrawWireSphere(path.GetWeights()[i]+path.GetWeights()[i+1], 0.025f);
-                Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.025f);
-                Gizmos.DrawLine(path.GetWeights()[i+3], path.GetWeights()[i+3]+path.GetWeights()[i+2]);
+                //Gizmos.color = Color.blue;
+                //Gizmos.DrawLine(path.GetWeights()[i], path.GetWeights()[i]+path.GetWeights()[i+1]);
+                //Gizmos.DrawWireSphere(path.GetWeights()[i]+path.GetWeights()[i+1], 0.025f);
+                //Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.025f);
+                //Gizmos.DrawLine(path.GetWeights()[i+3], path.GetWeights()[i+3]+path.GetWeights()[i+2]);
             }
             /*Matrix4x4 savedMatrix = Gizmos.matrix;
             int frames = 32;

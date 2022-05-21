@@ -13,8 +13,8 @@ namespace PenetrationTech {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(Penetrable))]
     public class PenetrableEditor : Editor {
-        static IEnumerable<Type> GetTypesWithHelpAttribute(Assembly assembly) {
-            foreach(Type type in assembly.GetTypes()) {
+        static IEnumerable<Type> GetTypesWithPenetrableListenerAttribute() {
+            foreach(Type type in Assembly.GetExecutingAssembly().GetTypes()) {
                 if (type.GetCustomAttributes(typeof(PenetrableListenerAttribute), true).Length > 0) {
                     yield return type;
                 }
@@ -23,25 +23,34 @@ namespace PenetrationTech {
         public override void OnInspectorGUI() {
             DrawDefaultInspector();
             
-            //if (GUILayout.Dr)
-            if (GUILayout.Button("Add Blendshape Listener")) {
-                foreach (var t in targets) {
-                    Penetrable p = t as Penetrable;
-                    if (p.listeners == null) {
-                        p.listeners = new List<PenetrableListener>();
-                    }
-                    //foreach
-                }
+            if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
+                return;
             }
+
+            GenericMenu menu = new GenericMenu();
+            List<Type> types = new List<Type>(GetTypesWithPenetrableListenerAttribute());
+            foreach(var type in types) {
+                menu.AddItem(new GUIContent(type.Name), false, ()=>{
+                    foreach (var t in targets) {
+                        Penetrable p = t as Penetrable;
+                        if (p.listeners == null) {
+                            p.listeners = new List<PenetrableListener>();
+                        }
+                        p.listeners.Add((PenetrableListener)Activator.CreateInstance(type));
+                    }
+                });
+            }
+            menu.ShowAsContext();
         }
     }
     #endif
     public class Penetrable : CatmullDisplay {
-        [SerializeReference]
-        public List<PenetrableListener> listeners;
         [SerializeField]
         private Vector3[] points;
         private List<Vector3> worldPoints;
+        // Keep this on the bottom, so it lines up with the custom inspector.
+        [SerializeReference]
+        public List<PenetrableListener> listeners;
         void Start() {
             worldPoints = new List<Vector3>();
             foreach(Vector3 point in points) {

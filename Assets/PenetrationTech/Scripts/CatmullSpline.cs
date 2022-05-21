@@ -77,7 +77,7 @@ namespace PenetrationTech {
             if (distance > 0f && distance < arcLength) {
                 for(int i=0;i<distanceLUT.Count-1;i++) {
                     if (distance>distanceLUT[i] && distance<distanceLUT[i+1]) {
-                        return Remap(distance,distanceLUT[i],distanceLUT[i+1],(float)i/(distanceLUT.Count-1f),(float)(i+1)/(distanceLUT.Count-1f));
+                        return Remap(distance,distanceLUT[i],distanceLUT[i+1],(float)i/(float)(distanceLUT.Count),(float)(i+1)/(float)(distanceLUT.Count));
                     }
                 }
             }
@@ -85,7 +85,7 @@ namespace PenetrationTech {
         }
         protected void GenerateDistanceLUT(int resolution) {
             float dist = 0f;
-            Vector3 lastPosition = SampleCurveSegmentPosition(0, 0f);
+            Vector3 lastPosition = GetPositionFromT(0f);
             distanceLUT.Clear();
             for(int i=0;i<resolution;i++) {
                 float t = (((float)i)/(float)resolution);
