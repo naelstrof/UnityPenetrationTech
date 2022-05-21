@@ -47,9 +47,9 @@ namespace PenetrationTech {
         private List<Vector3> binormalLUT;
         public float arcLength {get; private set;}
 
-        public System.Collections.ObjectModel.ReadOnlyCollection<Vector3> GetWeights() => weights.AsReadOnly();
-        public System.Collections.ObjectModel.ReadOnlyCollection<float> GetDistanceLUT() => distanceLUT.AsReadOnly();
-        public System.Collections.ObjectModel.ReadOnlyCollection<Vector3> GetBinormalLUT() => binormalLUT.AsReadOnly();
+        public List<Vector3> GetWeights() => weights;
+        public List<float> GetDistanceLUT() => distanceLUT;
+        public List<Vector3> GetBinormalLUT() => binormalLUT;
 
         public CatmullSpline() {
             weights = new List<Vector3>();
