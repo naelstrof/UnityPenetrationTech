@@ -31,5 +31,29 @@ namespace PenetrationTech {
         public virtual void OnValidate(Penetrable p) {
             t = p.GetPath().GetTimeFromDistance(dist);
         }
+        public virtual void NotifyPenetration(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+            NotifyPenetrationGDO(penetrator, worldSpaceDistanceToPenisRoot, true, true, true);
+        }
+        
+        protected void NotifyPenetrationGDO(Penetrator penetrator, float worldSpaceDistanceToPenisRoot, bool girth, bool depth, bool offset) {
+            float penetratedAmount = penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot;
+            float newGirth = 0f;
+            float newDepth = 0f;
+            Vector3 newOffset = Vector3.zero;
+            if (GetDist() < penetratedAmount) {
+                if (girth) {
+                    newGirth = penetrator.GetWorldGirth(worldSpaceDistanceToPenisRoot+GetDist());
+                }
+                if (depth) {
+                    newDepth = Mathf.Max(penetratedAmount-GetDist(),0f);
+                }
+                if (offset) {
+                    newOffset = penetrator.GetWorldOffset(worldSpaceDistanceToPenisRoot+GetDist());
+                }
+            }
+            OnPenetrationGirthChange(newGirth);
+            OnPenetrationOffsetChange(newOffset);
+            OnPenetrationDepthChange(newDepth);
+        }
     }
 }

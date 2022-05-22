@@ -113,21 +113,9 @@ namespace PenetrationTech {
                 listener.OnValidate(this);
             }
         }
-        public void SetPenetrationDepth(Penetrator penis, float worldSpaceDistanceToPenisRoot) {
-            float penetratedAmount = penis.GetWorldLength()-worldSpaceDistanceToPenisRoot;
+        public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
             foreach(PenetrableListener listener in listeners) {
-                if (listener.GetDist() < penetratedAmount) {
-                    float newGirth = penis.GetWorldGirth(worldSpaceDistanceToPenisRoot+listener.GetDist());
-                    listener.OnPenetrationGirthChange(newGirth);
-                    float newDepth = Mathf.Max(penetratedAmount-listener.GetDist(),0f);
-                    listener.OnPenetrationDepthChange(newDepth);
-                    Vector3 newOffset = penis.GetWorldOffset(worldSpaceDistanceToPenisRoot+listener.GetDist());
-                    listener.OnPenetrationOffsetChange(newOffset);
-                } else {
-                    listener.OnPenetrationGirthChange(0f);
-                    listener.OnPenetrationDepthChange(0f);
-                    listener.OnPenetrationOffsetChange(Vector3.zero);
-                }
+                listener.NotifyPenetration(penetrator, worldSpaceDistanceToPenisRoot);
             }
         }
     }

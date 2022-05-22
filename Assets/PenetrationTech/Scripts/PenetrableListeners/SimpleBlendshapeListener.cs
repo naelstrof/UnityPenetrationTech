@@ -32,5 +32,8 @@ namespace PenetrationTech {
             UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
             #endif
         }
+        public override void NotifyPenetration(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+            NotifyPenetrationGDO(penetrator, worldSpaceDistanceToPenisRoot, true, false, true);
+        }
     }
 }
