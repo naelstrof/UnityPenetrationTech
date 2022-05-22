@@ -15,6 +15,10 @@ namespace PenetrationTech {
         private float maxLocalGirth;
         [ReadOnly][SerializeField]
         private AnimationCurve localGirthCurve;
+        [SerializeField]
+        private AnimationCurve localXOffsetCurve;
+        [SerializeField]
+        private AnimationCurve localYOffsetCurve;
         private Renderer renderer;
         private Vector3 localDickForward;
         private Vector3 localDickUp;
@@ -33,6 +37,22 @@ namespace PenetrationTech {
             Vector3 length = maxLocalLength * localDickForward;
             return meshTransform.TransformVector(length).magnitude;
         }
+        // Dick space is arbitrary, "Spline space" refers to Z forward, Y Up, and X right space. 
+        // This is to make it easier to place onto a spline.
+        public Vector3 GetScaledSplineSpaceOffset(float worldDistanceAlongDick) {
+            float localDistanceAlongDick = meshTransform.InverseTransformVector(worldDistanceAlongDick*meshTransform.TransformDirection(localDickForward)).magnitude;
+            float localXOffsetSample = localXOffsetCurve.Evaluate(localDistanceAlongDick);
+            float localYOffsetSample = localYOffsetCurve.Evaluate(localDistanceAlongDick);
+            Vector3 localGirth = localDickUp;
+            float scaleFactor = meshTransform.TransformVector(localGirth).magnitude;
+            Vector3 localOffset = localDickRight*localXOffsetSample + localDickUp*localYOffsetSample;
+            Matrix4x4 changeOfBasis = Matrix4x4.identity;
+            changeOfBasis.SetRow(0, localDickRight);
+            changeOfBasis.SetRow(1, localDickUp);
+            changeOfBasis.SetRow(2, localDickForward);
+            changeOfBasis[3,3] = 1f;
+            return changeOfBasis.MultiplyPoint(localOffset*scaleFactor);
+        }
         public float GetWorldGirth(float worldDistanceAlongDick) {
             float localDistanceAlongDick = meshTransform.InverseTransformVector(worldDistanceAlongDick*meshTransform.TransformDirection(localDickForward)).magnitude;
             // TODO: There's no real way to actually get the girth correctly, since we cannot interpret skewed scales.
@@ -41,11 +61,37 @@ namespace PenetrationTech {
             Vector3 localGirth = localDickUp*localGirthSample;
             return meshTransform.TransformVector(localGirth).magnitude;
         }
+        private void PopulateOffsetCurves(RenderTexture girthMap) {
+            Texture2D cpuTex = new Texture2D(girthMap.width,girthMap.height, TextureFormat.RGB24, false, true);
+            RenderTexture.active = girthMap;
+            cpuTex.ReadPixels(new Rect(0,0,girthMap.width, girthMap.height), 0, 0);
+            cpuTex.Apply();
+            localXOffsetCurve = new AnimationCurve();
+            localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
+            localXOffsetCurve.preWrapMode = WrapMode.ClampForever;
+            localYOffsetCurve = new AnimationCurve();
+            localYOffsetCurve.postWrapMode = WrapMode.ClampForever;
+            localYOffsetCurve.preWrapMode = WrapMode.ClampForever;
+            for (int x = 0;x<girthMap.width;x++) {
+                Vector2 positionSum = Vector2.zero;
+                for (int y = 0;y<girthMap.height;y++) {
+                    float rad = ((float)y/(float)girthMap.height)*Mathf.PI*2f;
+                    float distFromCore = cpuTex.GetPixel(x,y).r*maxLocalGirth;
+                    float xPosition = Mathf.Cos(rad)*distFromCore;
+                    float yPosition = Mathf.Sin(rad)*distFromCore;
+                    positionSum += new Vector2(xPosition,yPosition);
+                }
+                float distFromRoot = ((float)x/(float)girthMap.width)*maxLocalLength;
+                Vector2 positionAverage = positionSum/(float)girthMap.width;
+                localXOffsetCurve.AddKey(distFromRoot, positionAverage.x);
+                localYOffsetCurve.AddKey(distFromRoot, positionAverage.y);
+            }
+        }
         private void PopulateGirthCurve(RenderTexture girthMap) {
             // First we use the GPU to scrunch the 2D girthmap into a 1D one. This averages all the pixels.
-            RenderTexture temp = RenderTexture.GetTemporary(32,1);
+            RenderTexture temp = RenderTexture.GetTemporary(32,1,16,RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
             Graphics.Blit(girthMap, temp);
-            Texture2D cpuTex = new Texture2D(32,1, TextureFormat.RGB24, false);
+            Texture2D cpuTex = new Texture2D(32,1, TextureFormat.RGB24, false, true);
             RenderTexture.active = temp;
             cpuTex.ReadPixels(new Rect(0,0,girthMap.width, girthMap.height), 0, 0);
             cpuTex.Apply();
@@ -63,7 +109,7 @@ namespace PenetrationTech {
         public GirthData(Renderer renderer, Transform root, Vector3 localDickRoot, Vector3 localDickForward, Vector3 localDickUp) {
             this.renderer = renderer;
             Mesh mesh;
-            texture = new RenderTexture(512,512,16);
+            texture = new RenderTexture(256,256,16, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
             Vector3 localDickRight = Vector3.Cross(localDickForward, localDickUp);
             this.localDickForward = localDickForward;
             this.localDickUp = localDickUp;
@@ -112,6 +158,7 @@ namespace PenetrationTech {
             mat.SetFloat("_AngleOffset", -Mathf.PI/2f);
             Graphics.ExecuteCommandBuffer(additiveBuffer);
             PopulateGirthCurve(texture);
+            PopulateOffsetCurves(texture);
         }
         ~GirthData() {
             texture.Release();

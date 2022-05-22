@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
+        private static Vector3 localDickUp = Vector3.forward;
+        private static Vector3 localDickForward = -Vector3.up;
+        private static Vector3 localDickRight = Vector3.right;
+
         private List<Vector3> weights = new List<Vector3>();
         [SerializeField]
         private Transform rootBone;
@@ -16,6 +20,26 @@ namespace PenetrationTech {
         private float insertionFactor;
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetWorldGirth(float worldDistanceAlongDick) => girthData.GetWorldGirth(worldDistanceAlongDick);
+        private float GetPenetratorAngleOffset() {
+            Vector3 initialRight = path.GetBinormalFromT(0f);
+            Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
+            Vector3 initialUp = Vector3.Cross(initialForward, initialRight).normalized;
+            Vector3 worldDickUp = rootBone.TransformDirection(localDickUp);
+            Vector2 worldDickUpFlat = new Vector2(Vector3.Dot(worldDickUp,initialRight), Vector3.Dot(worldDickUp,initialUp));
+            float angle = Mathf.Atan2(worldDickUpFlat.y, worldDickUpFlat.x)-Mathf.PI/2f;
+            return angle;
+        }
+        public Vector3 GetWorldOffset(float worldDistanceAlongDick) {
+            // This value is in Z forward, Y up, and X right space-- This is a useful vector because spline space is Z-tangent, Y-normal, X-binormal.
+            Vector3 offset = girthData.GetScaledSplineSpaceOffset(worldDistanceAlongDick);
+
+            // Then we find our angle offset to the spline...
+            float angle = GetPenetratorAngleOffset();
+            offset = Quaternion.AngleAxis(angle,Vector3.forward) * offset;
+
+            // Then we rotate to the spline.
+            return path.GetReferenceFrameFromT(path.GetTimeFromDistance(worldDistanceAlongDick)).MultiplyVector(offset);
+        }
         protected override void Start() {
             base.Start();
             weights = new List<Vector3>();
@@ -24,7 +48,7 @@ namespace PenetrationTech {
             weights.Add(transform.position+transform.forward*0.5f);
             weights.Add(transform.position+transform.forward);
             path = new CatmullSpline().SetWeights(weights);
-            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, -Vector3.up, Vector3.forward);
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localDickForward, localDickUp);
         }
         protected override void Update() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
