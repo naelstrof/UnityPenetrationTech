@@ -23,7 +23,7 @@ namespace PenetrationTech {
                 targetBone.localPosition = originalLocalPosition;
             }
         }
-        public override void OnPenetrationOffsetChange(Vector3 worldOffset) {
+        protected override void OnPenetrationOffsetChange(Vector3 worldOffset) {
             base.OnPenetrationOffsetChange(worldOffset);
             if (targetBone != null) {
                 localOffset = targetBone.parent.InverseTransformVector(worldOffset);
