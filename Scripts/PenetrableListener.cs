@@ -21,12 +21,12 @@ namespace PenetrationTech {
         public virtual void OnEnable() { }
         public virtual void OnDisable() { }
         public virtual void Update() { }
-        public virtual float GetDist() {
+        protected virtual float GetDist() {
             return dist;
         }
-        public virtual void OnPenetrationGirthChange(float newGirth) { }
-        public virtual void OnPenetrationDepthChange(float newDepth) { }
-        public virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
+        protected virtual void OnPenetrationGirthChange(float newGirth) { }
+        protected virtual void OnPenetrationDepthChange(float newDepth) { }
+        protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) {
             t = p.GetPath().GetTimeFromDistance(dist);

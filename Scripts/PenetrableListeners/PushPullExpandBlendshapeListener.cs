@@ -25,12 +25,12 @@ namespace PenetrationTech {
             pullPushAmount = 0f;
             lastPenetrationDepth = 0f;
         }
-        public override void OnPenetrationGirthChange(float newGirth) {
+        protected override void OnPenetrationGirthChange(float newGirth) {
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirth/blendShapeGirth)*100f);
             }
         }
-        public override void OnPenetrationDepthChange(float newDepth) {
+        protected override void OnPenetrationDepthChange(float newDepth) {
             float diff = newDepth - lastPenetrationDepth;
             pullPushAmount += diff * 10f;
             pullPushAmount = Mathf.Clamp(pullPushAmount, -1f, 1f);
@@ -41,7 +41,7 @@ namespace PenetrationTech {
             pullDist = Mathf.Min(pullDist, 0f);
             pushDist = Mathf.Max(pushDist, 0f);
         }
-        public override float GetDist() {
+        protected override float GetDist() {
             float pushAmount = Mathf.Clamp01(pullPushAmount);
             float pullAmount = Mathf.Clamp01(-pullPushAmount);
             float d = Mathf.Lerp(dist, dist+pushDist, pushAmount);
