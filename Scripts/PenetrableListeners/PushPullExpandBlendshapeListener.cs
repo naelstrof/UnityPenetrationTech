@@ -25,12 +25,12 @@ namespace PenetrationTech {
             pullPushAmount = 0f;
             lastPenetrationDepth = 0f;
         }
-        public override void OnPenetrationGirthChange(Penetrator penis, float newGirth) {
+        public override void OnPenetrationGirthChange(float newGirth) {
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirth/blendShapeGirth)*100f);
             }
         }
-        public override void OnPenetrationDepthChange(Penetrator penis, float newDepth) {
+        public override void OnPenetrationDepthChange(float newDepth) {
             float diff = newDepth - lastPenetrationDepth;
             pullPushAmount += diff * 10f;
             pullPushAmount = Mathf.Clamp(pullPushAmount, -1f, 1f);
