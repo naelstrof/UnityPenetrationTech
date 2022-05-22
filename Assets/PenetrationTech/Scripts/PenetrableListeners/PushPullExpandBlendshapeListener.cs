@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace PenetrationTech {
     [System.Serializable]
     [PenetrableListener(typeof(PushPullExpandBlendshapeListener), "Push Pull Expand Blendshape Listener")]
-    public class PushPullExpandBlendshapeListener : PenetrableListener {
+    public class PushPullExpandBlendshapeListener : BoneTransformListener {
         [SerializeField]
         private SkinnedMeshBlendshapePushPullExpandSet[] targets;
         [SerializeField]
@@ -18,6 +18,7 @@ namespace PenetrationTech {
         private float pullPushAmount;
         private float lastPenetrationDepth;
         public override void OnEnable() {
+            base.OnEnable();
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.OnEnable();
             }
@@ -57,6 +58,7 @@ namespace PenetrationTech {
             }
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
+            base.OnDrawGizmosSelected(p);
             #if UNITY_EDITOR
             Vector3 position = p.GetPath().GetPositionFromT(t);
             Vector3 normal = p.GetPath().GetVelocityFromT(t).normalized;

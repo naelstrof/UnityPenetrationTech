@@ -6,12 +6,13 @@ using UnityEngine.UIElements;
 namespace PenetrationTech {
     [System.Serializable]
     [PenetrableListener(typeof(SimpleBlendshapeListener), "Simple Blendshape Listener")]
-    public class SimpleBlendshapeListener : PenetrableListener {
+    public class SimpleBlendshapeListener : BoneTransformListener {
         [SerializeField]
         SkinnedMeshBlendshapePair[] targets;
         [SerializeField]
         float blendShapeGirth;
         public override void OnEnable() {
+            base.OnEnable();
             foreach(SkinnedMeshBlendshapePair target in targets) {
                 target.OnEnable();
             }
@@ -23,6 +24,7 @@ namespace PenetrationTech {
             }
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
+            base.OnDrawGizmosSelected(p);
             #if UNITY_EDITOR
             Vector3 position = p.GetPath().GetPositionFromT(t);
             Vector3 normal = p.GetPath().GetVelocityFromT(t).normalized;

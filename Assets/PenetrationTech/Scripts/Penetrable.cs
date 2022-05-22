@@ -49,15 +49,15 @@ namespace PenetrationTech {
     #endif
     public class Penetrable : CatmullDisplay {
         [SerializeField]
-        private Vector3[] points;
+        private Transform[] points;
         private List<Vector3> worldPoints;
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference]
         public List<PenetrableListener> listeners;
         void OnEnable() {
             worldPoints = new List<Vector3>();
-            foreach(Vector3 point in points) {
-                worldPoints.Add(transform.TransformPoint(point));
+            foreach(Transform point in points) {
+                worldPoints.Add(point.position);
             }
             path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
@@ -77,7 +77,7 @@ namespace PenetrationTech {
             if(transform.hasChanged) {
                 worldPoints.Clear();
                 for(int i=0;i<points.Length;i++) {
-                    worldPoints.Add(transform.TransformPoint(points[i]));
+                    worldPoints.Add(points[i].position);
                 }
                 if (path == null) {
                     path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
@@ -121,9 +121,12 @@ namespace PenetrationTech {
                     listener.OnPenetrationGirthChange(penis, newGirth);
                     float newDepth = Mathf.Max(penetratedAmount-listener.GetDist(),0f);
                     listener.OnPenetrationDepthChange(penis, newDepth);
+                    Vector3 newOffset = penis.GetWorldOffset(worldSpaceDistanceToPenisRoot+listener.GetDist());
+                    listener.OnPenetrationOffsetChange(penis, newOffset);
                 } else {
                     listener.OnPenetrationGirthChange(penis, 0f);
                     listener.OnPenetrationDepthChange(penis, 0f);
+                    listener.OnPenetrationOffsetChange(penis, Vector3.zero);
                 }
             }
         }

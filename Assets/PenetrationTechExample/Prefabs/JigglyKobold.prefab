@@ -214,6 +214,36 @@ Transform:
   m_Father: {fileID: 1388561312220486685}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &587805143597264808
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2730235939976612838}
+  m_Layer: 0
+  m_Name: ButtCurve1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2730235939976612838
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587805143597264808}
+  m_LocalRotation: {x: 0.98195314, y: -0.001903555, z: 0.013525879, w: -0.1886305}
+  m_LocalPosition: {x: -0.00021778463, y: -0.071236335, z: -0.07225989}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4766473574349541950}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.00699585}
 --- !u!1 &735586314030385053
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,6 +974,36 @@ Transform:
   m_Father: {fileID: 967198873619381276}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2731089842512438761
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6143953854860929623}
+  m_Layer: 0
+  m_Name: StomachPassthrough
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6143953854860929623
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2731089842512438761}
+  m_LocalRotation: {x: -0.7268138, y: -0.0036700221, z: -0.004050535, w: 0.68681294}
+  m_LocalPosition: {x: -0.002, y: -0.197, z: -0.069}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8197358249053959768}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2785830441848715266
 GameObject:
   m_ObjectHideFlags: 0
@@ -1062,7 +1122,8 @@ Transform:
   m_LocalRotation: {x: 0.7047172, y: 0.0020263777, z: 0.002029437, w: 0.7094825}
   m_LocalPosition: {x: -0.000020235755, y: 0.045927014, z: 0.0347494}
   m_LocalScale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
-  m_Children: []
+  m_Children:
+  - {fileID: 8253403588063006845}
   m_Father: {fileID: 4368218104630050956}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1964,6 +2025,36 @@ Transform:
   m_Father: {fileID: 4847037771068930038}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6235694784198925460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8253403588063006845}
+  m_Layer: 0
+  m_Name: MouthEntrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8253403588063006845
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6235694784198925460}
+  m_LocalRotation: {x: -0.7047172, y: -0.0020263786, z: -0.002029438, w: 0.7094825}
+  m_LocalPosition: {x: 0.0001, y: 0.0578, z: -0.0103}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5471192811894353947}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6663738809834999277
 GameObject:
   m_ObjectHideFlags: 0
@@ -2305,7 +2396,8 @@ Transform:
   m_LocalRotation: {x: 0.70094395, y: -0.0020746095, z: -0.0020397133, w: 0.7132104}
   m_LocalPosition: {x: 0.0007577395, y: 0.015329067, z: 0.23633635}
   m_LocalScale: {x: 0.99999994, y: 0.9999999, z: 0.99999994}
-  m_Children: []
+  m_Children:
+  - {fileID: 6143953854860929623}
   m_Father: {fileID: 8147590919340718613}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2650,6 +2742,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4766473574349541950}
+  - component: {fileID: 5842039203488493478}
   m_Layer: 0
   m_Name: Hips
   m_TagString: Untagged
@@ -2674,9 +2767,54 @@ Transform:
   - {fileID: 3333062064093237365}
   - {fileID: 8424650258899061604}
   - {fileID: 3952444606842804954}
+  - {fileID: 2730235939976612838}
   m_Father: {fileID: 788185189284917741}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5842039203488493478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8840569745174052964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {fileID: 2730235939976612838}
+  - {fileID: 6143953854860929623}
+  - {fileID: 4368218104630050956}
+  - {fileID: 8253403588063006845}
+  listeners:
+  - id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        dist: 0
+        targetBone: {fileID: 807804077407153469}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7452297451520482250}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        - skinnedMeshRenderer: {fileID: 5330333750980878102}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        blendShapeGirth: 0.055
+        pullDist: -0.028
+        pushDist: 0.02
 --- !u!1 &8884491345083860468
 GameObject:
   m_ObjectHideFlags: 0
@@ -2769,7 +2907,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9010356771295247305}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000029653306}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0.08, y: -0.199, z: -0.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2920,7 +3058,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 807804077407153469}
-  - component: {fileID: 6026123279155826189}
   m_Layer: 0
   m_Name: Butt
   m_TagString: Untagged
@@ -2942,48 +3079,6 @@ Transform:
   m_Father: {fileID: 4766473574349541950}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6026123279155826189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9142001686618130418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  points:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: -0.29, z: 0}
-  - {x: 0, y: -0.66, z: 0.19}
-  listeners:
-  - id: 0
-  references:
-    version: 1
-    00000000:
-      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
-      data:
-        dist: 0
-        targets:
-        - skinnedMeshRenderer: {fileID: 7452297451520482250}
-          expandBlendshapeName: ButtExpand
-          pullBlendshapeName: ButtTug
-          pushBlendshapeName: ButtPush
-          expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
-        - skinnedMeshRenderer: {fileID: 5330333750980878102}
-          expandBlendshapeName: ButtExpand
-          pullBlendshapeName: ButtTug
-          pushBlendshapeName: ButtPush
-          expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
-        blendShapeGirth: 0.055
-        pullDist: -0.028
-        pushDist: 0.02
 --- !u!1 &9205961825114127862
 GameObject:
   m_ObjectHideFlags: 0

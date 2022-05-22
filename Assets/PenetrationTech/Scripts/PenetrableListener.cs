@@ -24,10 +24,9 @@ namespace PenetrationTech {
         public virtual float GetDist() {
             return dist;
         }
-        public virtual void OnPenetrationGirthChange(Penetrator penis, float newGirth) {
-        }
-        public virtual void OnPenetrationDepthChange(Penetrator penis, float newDepth) {
-        }
+        public virtual void OnPenetrationGirthChange(Penetrator penis, float newGirth) { }
+        public virtual void OnPenetrationDepthChange(Penetrator penis, float newDepth) { }
+        public virtual void OnPenetrationOffsetChange(Penetrator penis, Vector3 worldOffset) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) {
             t = p.GetPath().GetTimeFromDistance(dist);
