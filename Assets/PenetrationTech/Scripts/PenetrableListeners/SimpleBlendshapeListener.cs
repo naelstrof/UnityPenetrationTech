@@ -17,8 +17,8 @@ namespace PenetrationTech {
                 target.OnEnable();
             }
         }
-        public override void OnPenetrationGirthChange(Penetrator penis, float newGirth) {
-            base.OnPenetrationGirthChange(penis, newGirth);
+        public override void OnPenetrationGirthChange(float newGirth) {
+            base.OnPenetrationGirthChange(newGirth);
             foreach(SkinnedMeshBlendshapePair target in targets) {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, (newGirth/blendShapeGirth)*100f);
             }
