@@ -38,5 +38,9 @@ namespace PenetrationTech {
             UnityEditor.Handles.DrawWireCube(targetBone.parent.TransformPoint(originalLocalPosition + localOffset), Vector3.one*0.005f);
             #endif
         }
+        public override void NotifyPenetration(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+            NotifyPenetrationGDO(penetrator, worldSpaceDistanceToPenisRoot, false, false, true);
+        }
+
     }
 }
