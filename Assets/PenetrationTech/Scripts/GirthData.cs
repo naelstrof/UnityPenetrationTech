@@ -15,9 +15,9 @@ namespace PenetrationTech {
         private float maxLocalGirth;
         [ReadOnly][SerializeField]
         private AnimationCurve localGirthCurve;
-        [SerializeField]
+        [ReadOnly][SerializeField]
         private AnimationCurve localXOffsetCurve;
-        [SerializeField]
+        [ReadOnly][SerializeField]
         private AnimationCurve localYOffsetCurve;
         private Renderer renderer;
         private Vector3 localDickForward;
@@ -102,7 +102,11 @@ namespace PenetrationTech {
             localGirthCurve.preWrapMode = WrapMode.ClampForever;
             for (int i=0;i<32;i++) {
                 float t = (float)i/(float)32;
-                localGirthCurve.AddKey(t*maxLocalLength,cpuTex.GetPixel(i,0).r*maxLocalGirth);
+                if (i != 31) {
+                    localGirthCurve.AddKey(t*maxLocalLength,cpuTex.GetPixel(i,0).r*maxLocalGirth);
+                } else {
+                    localGirthCurve.AddKey(t*maxLocalLength,0f);
+                }
             }
         }
         
