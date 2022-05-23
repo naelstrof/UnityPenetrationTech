@@ -25,6 +25,10 @@ namespace PenetrationTech {
                 //Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.025f);
                 //Gizmos.DrawLine(path.GetWeights()[i+3], path.GetWeights()[i+3]+path.GetWeights()[i+2]);
             }
+            for (int i=0;i<path.GetBounds().Count;i++) {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireCube(path.GetBounds()[i].center, path.GetBounds()[i].size);
+            }
             /*Matrix4x4 savedMatrix = Gizmos.matrix;
             int frames = 32;
             for (int i=0;i<frames;i++) {

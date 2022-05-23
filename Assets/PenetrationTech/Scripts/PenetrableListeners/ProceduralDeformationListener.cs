@@ -63,8 +63,9 @@ namespace PenetrationTech {
                 }
                 for (int i=0;i<uvs.Count;i++) {
                     Vector3 worldPosition = target.rootBone.TransformPoint(newMesh.bindposes[0].MultiplyPoint(vertices[i]));
-                    float nearestDistance = p.GetPath().GetClosestDistanceFromPosition(worldPosition, 64);
-                    nearestDistance = Mathf.Clamp(nearestDistance, 0, p.GetPath().arcLength);
+                    float nearestT = p.GetPath().GetClosestTimeFromPosition(worldPosition, 128);
+                    float nearestDistance = p.GetPath().GetDistanceFromTime(nearestT);
+                    //Debug.DrawLine(worldPosition, p.GetPath().GetPositionFromT(nearestT), Color.red, 10f);
                     switch(dataLocation) {
                         case TargetDataLocation.x: uvs[i] = new Vector4(nearestDistance,uvs[i].y,uvs[i].z,uvs[i].w);break;
                         case TargetDataLocation.y: uvs[i] = new Vector4(uvs[i].x,nearestDistance,uvs[i].z,uvs[i].w);break;
