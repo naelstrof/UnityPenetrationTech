@@ -34,7 +34,7 @@ namespace PenetrationTech {
             return tangent;
         }
         private static Vector3 GetAcceleration(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
-            // Second derivative (jerk)
+            // Second derivative (acceleration)
             // p''(t) = (12t - 6)p₀ + (6t - 4)m₀ + (-12t + 6)p₁ + (6t - 2)m₁
             Vector3 curvature = (12f * t - 6f) * start
                 + (6f * t - 4f) * tanPoint1
@@ -45,16 +45,24 @@ namespace PenetrationTech {
         protected List<Vector3> weights;
         private List<float> distanceLUT;
         private List<Vector3> binormalLUT;
+        private List<Bounds> bounds;
         public float arcLength {get; private set;}
 
         public List<Vector3> GetWeights() => weights;
         public List<float> GetDistanceLUT() => distanceLUT;
         public List<Vector3> GetBinormalLUT() => binormalLUT;
+        public List<Bounds> GetBounds() {
+            if (bounds.Count != weights.Count/4) {
+                GenerateBounds();
+            }
+            return bounds;
+        }
 
         public CatmullSpline() {
             weights = new List<Vector3>();
             distanceLUT = new List<float>();
             binormalLUT = new List<Vector3>();
+            bounds = new List<Bounds>();
         }
 
         private Vector3 SampleCurveSegmentPosition(int curveSegmentIndex, float t) {
@@ -82,6 +90,56 @@ namespace PenetrationTech {
                 }
             }
             return distance/arcLength;
+        }
+        public float GetDistanceFromTime(float t) {
+            t = Mathf.Clamp01(t);
+            int index = Mathf.Clamp(Mathf.FloorToInt(t*(distanceLUT.Count-1)),0,distanceLUT.Count-2);
+            float offseted = t-((float)index/(float)(distanceLUT.Count));
+            float lerpT = offseted * (float)(distanceLUT.Count-1);
+            return Mathf.Lerp(distanceLUT[index], distanceLUT[index+1], lerpT);
+        }
+        private bool CheckMinimaMaxima(float tValue) {
+            if (float.IsNaN(tValue) || Mathf.Clamp01(tValue) != tValue) {
+                return false;
+            }
+            return true;
+        }
+        // Again we use Freya Holmer's tutorial to understand the strategy behind generating the bounds: https://youtu.be/aVwxzDHniEw?t=791
+        // This is just the derivative written in terms of t, then plugged into the quadratic formula to solve for zeros.
+        // that gives us our local extremes to generate our bounds on.
+        protected void GenerateBounds() {
+            bounds.Clear();
+            List<float> tValues = new List<float>();
+            for(int i=0;i<weights.Count/4;i++) {
+                Vector3 p0 = weights[(i*4)];
+                Vector3 m0 = weights[(i*4)+1];
+                Vector3 m1 = weights[(i*4)+2];
+                Vector3 p1 = weights[(i*4)+3];
+
+                Vector3 a = 6f*p0 + 3f*m0 - 6f*p1 + 3f*m1;
+                Vector3 b = -6f*p0 -4f*m0 + 6f*p1 - 2f*m1;
+                Vector3 c = m0;
+
+                // Good ol' quadratic formula. We solve it for each axis (X,Y,Z);
+                float tpx = (-b.x + Mathf.Sqrt(b.x*b.x-4f*a.x*c.x))/(2f*a.x);
+                float tpy = (-b.y + Mathf.Sqrt(b.y*b.y-4f*a.y*c.y))/(2f*a.y);
+                float tpz = (-b.z + Mathf.Sqrt(b.z*b.z-4f*a.z*c.z))/(2f*a.z);
+
+                float tnx = (-b.x - Mathf.Sqrt(b.x*b.x-4f*a.x*c.x))/(2f*a.x);
+                float tny = (-b.y - Mathf.Sqrt(b.y*b.y-4f*a.y*c.y))/(2f*a.y);
+                float tnz = (-b.z - Mathf.Sqrt(b.z*b.z-4f*a.z*c.z))/(2f*a.z);
+
+                Bounds bound = new Bounds(GetPosition(p0, m0, m1, p1, 0f), Vector3.zero);
+                // If the floats are out of our range, or if they're NaN (from a negative sqrt)-- we discard them.
+                if (CheckMinimaMaxima(tpx)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tpx)); }
+                if (CheckMinimaMaxima(tnx)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tnx)); }
+                if (CheckMinimaMaxima(tpy)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tpy)); }
+                if (CheckMinimaMaxima(tny)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tny)); }
+                if (CheckMinimaMaxima(tpz)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tpz)); }
+                if (CheckMinimaMaxima(tnz)) { bound.Encapsulate(GetPosition(p0,m0,m1,p1,tnz)); }
+                bound.Encapsulate(GetPosition(p0,m0,m1,p1,1f));
+                bounds.Add(bound);
+            }
         }
         protected void GenerateDistanceLUT(int resolution) {
             float dist = 0f;
@@ -137,6 +195,7 @@ namespace PenetrationTech {
             weights.AddRange(newWeights);
             GenerateDistanceLUT(32);
             GenerateBinormalLUT(16);
+            bounds.Clear();
             return this;
         }
 
@@ -165,21 +224,49 @@ namespace PenetrationTech {
             }
             GenerateDistanceLUT(32);
             GenerateBinormalLUT(16);
+            bounds.Clear();
             return this;
         }
-        public float GetClosestDistanceFromPosition(Vector3 position, int samples=32) {
-            float nearestCheckDistance = 0f;
-            float nearestDist = float.MaxValue;
-            for (int i=0;i<samples;i++) {
-                float checkDistance = ((float)i/(float)samples)*arcLength;
-                Vector3 sample = GetPositionFromDistance(checkDistance);
-                float dist = Vector3.Distance(sample, position);
-                if (dist<nearestDist) {
-                    nearestDist = dist;
-                    nearestCheckDistance = checkDistance;
+        public float GetClosestTimeFromPositionFast(Vector3 position, int samples=32) {
+            // Broad pass that just finds the closest bounds
+            int closestBounds = 0;
+            float distToBounds = float.MaxValue;
+            List<Bounds> curveBounds = GetBounds();
+            for(int i=0;i<curveBounds.Count;i++) {
+                float dist = Vector3.Distance(curveBounds[i].ClosestPoint(position),position);
+                if (dist < distToBounds) {
+                    closestBounds = i;
+                    distToBounds = dist;
                 }
             }
-            return nearestCheckDistance;
+            // With the closest sub-curve found, we can then do some very deliberate samples.
+            float closestTValue = 0f;
+            float distToCurve = float.MaxValue;
+            for (int i=0;i<samples;i++) {
+                float tSample = (float)i/(float)samples;
+                Vector3 samplePosition = SampleCurveSegmentPosition(closestBounds, tSample);
+                float dist = Vector3.Distance(samplePosition, position);
+                if (dist<distToCurve) {
+                    closestTValue = tSample;
+                    distToCurve = dist;
+                }
+            }
+            // Just gotta take it from subT to overall t value
+            return closestTValue/(float)(curveBounds.Count)+((float)closestBounds/(float)(curveBounds.Count));
+        }
+        public float GetClosestTimeFromPosition(Vector3 position, int samples=32) {
+            float closestTValue = 0f;
+            float distToCurve = float.MaxValue;
+            for (int i=0;i<samples;i++) {
+                float tSample = (float)i/(float)samples;
+                Vector3 samplePosition = GetPositionFromT(tSample);
+                float dist = Vector3.Distance(samplePosition, position);
+                if (dist<distToCurve) {
+                    closestTValue = tSample;
+                    distToCurve = dist;
+                }
+            }
+            return closestTValue;
         }
         public Vector3 GetPositionFromDistance(float distance) {
             float t = GetTimeFromDistance(distance);
