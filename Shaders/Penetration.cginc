@@ -94,20 +94,16 @@ float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t
             + (-6.0 * t * t + 6.0 * t) * end
             + (3.0 * t * t - 2.0 * t) * tanPoint2;
 }
-void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in float3 normal, in float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
-    // This depends on the model, blender defaults to Y forward, X right, and Z up.
-    float3 dickForward = float3(0,1,0);
-    float3 dickRight = float3(1,0,0);
-    float3 dickUp = float3(0,0,-1);
-
+void ToCatmullRomSpace_float(float3 dickRootPosition, float3 position, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 normal, float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
     // We want to work in world space, as everything we're working with is there. Here we convert everything into world space.
     float3 worldPosition = mul(objectToWorld,float4(position.xyz,1)).xyz;
     float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
 
+    //float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
+    //float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
+    //float3 worldDickUp = normalize(mul(objectToWorld,float4(dickUp.xyz,0)).xyz);
+
     // Ensure these are world space directions by normalizing and using 0 in the w component.
-    float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
-    float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
-    float3 worldDickUp = normalize(mul(objectToWorld,float4(dickUp.xyz,0)).xyz);
     float3 worldNormal = normalize(mul(objectToWorld,float4(normal.xyz,0)).xyz);
     float3 worldTangent = normalize(mul(objectToWorld,float4(tangent.xyz,0)).xyz);
     
@@ -193,4 +189,67 @@ void ToCatmullRomSpace_float(float3 dickRootPosition, in float3 position, in flo
 
     // Bring it back into object space, now that we're done working on it.
     positionOUT = mul(worldToObject,float4(catmullSpacePosition,1)).xyz;
+}
+
+// Penetratable stuff down below
+sampler2D _DickGirthMapX;
+sampler2D _DickGirthMapY;
+sampler2D _DickGirthMapZ;
+sampler2D _DickGirthMapW;
+
+struct PenetratorData {
+    float blend;
+    float worldLength;
+    float worldDistance;
+    float girthScaleFactor;
+    float angle;
+};
+
+StructuredBuffer<PenetratorData> _PenetratorData;
+
+void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, sampler2D girthMap, PenetratorData data, int curveIndex) {
+    // Just skip everything if blend is 0, we might not even have curves to sample.
+    if (data.blend == 0) {
+        return;
+    }
+    float t = DistanceToTime(curveIndex,data.worldDistance+dist);
+    // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
+    int curveSegmentIndex = 0;
+    float subT = GetCurveSegment(curveIndex, t, curveSegmentIndex);
+
+    float3 catPosition = SampleCurveSegmentPosition(curveIndex,curveSegmentIndex, subT);
+    float3 catTangent = SampleCurveSegmentVelocity(curveIndex,curveSegmentIndex, subT);
+    float3 catForward = normalize(catTangent);
+    // We sample the Binormal from a lookup-table, to prevent flipping and twisting.
+    // https://en.wikipedia.org/wiki/Frenet%E2%80%93Serret_formulas
+    // https://janakiev.com/blog/framing-parametric-curves/
+    float3 catRight = GetBinormalFromT(curveIndex,t);
+    // We can just figure out our normal with a cross product.
+    float3 catUp = normalize(cross(catForward,catRight));
+
+    float3 diff = worldPosition-catPosition;
+    // Get the rotation around the curve that we need to sample.
+    float2 holeFlat = float2(dot(diff,catRight), dot(diff,catUp));
+    float holeAngle = atan2(holeFlat.y, holeFlat.x)+3.14159265359;
+
+    float diffDistance = length(diff);
+
+    float2 girthSampleUV = float2((data.worldDistance + dist)/data.worldLength, (holeAngle-data.angle)/6.28318530718);
+
+    float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
+
+    if (girthSampleUV.x > 1) {
+        girthSample = 0;
+    }
+
+    worldPosition = catPosition + normalize(diff)*(girthSample + diffDistance);
+}
+
+void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
+    float3 worldPosition = mul(objectToWorld, float4(position.xyz,1)).xyz;
+    GetDeformationFromPenetrator(worldPosition, uv2.x, _DickGirthMapX, _PenetratorData[0], 0);
+    //GetDeformationFromPenetrator(worldPosition, uv2.y, _DickGirthMapY, _PenetratorData[1], 1);
+    //GetDeformationFromPenetrator(worldPosition, uv2.z, _DickGirthMapZ, _PenetratorData[2], 2);
+    //GetDeformationFromPenetrator(worldPosition, uv2.w, _DickGirthMapW, _PenetratorData[3], 3);
+    deformedPosition = mul(worldToObject, float4(worldPosition.xyz,1)).xyz;
 }

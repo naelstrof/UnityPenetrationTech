@@ -18,7 +18,7 @@ namespace PenetrationTech {
         protected float t;
         [SerializeField]
         protected float dist;
-        public virtual void OnEnable() { }
+        public virtual void OnEnable(Penetrable p) { }
         public virtual void OnDisable() { }
         public virtual void Update() { }
         protected virtual float GetDist() {

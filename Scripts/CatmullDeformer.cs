@@ -6,16 +6,27 @@ using UnityEngine;
 namespace PenetrationTech {
 
     public class CatmullDeformer : CatmullDisplay {
+        [SerializeField]
+        protected Vector3 localRootUp = Vector3.forward;
+        [SerializeField]
+        protected Vector3 localRootForward = -Vector3.up;
+        [SerializeField]
+        protected Vector3 localRootRight = Vector3.right;
+        [SerializeField]
+        protected Transform rootBone;
         public const int splineCount = 1;
         [SerializeField]
         private List<Renderer> targetRenderers;
         private HashSet<Material> targetMaterials;
         private int catmullSplinesID;
         private int catmullSplineCountID;
+        private int dickForwardID;
+        private int dickRightID;
+        private int dickUpID;
         private ComputeBuffer catmullBuffer;
         private NativeArray<CatmullSplineData> data;
-        public System.Collections.ObjectModel.ReadOnlyCollection<Renderer> GetTargetRenderers() => targetRenderers.AsReadOnly();
-        private unsafe struct CatmullSplineData {
+        public List<Renderer> GetTargetRenderers() => targetRenderers;
+        public unsafe struct CatmullSplineData {
             private const int subSplineCount = 6;
             private const int binormalCount = 16;
             private const int distanceCount = 32;
@@ -63,6 +74,9 @@ namespace PenetrationTech {
                 targetMaterials.Remove(m);
             }
         }
+        protected virtual void Awake() {
+            Vector3.OrthoNormalize(ref localRootForward,ref localRootUp,ref localRootRight);
+        }
         protected virtual void OnEnable() {
             catmullBuffer = new ComputeBuffer(splineCount, CatmullSplineData.GetSize());
             data = new NativeArray<CatmullSplineData>(1, Allocator.Persistent);
@@ -82,12 +96,18 @@ namespace PenetrationTech {
             }
             catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
             catmullSplineCountID = Shader.PropertyToID("_CatmullSplineCount");
+            dickForwardID = Shader.PropertyToID("_DickForward");
+            dickRightID = Shader.PropertyToID("_DickRight");
+            dickUpID = Shader.PropertyToID("_DickUp");
         }
         protected virtual void Update() {
             data[0] = new CatmullSplineData(path);
             catmullBuffer.SetData<CatmullSplineData>(data, 0, 0, 1);
             foreach(Material material in targetMaterials) {
                 material.SetInt(catmullSplineCountID, 1);
+                material.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
+                material.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
+                material.SetVector(dickUpID, rootBone.TransformDirection(localRootUp));
                 material.SetBuffer(catmullSplinesID, catmullBuffer);
             }
         }

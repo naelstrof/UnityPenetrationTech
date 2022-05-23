@@ -32,6 +32,11 @@ namespace PenetrationTech {
                 throw new UnityException("This should never happen! GirthData needs a MeshRenderer or a SkinnedMeshRenderer.");
             }
         }
+        public float GetGirthScaleFactor() {
+            Vector3 localGirth = localDickUp*maxLocalGirth;
+            float scaleFactor = meshTransform.TransformVector(localGirth).magnitude;
+            return scaleFactor;
+        }
         public float GetWorldLength() {
             // This handles skewed forwards, and even non-proportional scales of the dick (making it stubbier or longer)
             Vector3 length = maxLocalLength * localDickForward;
@@ -110,37 +115,45 @@ namespace PenetrationTech {
             }
         }
         
-        public GirthData(Renderer renderer, Transform root, Vector3 localDickRoot, Vector3 localDickForward, Vector3 localDickUp) {
+        public GirthData(Renderer renderer, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp) {
             this.renderer = renderer;
             Mesh mesh;
-            texture = new RenderTexture(256,256,16, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-            Vector3 localDickRight = Vector3.Cross(localDickForward, localDickUp);
-            this.localDickForward = localDickForward;
-            this.localDickUp = localDickUp;
-            this.localDickRight = localDickRight;
-            Vector3 worldSpaceDickRoot = root.TransformPoint(localDickRoot);
-            Vector3 localSpaceDickRoot;
+            texture = new RenderTexture(256,256, 16, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            //texture.wrapModeV = TextureWrapMode.Repeat;
+            //texture.wrapModeU = TextureWrapMode.Clamp;
+            texture.wrapMode = TextureWrapMode.Repeat;
+            Vector3 rootDickRight = Vector3.Cross(rootDickForward, rootDickUp);
+            localDickForward = meshTransform.InverseTransformDirection(root.TransformDirection(rootDickForward));
+            localDickUp = meshTransform.InverseTransformDirection(root.TransformDirection(rootDickUp));
+            localDickRight = meshTransform.InverseTransformDirection(root.TransformDirection(rootDickRight));
+
+            Vector3 worldSpaceDickRoot = root.TransformPoint(rootLocalDickRoot);
+            Vector3 localSpaceDickRoot = meshTransform.InverseTransformPoint(worldSpaceDickRoot);
             if (renderer is SkinnedMeshRenderer) {
                 mesh = (renderer as SkinnedMeshRenderer).sharedMesh;
-                localSpaceDickRoot = (renderer as SkinnedMeshRenderer).rootBone.InverseTransformPoint(worldSpaceDickRoot);
             } else if (renderer is MeshRenderer) {
                 mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
-                localSpaceDickRoot = renderer.transform.InverseTransformPoint(worldSpaceDickRoot);
             } else {
                 throw new UnityException("Girth data can only be generated on SkinnedMeshRenderers and MeshRenderers.");
             }
             Material mat = new Material(Shader.Find("PenetrationTech/GirthUnwrapRaw"));
             mat.SetVector("_DickOrigin", localSpaceDickRoot);
-            mat.SetVector("_DickForward", localDickForward);
-            mat.SetVector("_DickRight", localDickRight);
+            mat.SetVector("_DickForward", this.localDickForward);
+            mat.SetVector("_DickRight", this.localDickRight);
 
             // Do a quick pass to figure out how girthy and lengthy we are
             maxLocalGirth = 0f;
             maxLocalLength = 0f;
             foreach(Vector3 vertexPosition in mesh.vertices) {
+                Vector3 vp;
+                if (mesh.bindposes.Length != 0) {
+                    vp = mesh.bindposes[0].MultiplyPoint(vertexPosition);
+                } else {
+                    vp = vertexPosition;
+                }
                 //Vector3 dickSpacePosition = changeOfBasis.MultiplyPoint(vertexPosition);
-                float length = Vector3.Dot(localDickForward, vertexPosition-localSpaceDickRoot);
-                float girth = Vector3.Distance(vertexPosition,(localSpaceDickRoot+localDickForward*length));
+                float length = Vector3.Dot(localDickForward, vp-localSpaceDickRoot);
+                float girth = Vector3.Distance(vp,(localSpaceDickRoot+localDickForward*length));
                 maxLocalGirth = Mathf.Max(girth, maxLocalGirth);
                 maxLocalLength = Mathf.Max(length, maxLocalLength);
             }

@@ -61,7 +61,7 @@ namespace PenetrationTech {
             }
             path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
-                listener.OnEnable();
+                listener.OnEnable(this);
             }
         }
         void OnDisable() {

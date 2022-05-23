@@ -11,8 +11,8 @@ namespace PenetrationTech {
         SkinnedMeshBlendshapePair[] targets;
         [SerializeField]
         float blendShapeGirth;
-        public override void OnEnable() {
-            base.OnEnable();
+        public override void OnEnable(Penetrable p) {
+            base.OnEnable(p);
             foreach(SkinnedMeshBlendshapePair target in targets) {
                 target.OnEnable();
             }
