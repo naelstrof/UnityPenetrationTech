@@ -4,13 +4,8 @@ using UnityEngine;
 
 namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
-        private static Vector3 localDickUp = Vector3.forward;
-        private static Vector3 localDickForward = -Vector3.up;
-        private static Vector3 localDickRight = Vector3.right;
 
         private List<Vector3> weights = new List<Vector3>();
-        [SerializeField]
-        private Transform rootBone;
         [SerializeField]
         private GirthData girthData;
         [SerializeField]
@@ -18,13 +13,15 @@ namespace PenetrationTech {
         private float length;
         private bool inserted;
         private float insertionFactor;
+        public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetWorldGirth(float worldDistanceAlongDick) => girthData.GetWorldGirth(worldDistanceAlongDick);
-        private float GetPenetratorAngleOffset() {
+        public RenderTexture GetGirthMap() => girthData.GetGirthMap();
+        public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
             Vector3 initialUp = Vector3.Cross(initialForward, initialRight).normalized;
-            Vector3 worldDickUp = rootBone.TransformDirection(localDickUp);
+            Vector3 worldDickUp = rootBone.TransformDirection(localRootUp);
             Vector2 worldDickUpFlat = new Vector2(Vector3.Dot(worldDickUp,initialRight), Vector3.Dot(worldDickUp,initialUp));
             float angle = Mathf.Atan2(worldDickUpFlat.y, worldDickUpFlat.x)-Mathf.PI/2f;
             return angle;
@@ -48,7 +45,7 @@ namespace PenetrationTech {
             weights.Add(transform.position+transform.forward*0.5f);
             weights.Add(transform.position+transform.forward);
             path = new CatmullSpline().SetWeights(weights);
-            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localDickForward, localDickUp);
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp);
         }
         protected override void Update() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
@@ -62,7 +59,7 @@ namespace PenetrationTech {
 
         private void ConstructPath(Vector3 holePos, Vector3 holeForward) {
             float dist = Vector3.Distance(rootBone.position, holePos);
-            Vector3 tipPosition = rootBone.position + transform.forward * girthData.GetWorldLength();
+            Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
@@ -77,14 +74,14 @@ namespace PenetrationTech {
             }
 
             Vector3 PenetratorTangent = Vector3.Lerp(
-                transform.forward * girthData.GetWorldLength() * 0.66f,
-                transform.forward * dist * 0.66f,
+                rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f,
+                rootBone.TransformDirection(localRootForward) * dist * 0.66f,
                 insertionFactor
             );
             weights.Add(rootBone.position);
             weights.Add(PenetratorTangent);
             Vector3 insertionTangent = Vector3.Lerp(
-                -transform.forward * girthData.GetWorldLength() * 0.66f, 
+                -rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f, 
                 holeForward * dist * 0.66f,
                 insertionFactor
             );

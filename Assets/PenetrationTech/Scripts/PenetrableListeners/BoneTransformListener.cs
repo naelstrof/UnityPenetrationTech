@@ -11,8 +11,8 @@ namespace PenetrationTech {
         Transform targetBone;
         Vector3 originalLocalPosition;
         Vector3 localOffset;
-        public override void OnEnable() {
-            base.OnEnable();
+        public override void OnEnable(Penetrable p) {
+            base.OnEnable(p);
             if (targetBone != null) {
                 originalLocalPosition = targetBone.localPosition;
             }

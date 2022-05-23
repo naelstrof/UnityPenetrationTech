@@ -17,8 +17,8 @@ namespace PenetrationTech {
         private float pushDist;
         private float pullPushAmount;
         private float lastPenetrationDepth;
-        public override void OnEnable() {
-            base.OnEnable();
+        public override void OnEnable(Penetrable p) {
+            base.OnEnable(p);
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.OnEnable();
             }

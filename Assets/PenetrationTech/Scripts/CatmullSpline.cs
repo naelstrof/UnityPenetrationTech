@@ -167,6 +167,20 @@ namespace PenetrationTech {
             GenerateBinormalLUT(16);
             return this;
         }
+        public float GetClosestDistanceFromPosition(Vector3 position, int samples=32) {
+            float nearestCheckDistance = 0f;
+            float nearestDist = float.MaxValue;
+            for (int i=0;i<samples;i++) {
+                float checkDistance = ((float)i/(float)samples)*arcLength;
+                Vector3 sample = GetPositionFromDistance(checkDistance);
+                float dist = Vector3.Distance(sample, position);
+                if (dist<nearestDist) {
+                    nearestDist = dist;
+                    nearestCheckDistance = checkDistance;
+                }
+            }
+            return nearestCheckDistance;
+        }
         public Vector3 GetPositionFromDistance(float distance) {
             float t = GetTimeFromDistance(distance);
             return GetPositionFromT(t);
