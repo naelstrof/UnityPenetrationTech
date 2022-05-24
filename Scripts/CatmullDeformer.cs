@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -14,26 +13,25 @@ namespace PenetrationTech {
         protected Vector3 localRootRight = Vector3.right;
         [SerializeField]
         protected Transform rootBone;
-        public const int splineCount = 1;
         [SerializeField]
         private List<Renderer> targetRenderers;
         private HashSet<Material> targetMaterials;
-        private int catmullSplinesID;
-        private int dickForwardID;
-        private int dickRightID;
-        private int dickUpID;
+        private static readonly int catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
+        private static readonly int dickForwardID = Shader.PropertyToID("_DickForwardWorld");
+        private static readonly int dickRightID = Shader.PropertyToID("_DickRightWorld");
+        private static readonly int dickUpID = Shader.PropertyToID("_DickUpWorld");
         private ComputeBuffer catmullBuffer;
         private NativeArray<CatmullSplineData> data;
-        public List<Renderer> GetTargetRenderers() => targetRenderers;
+        protected List<Renderer> GetTargetRenderers() => targetRenderers;
         public unsafe struct CatmullSplineData {
             private const int subSplineCount = 6;
             private const int binormalCount = 16;
             private const int distanceCount = 32;
-            public int pointCount;
-            public float arcLength;
-            public fixed float weights[subSplineCount*4*3];
-            public fixed float distanceLUT[distanceCount];
-            public fixed float binormalLUT[binormalCount*3];
+            int pointCount;
+            float arcLength;
+            fixed float weights[subSplineCount*4*3];
+            fixed float distanceLUT[distanceCount];
+            fixed float binormalLUT[binormalCount*3];
             public CatmullSplineData(CatmullSpline spline) {
                 pointCount = (spline.GetWeights().Count/4)+1;
                 arcLength = spline.arcLength;
@@ -74,7 +72,7 @@ namespace PenetrationTech {
             }
         }
         protected virtual void OnEnable() {
-            catmullBuffer = new ComputeBuffer(splineCount, CatmullSplineData.GetSize());
+            catmullBuffer = new ComputeBuffer(1, CatmullSplineData.GetSize());
             data = new NativeArray<CatmullSplineData>(1, Allocator.Persistent);
         }
         protected virtual void OnDisable() {
@@ -90,14 +88,10 @@ namespace PenetrationTech {
                     targetMaterials.Add(m);
                 }
             }
-            catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
-            dickForwardID = Shader.PropertyToID("_DickForward");
-            dickRightID = Shader.PropertyToID("_DickRight");
-            dickUpID = Shader.PropertyToID("_DickUp");
         }
         protected virtual void Update() {
             data[0] = new CatmullSplineData(path);
-            catmullBuffer.SetData<CatmullSplineData>(data, 0, 0, 1);
+            catmullBuffer.SetData(data, 0, 0, 1);
             foreach(Material material in targetMaterials) {
                 material.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
                 material.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
