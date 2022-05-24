@@ -107,7 +107,10 @@ namespace PenetrationTech {
                 }
                 float distFromRoot = ((float)x/(float)cpuTex.width)*maxLocalLength;
                 Vector2 positionAverage = positionSum/(float)(cpuTex.height/2);
-                positionAverage *= 4f;
+                positionAverage *= 2;
+                if (x == 31) {
+                    positionAverage *= 0f;
+                }
                 localXOffsetCurve.AddKey(distFromRoot, positionAverage.x);
                 localYOffsetCurve.AddKey(distFromRoot, positionAverage.y);
             }
@@ -131,6 +134,9 @@ namespace PenetrationTech {
                     averagePixelColor += cpuTex.GetPixel(x,y).r;
                 }
                 averagePixelColor/=32f;
+                if (x==31) {
+                    averagePixelColor*=0f;
+                }
                 localGirthRadiusCurve.AddKey((float)x/32f*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
             }
         }
