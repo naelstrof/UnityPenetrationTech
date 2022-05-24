@@ -24,7 +24,7 @@ namespace PenetrationTech {
         protected virtual float GetDist() {
             return dist;
         }
-        protected virtual void OnPenetrationGirthChange(float newGirth) { }
+        protected virtual void OnPenetrationGirthRadiusChange(float newGirthRadius) { }
         protected virtual void OnPenetrationDepthChange(float newDepth) { }
         protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
@@ -37,12 +37,12 @@ namespace PenetrationTech {
         
         protected void NotifyPenetrationGDO(Penetrator penetrator, float worldSpaceDistanceToPenisRoot, bool girth, bool depth, bool offset) {
             float penetratedAmount = penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot;
-            float newGirth = 0f;
+            float newGirthRadius = 0f;
             float newDepth = 0f;
             Vector3 newOffset = Vector3.zero;
             if (GetDist() < penetratedAmount) {
                 if (girth) {
-                    newGirth = penetrator.GetWorldGirth(worldSpaceDistanceToPenisRoot+GetDist());
+                    newGirthRadius = penetrator.GetWorldGirthRadius(worldSpaceDistanceToPenisRoot+GetDist());
                 }
                 if (depth) {
                     newDepth = Mathf.Max(penetratedAmount-GetDist(),0f);
@@ -51,7 +51,7 @@ namespace PenetrationTech {
                     newOffset = penetrator.GetWorldOffset(worldSpaceDistanceToPenisRoot+GetDist());
                 }
             }
-            OnPenetrationGirthChange(newGirth);
+            OnPenetrationGirthRadiusChange(newGirthRadius);
             OnPenetrationOffsetChange(newOffset);
             OnPenetrationDepthChange(newDepth);
         }

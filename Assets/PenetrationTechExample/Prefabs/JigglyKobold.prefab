@@ -2812,7 +2812,7 @@ MonoBehaviour:
           expandBlendshapeID: 26
           pullBlendshapeID: 27
           pushBlendshapeID: 28
-        blendShapeGirth: 0.055
+        blendShapeGirth: 0.045
         pullDist: -0.028
         pushDist: 0.02
 --- !u!1 &8884491345083860468

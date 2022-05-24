@@ -25,9 +25,9 @@ namespace PenetrationTech {
             pullPushAmount = 0f;
             lastPenetrationDepth = 0f;
         }
-        protected override void OnPenetrationGirthChange(float newGirth) {
+        protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
-                target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirth/blendShapeGirth)*100f);
+                target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirthRadius/blendShapeGirth)*100f);
             }
         }
         protected override void OnPenetrationDepthChange(float newDepth) {

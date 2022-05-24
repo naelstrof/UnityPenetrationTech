@@ -17,10 +17,10 @@ namespace PenetrationTech {
                 target.OnEnable();
             }
         }
-        protected override void OnPenetrationGirthChange(float newGirth) {
-            base.OnPenetrationGirthChange(newGirth);
+        protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
+            base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePair target in targets) {
-                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, (newGirth/blendShapeGirth)*100f);
+                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, (newGirthRadius*2f/blendShapeGirth)*100f);
             }
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
