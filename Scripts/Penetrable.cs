@@ -48,6 +48,8 @@ namespace PenetrationTech {
     }
     #endif
     public class Penetrable : CatmullDisplay {
+        public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator);
+        public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
         private Transform[] points;
         private List<Vector3> worldPoints;
@@ -117,6 +119,7 @@ namespace PenetrationTech {
             foreach(PenetrableListener listener in listeners) {
                 listener.NotifyPenetration(penetrator, worldSpaceDistanceToPenisRoot);
             }
+            penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot);
         }
     }
 }

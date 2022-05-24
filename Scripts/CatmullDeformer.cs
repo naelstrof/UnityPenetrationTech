@@ -19,7 +19,6 @@ namespace PenetrationTech {
         private List<Renderer> targetRenderers;
         private HashSet<Material> targetMaterials;
         private int catmullSplinesID;
-        private int catmullSplineCountID;
         private int dickForwardID;
         private int dickRightID;
         private int dickUpID;
@@ -92,7 +91,6 @@ namespace PenetrationTech {
                 }
             }
             catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
-            catmullSplineCountID = Shader.PropertyToID("_CatmullSplineCount");
             dickForwardID = Shader.PropertyToID("_DickForward");
             dickRightID = Shader.PropertyToID("_DickRight");
             dickUpID = Shader.PropertyToID("_DickUp");
@@ -101,7 +99,6 @@ namespace PenetrationTech {
             data[0] = new CatmullSplineData(path);
             catmullBuffer.SetData<CatmullSplineData>(data, 0, 0, 1);
             foreach(Material material in targetMaterials) {
-                material.SetInt(catmullSplineCountID, 1);
                 material.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
                 material.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
                 material.SetVector(dickUpID, rootBone.TransformDirection(localRootUp));
