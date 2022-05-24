@@ -63,7 +63,7 @@ namespace PenetrationTech {
                 }
                 for (int i=0;i<uvs.Count;i++) {
                     Vector3 worldPosition = target.rootBone.TransformPoint(newMesh.bindposes[0].MultiplyPoint(vertices[i]));
-                    float nearestT = p.GetPath().GetClosestTimeFromPosition(worldPosition, 128);
+                    float nearestT = p.GetPath().GetClosestTimeFromPosition(worldPosition, 256);
                     float nearestDistance = p.GetPath().GetDistanceFromTime(nearestT);
                     //Debug.DrawLine(worldPosition, p.GetPath().GetPositionFromT(nearestT), Color.red, 10f);
                     switch(dataLocation) {
