@@ -207,7 +207,7 @@ struct PenetratorData {
 
 StructuredBuffer<PenetratorData> _PenetratorData;
 
-void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, sampler2D girthMap, PenetratorData data, int curveIndex) {
+void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex) {
     // Just skip everything if blend is 0, we might not even have curves to sample.
     if (data.blend == 0) {
         return;
@@ -230,7 +230,7 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, sample
     float3 diff = worldPosition-catPosition;
     // Get the rotation around the curve that we need to sample.
     float2 holeFlat = float2(dot(diff,catRight), dot(diff,catUp));
-    float holeAngle = atan2(holeFlat.y, holeFlat.x)+3.14159265359;
+    float holeAngle = atan2(holeFlat.y, holeFlat.x);
 
     float diffDistance = length(diff);
 
@@ -242,12 +242,14 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, sample
         girthSample = 0;
     }
 
-    worldPosition = catPosition + normalize(diff)*(girthSample + diffDistance);
+    float compressionFactor = saturate((diffDistance-girthSample)/compressibleDistance);
+    
+    worldPosition += normalize(diff)*(girthSample)*(1-compressionFactor);
 }
 
-void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
+void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float compressibleDistance, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
     float3 worldPosition = mul(objectToWorld, float4(position.xyz,1)).xyz;
-    GetDeformationFromPenetrator(worldPosition, uv2.x, _DickGirthMapX, _PenetratorData[0], 0);
+    GetDeformationFromPenetrator(worldPosition, uv2.x, compressibleDistance, _DickGirthMapX, _PenetratorData[0], 0);
     //GetDeformationFromPenetrator(worldPosition, uv2.y, _DickGirthMapY, _PenetratorData[1], 1);
     //GetDeformationFromPenetrator(worldPosition, uv2.z, _DickGirthMapZ, _PenetratorData[2], 2);
     //GetDeformationFromPenetrator(worldPosition, uv2.w, _DickGirthMapW, _PenetratorData[3], 3);
