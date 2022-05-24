@@ -74,9 +74,6 @@ namespace PenetrationTech {
                 targetMaterials.Remove(m);
             }
         }
-        protected virtual void Awake() {
-            Vector3.OrthoNormalize(ref localRootForward,ref localRootUp,ref localRootRight);
-        }
         protected virtual void OnEnable() {
             catmullBuffer = new ComputeBuffer(splineCount, CatmullSplineData.GetSize());
             data = new NativeArray<CatmullSplineData>(1, Allocator.Persistent);

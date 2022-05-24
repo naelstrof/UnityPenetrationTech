@@ -315,7 +315,7 @@ namespace PenetrationTech {
             BezierBasis.SetRow(2,tangent); // Z Axis
             BezierBasis[3,3] = 1f;
             // Change of basis formula is B = P⁻¹ * A * P, where P is the basis transform.
-            return Matrix4x4.Translate(point)*BezierBasis.inverse;
+            return BezierBasis.inverse;
         }
     }
 

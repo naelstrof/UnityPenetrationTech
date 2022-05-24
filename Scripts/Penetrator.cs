@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
-
         private List<Vector3> weights = new List<Vector3>();
         [SerializeField]
         private GirthData girthData;
@@ -15,7 +14,7 @@ namespace PenetrationTech {
         private float insertionFactor;
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
-        public float GetWorldGirth(float worldDistanceAlongDick) => girthData.GetWorldGirth(worldDistanceAlongDick);
+        public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
         public RenderTexture GetGirthMap() => girthData.GetGirthMap();
         public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
@@ -27,12 +26,11 @@ namespace PenetrationTech {
             return angle;
         }
         public Vector3 GetWorldOffset(float worldDistanceAlongDick) {
-            // This value is in Z forward, Y up, and X right space-- This is a useful vector because spline space is Z-tangent, Y-normal, X-binormal.
-            Vector3 offset = girthData.GetScaledSplineSpaceOffset(worldDistanceAlongDick);
+            Vector3 offset = -girthData.GetScaledSplineSpaceOffset(worldDistanceAlongDick);
 
             // Then we find our angle offset to the spline...
             float angle = GetPenetratorAngleOffset();
-            offset = Quaternion.AngleAxis(angle,Vector3.forward) * offset;
+            offset = Quaternion.AngleAxis(angle,rootBone.TransformDirection(localRootForward)) * offset;
 
             // Then we rotate to the spline.
             return path.GetReferenceFrameFromT(path.GetTimeFromDistance(worldDistanceAlongDick)).MultiplyVector(offset);
@@ -45,7 +43,7 @@ namespace PenetrationTech {
             weights.Add(transform.position+transform.forward*0.5f);
             weights.Add(transform.position+transform.forward);
             path = new CatmullSpline().SetWeights(weights);
-            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp);
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
         }
         protected override void Update() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
@@ -96,6 +94,20 @@ namespace PenetrationTech {
                 weights.AddRange(targetHole.GetPath().GetWeights());
             }
             path.SetWeights(weights);
+        }
+
+        protected override void OnDrawGizmosSelected() {
+            base.OnDrawGizmosSelected();
+            #if UNITY_EDITOR
+            if (Application.isPlaying) {
+                for(float t=0;t<GetWorldLength();t+=0.025f) {
+                    UnityEditor.Handles.color = Color.white;
+                    Vector3 position = path.GetPositionFromDistance(t) + GetWorldOffset(t);
+                    float girth = GetWorldGirthRadius(t);
+                    UnityEditor.Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
+                }
+            }
+            #endif
         }
         
     }
