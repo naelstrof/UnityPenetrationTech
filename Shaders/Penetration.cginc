@@ -218,23 +218,20 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, float 
     float subT = GetCurveSegment(curveIndex, t, curveSegmentIndex);
 
     float3 catPosition = SampleCurveSegmentPosition(curveIndex,curveSegmentIndex, subT);
-    float3 catTangent = SampleCurveSegmentVelocity(curveIndex,curveSegmentIndex, subT);
-    float3 catForward = normalize(catTangent);
-    // We sample the Binormal from a lookup-table, to prevent flipping and twisting.
-    // https://en.wikipedia.org/wiki/Frenet%E2%80%93Serret_formulas
-    // https://janakiev.com/blog/framing-parametric-curves/
-    float3 catRight = GetBinormalFromT(curveIndex,t);
-    // We can just figure out our normal with a cross product.
-    float3 catUp = normalize(cross(catForward,catRight));
+
+    float3 initialRight = GetBinormalFromT(0,0);
+    float3 initialForward = normalize(SampleCurveSegmentVelocity(0,0,0));
+    float3 initialUp = normalize(cross(initialForward, initialRight));
 
     float3 diff = worldPosition-catPosition;
+    float3 diffNorm = normalize(diff);
     // Get the rotation around the curve that we need to sample.
-    float2 holeFlat = float2(dot(diff,catRight), dot(diff,catUp));
-    float holeAngle = atan2(holeFlat.y, holeFlat.x);
+    float2 holeFlat = float2(dot(diffNorm,initialRight), dot(diffNorm,initialUp));
+    float holeAngle = atan2(holeFlat.y, holeFlat.x)+3.14159265359;
 
     float diffDistance = length(diff);
 
-    float2 girthSampleUV = float2((data.worldDistance + dist)/data.worldLength, (holeAngle-data.angle)/6.28318530718);
+    float2 girthSampleUV = float2((data.worldDistance + dist)/data.worldLength, (-holeAngle+data.angle)/6.28318530718);
 
     float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
 

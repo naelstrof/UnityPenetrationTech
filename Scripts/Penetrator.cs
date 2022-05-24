@@ -49,7 +49,9 @@ namespace PenetrationTech {
             Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
             ConstructPath(holePos, holeForward);
             if (inserted) {
-                targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
+                float firstArcLength = path.GetDistanceFromTime(1f/(float)(weights.Count/4));
+                //targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
+                targetHole.SetPenetrationDepth(this, firstArcLength);
             }
             base.Update();
         }
