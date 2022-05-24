@@ -20,20 +20,19 @@ namespace PenetrationTech {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
             Vector3 initialUp = Vector3.Cross(initialForward, initialRight).normalized;
-            Vector3 worldDickUp = rootBone.TransformDirection(localRootUp);
+            Vector3 worldDickUp = rootBone.TransformDirection(localRootUp).normalized;
             Vector2 worldDickUpFlat = new Vector2(Vector3.Dot(worldDickUp,initialRight), Vector3.Dot(worldDickUp,initialUp));
             float angle = Mathf.Atan2(worldDickUpFlat.y, worldDickUpFlat.x)-Mathf.PI/2f;
             return angle;
         }
         public Vector3 GetWorldOffset(float worldDistanceAlongDick) {
-            Vector3 offset = -girthData.GetScaledSplineSpaceOffset(worldDistanceAlongDick);
+            Vector3 offset = girthData.GetScaledSplineSpaceOffset(worldDistanceAlongDick);
 
             // Then we find our angle offset to the spline...
-            float angle = GetPenetratorAngleOffset();
-            offset = Quaternion.AngleAxis(angle,rootBone.TransformDirection(localRootForward)) * offset;
-
             // Then we rotate to the spline.
-            return path.GetReferenceFrameFromT(path.GetTimeFromDistance(worldDistanceAlongDick)).MultiplyVector(offset);
+            float t = path.GetTimeFromDistance(worldDistanceAlongDick);
+            float angle = GetPenetratorAngleOffset();
+            return Quaternion.AngleAxis(angle*Mathf.Rad2Deg,path.GetVelocityFromT(t).normalized) * path.GetReferenceFrameFromT(t).MultiplyVector(offset);
         }
         protected override void Start() {
             base.Start();
