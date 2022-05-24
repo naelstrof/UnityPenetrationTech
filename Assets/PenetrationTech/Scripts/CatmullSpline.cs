@@ -296,8 +296,8 @@ namespace PenetrationTech {
             return SampleCurveSegmentAcceleration(curveSegmentIndex, subT);
         }
         public Vector3 GetBinormalFromT(float t) {
-            int index = Mathf.FloorToInt(t*(binormalLUT.Count-1));
-            float offseted = t-((float)index/(float)(binormalLUT.Count-1));
+            int index = Mathf.Clamp(Mathf.FloorToInt(t*(binormalLUT.Count-1)),0,binormalLUT.Count-2);
+            float offseted = t-((float)index/(float)(binormalLUT.Count));
             float lerpT = offseted * (float)(binormalLUT.Count-1);
             return Vector3.Lerp(binormalLUT[index], binormalLUT[index+1], lerpT);
         }

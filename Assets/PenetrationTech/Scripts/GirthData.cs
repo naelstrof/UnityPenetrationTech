@@ -100,10 +100,10 @@ namespace PenetrationTech {
 
                     Vector3 point = localDickForward*((float)x/(float)cpuTex.width)*maxLocalLength;
                     Vector3 otherPoint = point+localDickRight*xPosition + localDickUp*yPosition;
-                    Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
+                    //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
 
                     Vector3 oppositeOtherPoint = point+localDickRight*oppositeXPosition + localDickUp*oppositeYPosition;
-                    Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(oppositeOtherPoint), Color.blue, 10f);
+                    //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(oppositeOtherPoint), Color.blue, 10f);
                 }
                 float distFromRoot = ((float)x/(float)cpuTex.width)*maxLocalLength;
                 Vector2 positionAverage = positionSum/(float)(cpuTex.height/2);

@@ -10,7 +10,6 @@ struct CatmullSplineData {
     float binormalLUT[BINORMAL_COUNT*3];
 };
 
-uniform int _CatmullSplineCount;
 // FIXME: I'm not actually sure this can even compile on mobile platforms. We need to double check.
 // Thoeretically there's no reason to use dynamic buffers like this (we should have static spline counts anyway).
 // But this was the most convienient way I could think of for the programming side of things.
@@ -247,8 +246,8 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, float 
 void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float compressibleDistance, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
     float3 worldPosition = mul(objectToWorld, float4(position.xyz,1)).xyz;
     GetDeformationFromPenetrator(worldPosition, uv2.x, compressibleDistance, _DickGirthMapX, _PenetratorData[0], 0);
-    //GetDeformationFromPenetrator(worldPosition, uv2.y, _DickGirthMapY, _PenetratorData[1], 1);
-    //GetDeformationFromPenetrator(worldPosition, uv2.z, _DickGirthMapZ, _PenetratorData[2], 2);
-    //GetDeformationFromPenetrator(worldPosition, uv2.w, _DickGirthMapW, _PenetratorData[3], 3);
+    GetDeformationFromPenetrator(worldPosition, uv2.y, compressibleDistance, _DickGirthMapY, _PenetratorData[1], 1);
+    GetDeformationFromPenetrator(worldPosition, uv2.z, compressibleDistance, _DickGirthMapZ, _PenetratorData[2], 2);
+    GetDeformationFromPenetrator(worldPosition, uv2.w, compressibleDistance, _DickGirthMapW, _PenetratorData[3], 3);
     deformedPosition = mul(worldToObject, float4(worldPosition.xyz,1)).xyz;
 }

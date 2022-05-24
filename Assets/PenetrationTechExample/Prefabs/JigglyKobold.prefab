@@ -242,7 +242,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4766473574349541950}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.00699585}
 --- !u!1 &735586314030385053
 GameObject:
@@ -426,6 +426,81 @@ Transform:
   m_Father: {fileID: 8521064559583617395}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1198341579264433482
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1165162153474146071}
+  - component: {fileID: 4458463996759615198}
+  m_Layer: 0
+  m_Name: ButtPenetrable
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1165162153474146071
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198341579264433482}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4766473574349541950}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4458463996759615198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198341579264433482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {fileID: 2730235939976612838}
+  - {fileID: 6143953854860929623}
+  - {fileID: 4368218104630050956}
+  - {fileID: 8253403588063006845}
+  listeners:
+  - id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        dist: 0
+        targetBone: {fileID: 807804077407153469}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7452297451520482250}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        - skinnedMeshRenderer: {fileID: 5330333750980878102}
+          expandBlendshapeName: ButtExpand
+          pullBlendshapeName: ButtTug
+          pushBlendshapeName: ButtPush
+          expandBlendshapeID: 26
+          pullBlendshapeID: 27
+          pushBlendshapeID: 28
+        blendShapeGirth: 0.045
+        pullDist: -0.028
+        pushDist: 0.02
 --- !u!1 &1272949566387055476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1592,6 +1667,36 @@ Transform:
   m_Father: {fileID: 4847037771068930038}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5594565665389160296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6011892329954065311}
+  m_Layer: 0
+  m_Name: VagCurve1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6011892329954065311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5594565665389160296}
+  m_LocalRotation: {x: 0.9860008, y: -0.0043385937, z: -0.037103377, w: 0.16250242}
+  m_LocalPosition: {x: -0.00042616818, y: -0.07230313, z: 0.055998072}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4766473574349541950}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5596792160865664360
 GameObject:
   m_ObjectHideFlags: 0
@@ -2055,6 +2160,80 @@ Transform:
   m_Father: {fileID: 5471192811894353947}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6466998965133873132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5740928202532655029}
+  - component: {fileID: 3624471759876500630}
+  m_Layer: 0
+  m_Name: VagPenetrable
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5740928202532655029
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6466998965133873132}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4766473574349541950}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3624471759876500630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6466998965133873132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {fileID: 6011892329954065311}
+  - {fileID: 5810624643775342018}
+  - {fileID: 4591235460947445842}
+  listeners:
+  - id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        dist: 0
+        targetBone: {fileID: 3952444606842804954}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7452297451520482250}
+          expandBlendshapeName: VagExpand
+          pullBlendshapeName: VagPull
+          pushBlendshapeName: VagPush
+          expandBlendshapeID: 29
+          pullBlendshapeID: 30
+          pushBlendshapeID: 31
+        - skinnedMeshRenderer: {fileID: 5330333750980878102}
+          expandBlendshapeName: VagExpand
+          pullBlendshapeName: VagPull
+          pushBlendshapeName: VagPush
+          expandBlendshapeID: 29
+          pullBlendshapeID: 30
+          pushBlendshapeID: 31
+        blendShapeGirth: 0.045
+        pullDist: -0.02
+        pushDist: 0.02
 --- !u!1 &6663738809834999277
 GameObject:
   m_ObjectHideFlags: 0
@@ -2370,6 +2549,36 @@ Transform:
   m_Father: {fileID: 6264746551454101909}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8567639068685230963
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4591235460947445842}
+  m_Layer: 0
+  m_Name: StomachPassthrough3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4591235460947445842
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8567639068685230963}
+  m_LocalRotation: {x: -0.7268138, y: -0.0036700221, z: -0.004050535, w: 0.68681294}
+  m_LocalPosition: {x: -0.0006, y: -0.144, z: -0.1731}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8197358249053959768}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8591880218661622645
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,6 +2607,8 @@ Transform:
   m_LocalScale: {x: 0.99999994, y: 0.9999999, z: 0.99999994}
   m_Children:
   - {fileID: 6143953854860929623}
+  - {fileID: 5810624643775342018}
+  - {fileID: 4591235460947445842}
   m_Father: {fileID: 8147590919340718613}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2742,7 +2953,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4766473574349541950}
-  - component: {fileID: 5842039203488493478}
   m_Layer: 0
   m_Name: Hips
   m_TagString: Untagged
@@ -2767,54 +2977,13 @@ Transform:
   - {fileID: 3333062064093237365}
   - {fileID: 8424650258899061604}
   - {fileID: 3952444606842804954}
+  - {fileID: 6011892329954065311}
   - {fileID: 2730235939976612838}
+  - {fileID: 1165162153474146071}
+  - {fileID: 5740928202532655029}
   m_Father: {fileID: 788185189284917741}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5842039203488493478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8840569745174052964}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  points:
-  - {fileID: 2730235939976612838}
-  - {fileID: 6143953854860929623}
-  - {fileID: 4368218104630050956}
-  - {fileID: 8253403588063006845}
-  listeners:
-  - id: 0
-  references:
-    version: 1
-    00000000:
-      type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
-      data:
-        dist: 0
-        targetBone: {fileID: 807804077407153469}
-        targets:
-        - skinnedMeshRenderer: {fileID: 7452297451520482250}
-          expandBlendshapeName: ButtExpand
-          pullBlendshapeName: ButtTug
-          pushBlendshapeName: ButtPush
-          expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
-        - skinnedMeshRenderer: {fileID: 5330333750980878102}
-          expandBlendshapeName: ButtExpand
-          pullBlendshapeName: ButtTug
-          pushBlendshapeName: ButtPush
-          expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
-        blendShapeGirth: 0.045
-        pullDist: -0.028
-        pushDist: 0.02
 --- !u!1 &8884491345083860468
 GameObject:
   m_ObjectHideFlags: 0
@@ -2848,6 +3017,36 @@ Transform:
   - {fileID: 1724048758613649194}
   m_Father: {fileID: 9137130835870465155}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8902299273837539987
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5810624643775342018}
+  m_Layer: 0
+  m_Name: StomachPassthrough2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5810624643775342018
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8902299273837539987}
+  m_LocalRotation: {x: -0.7268138, y: -0.0036700221, z: -0.004050535, w: 0.68681294}
+  m_LocalPosition: {x: -0.0028, y: -0.2202, z: 0.0299}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8197358249053959768}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8975052356673664514
 GameObject:
