@@ -1433,8 +1433,13 @@ MonoBehaviour:
   penetrableTargets:
   - {fileID: 1138008413}
   - {fileID: 1138008412}
-  rendererTargets:
-  - {fileID: 1138008409}
+  renderTargets:
+  - renderer: {fileID: 1138008409}
+    bakedMesh: {fileID: 4300000, guid: c9478d8a0adaa2d4989e87292d84f37d, type: 2}
+    savedMesh: {fileID: 0}
+  - renderer: {fileID: 1138008408}
+    bakedMesh: {fileID: 4300000, guid: b2aca53eb5a18374eb5a3598f9fd780c, type: 2}
+    savedMesh: {fileID: 0}
 --- !u!114 &1138008412 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3624471759876500630, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
