@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 #if UNITY_EDITOR
 using System;
@@ -47,7 +47,7 @@ namespace PenetrationTech {
         }
     }
     #endif
-    public class Penetrable : CatmullDisplay {
+    public class Penetrable : MonoBehaviour {
         public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator);
         public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
@@ -56,12 +56,46 @@ namespace PenetrationTech {
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference]
         public List<PenetrableListener> listeners;
-        void OnEnable() {
-            worldPoints = new List<Vector3>();
+        private CatmullSpline splinePath;
+
+        public CatmullSpline GetPathExpensive() {
+            if (splinePath == null) {
+                splinePath = new CatmullSpline();
+                worldPoints = new List<Vector3>();
+            }
+            worldPoints.Clear();
             foreach(Transform point in points) {
                 worldPoints.Add(point.position);
             }
-            path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
+            return splinePath.SetWeightsFromPoints(worldPoints);
+        }
+
+        public Vector3 GetTangent(float t) {
+            if (t < 0.5f) {
+                return (points[1].position - points[0].position).normalized;
+            } else {
+                return points[points.Length - 1].position - points[points.Length - 2].position;
+            }
+        }
+
+        public Vector3 GetHolePosition(float t) {
+            if (t < 0.5f) {
+                return points[0].position;
+            } else {
+                return points[points.Length - 1].position;
+            }
+        }
+
+        public void GetWeights(ICollection<Vector3> collection) {
+            worldPoints.Clear();
+            foreach(Transform point in points) {
+                worldPoints.Add(point.position);
+            }
+            CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
+        }
+
+        void OnEnable() {
+            worldPoints = new List<Vector3>();
             foreach(PenetrableListener listener in listeners) {
                 listener.OnEnable(this);
             }
@@ -71,43 +105,28 @@ namespace PenetrationTech {
                 listener.OnDisable();
             }
         }
-        // This is all really nasty, it'd be nice if I can just set a transform on the path directly.
-        private void CheckUpdate() {
-            if (worldPoints == null) {
-                worldPoints = new List<Vector3>();
-            }
-            if(transform.hasChanged) {
-                worldPoints.Clear();
-                for(int i=0;i<points.Length;i++) {
-                    worldPoints.Add(points[i].position);
-                }
-                if (path == null) {
-                    path = new CatmullSpline().SetWeightsFromPoints(worldPoints);
-                } else {
-                    path.SetWeightsFromPoints(worldPoints);
-                }
-                transform.hasChanged = false;
-            }
-        }
         void Update() {
-            CheckUpdate();
             foreach(PenetrableListener listener in listeners) {
                 listener.Update();
             }
         }
-        protected override void OnDrawGizmosSelected() {
-            CheckUpdate();
+        void OnDrawGizmosSelected() {
             foreach(PenetrableListener listener in listeners) {
                 if (listener == null) {
                     continue;
                 }
                 listener.OnDrawGizmosSelected(this);
             }
-            base.OnDrawGizmosSelected();
+
+            for (int i = 0; i < points.Length - 1; i++) {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(points[i].position, 0.025f);
+                Gizmos.DrawWireSphere(points[i+1].position, 0.025f);
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(points[i].position, points[i + 1].position);
+            }
         }
         void OnValidate() {
-            transform.hasChanged = true;
-            CheckUpdate();
             foreach(PenetrableListener listener in listeners) {
                 if (listener == null) {
                     continue;

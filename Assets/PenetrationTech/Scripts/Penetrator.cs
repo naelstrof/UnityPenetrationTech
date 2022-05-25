@@ -47,8 +47,8 @@ namespace PenetrationTech {
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
         }
         protected override void LateUpdate() {
-            Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
-            Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
+            Vector3 holePos = targetHole.GetHolePosition(0f);
+            Vector3 holeForward = targetHole.GetTangent(0f);
             ConstructPath(holePos, holeForward);
             if (inserted) {
                 float firstArcLength = path.GetDistanceFromTime(1f/(float)(weights.Count/4));
@@ -62,9 +62,9 @@ namespace PenetrationTech {
             var rootBonePosition = rootBone.position;
             float dist = Vector3.Distance(rootBonePosition, holePos);
             Vector3 tipPosition = rootBonePosition + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
-            Vector3 tipTangent = -rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f;
+            Vector3 tipTangent = -rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f);
             if (tipTarget != null) {
-                tipPosition = tipTarget.position+tipTarget.forward * girthData.GetWorldLength() * 0.1f;
+                tipPosition = tipTarget.position+tipTarget.forward * (girthData.GetWorldLength() * 0.1f);
                 tipTangent = tipTarget.forward * girthData.GetWorldLength();
             }
             weights.Clear();
@@ -100,9 +100,9 @@ namespace PenetrationTech {
             weights.Add(insertionTangent);
             weights.Add(insertionPoint);
             if (inserted) {
-                weights.AddRange(targetHole.GetPath().GetWeights());
+                targetHole.GetWeights(weights);
                 Vector3 outPosition = weights[weights.Count - 1];
-                Vector3 outTangent = targetHole.GetPath().GetVelocityFromT(1f).normalized;
+                Vector3 outTangent = targetHole.GetTangent(1f);
                 weights.Add(outPosition);
                 weights.Add(outTangent);
                 weights.Add(outTangent);
