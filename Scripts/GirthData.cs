@@ -150,7 +150,6 @@ namespace PenetrationTech {
         public GirthData(Renderer renderer, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
             this.renderer = renderer;
             texture = new RenderTexture(256,256, 16, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-            texture.antiAliasing = 1;
             texture.useMipMap = true;
             texture.autoGenerateMips = false;
             texture.wrapMode = TextureWrapMode.Repeat;

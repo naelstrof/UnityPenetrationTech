@@ -47,7 +47,7 @@ namespace PenetrationTech {
         }
     }
     #endif
-    public class Penetrable : MonoBehaviour {
+    public class Penetrable : CatmullDisplay {
         public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator);
         public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
@@ -56,45 +56,19 @@ namespace PenetrationTech {
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference]
         public List<PenetrableListener> listeners;
-        private CatmullSpline splinePath;
 
-        public int GetSubSplineCount() {
-            return points.Length - 1;
-        }
-
-        public CatmullSpline GetPathExpensive() {
-            if (splinePath == null) {
-                splinePath = new CatmullSpline();
+        private void UpdateWorldPoints() {
+            if (worldPoints == null) {
                 worldPoints = new List<Vector3>();
             }
             worldPoints.Clear();
             foreach(Transform point in points) {
                 worldPoints.Add(point.position);
             }
-            return splinePath.SetWeightsFromPoints(worldPoints);
-        }
-
-        public Vector3 GetTangent(float t) {
-            if (t < 0.5f) {
-                return (points[1].position - points[0].position).normalized;
-            } else {
-                return (points[points.Length - 1].position - points[points.Length - 2].position).normalized;
-            }
-        }
-
-        public Vector3 GetHolePosition(float t) {
-            if (t < 0.5f) {
-                return points[0].position;
-            } else {
-                return points[points.Length - 1].position;
-            }
         }
 
         public void GetWeights(ICollection<Vector3> collection) {
-            worldPoints.Clear();
-            foreach(Transform point in points) {
-                worldPoints.Add(point.position);
-            }
+            UpdateWorldPoints();
             CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
         }
 
@@ -114,20 +88,13 @@ namespace PenetrationTech {
                 listener.Update();
             }
         }
-        void OnDrawGizmosSelected() {
+        protected override void OnDrawGizmosSelected() {
+            base.OnDrawGizmosSelected();
             foreach(PenetrableListener listener in listeners) {
                 if (listener == null) {
                     continue;
                 }
                 listener.OnDrawGizmosSelected(this);
-            }
-
-            for (int i = 0; i < points.Length - 1; i++) {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(points[i].position, 0.025f);
-                Gizmos.DrawWireSphere(points[i+1].position, 0.025f);
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(points[i].position, points[i + 1].position);
             }
         }
         void OnValidate() {
@@ -139,10 +106,20 @@ namespace PenetrationTech {
             }
         }
         public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+            UpdateWorldPoints();
+            path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
                 listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot);
             }
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot);
+        }
+        public CatmullSpline GetSplinePath() {
+            if (path == null) {
+                path = new CatmullSpline();
+            }
+            UpdateWorldPoints();
+            path.SetWeightsFromPoints(worldPoints);
+            return path;
         }
     }
 }
