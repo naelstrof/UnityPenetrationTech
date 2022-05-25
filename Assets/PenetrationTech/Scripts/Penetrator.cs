@@ -117,8 +117,9 @@ namespace PenetrationTech {
         }
 
         protected override void LateUpdate() {
-            Vector3 holePos = targetHole.GetHolePosition(0f);
-            Vector3 holeForward = targetHole.GetTangent(0f);
+            CatmullSpline holeSplinePath = targetHole.GetSplinePath();
+            Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
+            Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
             ConstructPath(holePos, holeForward);
             if (inserted) {
                 float firstArcLength = path.GetDistanceFromSubT(0, 1, 1f);
@@ -183,8 +184,9 @@ namespace PenetrationTech {
             weights.Add(insertionPoint);
             if (inserted) {
                 targetHole.GetWeights(weights);
-                Vector3 outPosition = weights[weights.Count - 1];
-                Vector3 outTangent = targetHole.GetTangent(1f);
+                CatmullSpline holeSplinePath = targetHole.GetSplinePath();
+                Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
+                Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
                 weights.Add(outPosition);
                 weights.Add(outTangent);
                 weights.Add(outTangent);
@@ -202,7 +204,9 @@ namespace PenetrationTech {
                 listener.OnValidate(this);
             }
         }
-
+        public CatmullSpline GetSplinePath() {
+            return path;
+        }
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
 #if UNITY_EDITOR

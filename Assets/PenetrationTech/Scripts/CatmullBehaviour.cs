@@ -5,5 +5,4 @@ using PenetrationTech;
 
 public class CatmullBehaviour : MonoBehaviour {
     protected CatmullSpline path;
-    public CatmullSpline GetPath() => path;
 }

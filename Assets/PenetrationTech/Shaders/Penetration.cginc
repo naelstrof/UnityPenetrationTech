@@ -29,6 +29,21 @@ float GetCurveSegment(int curveIndex, float t, out int curveSegmentIndex) {
     float offset = t-((float)curveSegmentIndex/(float)(_CatmullSplines[curveIndex].pointCount-1));
     return offset * (float)(_CatmullSplines[curveIndex].pointCount-1);
 }
+
+float GetTFromSubT(int curveIndex, int start, int end, float subT) {
+    int subSplineCount = _CatmullSplines[curveIndex].pointCount-1;
+    int subSection = end - start;
+    float multi = (float)subSection / (float)subSplineCount;
+    float startT = (float)start / (float)subSplineCount;
+    return subT * multi + startT;
+}
+float TimeToDistance(int curveIndex, float t) {
+    t = saturate(t);
+    int index = clamp(floor(t*(DISTANCE_COUNT-1)),0,DISTANCE_COUNT-2);
+    float offseted = t-((float)index/(float)DISTANCE_COUNT);
+    float lerpT = offseted * (float)(DISTANCE_COUNT-1);
+    return lerp(_CatmullSplines[curveIndex].distanceLUT[index], _CatmullSplines[curveIndex].distanceLUT[index+1], lerpT);
+}
 float DistanceToTime(int curveIndex, float distance) {
     if (distance > 0 && distance < _CatmullSplines[curveIndex].arcLength) {
         for(int i=0;i<DISTANCE_COUNT-1;i++) {
@@ -202,24 +217,25 @@ struct PenetratorData {
     float worldDistance;
     float girthScaleFactor;
     float angle;
+    int holeSubCurveCount;
 };
 
 StructuredBuffer<PenetratorData> _PenetratorData;
 
-void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex) {
+void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex) {
     // Just skip everything if blend is 0, we might not even have curves to sample.
     if (data.blend == 0) {
         return;
     }
-    float t = DistanceToTime(curveIndex,data.worldDistance+dist);
+    float t = GetTFromSubT(curveIndex, 1, 1+data.holeSubCurveCount, holeT);
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
     float subT = GetCurveSegment(curveIndex, t, curveSegmentIndex);
 
     float3 catPosition = SampleCurveSegmentPosition(curveIndex,curveSegmentIndex, subT);
 
-    float3 initialRight = GetBinormalFromT(0,0);
-    float3 initialForward = normalize(SampleCurveSegmentVelocity(0,0,0));
+    float3 initialRight = GetBinormalFromT(curveIndex,0);
+    float3 initialForward = normalize(SampleCurveSegmentVelocity(curveIndex,0,0));
     float3 initialUp = normalize(cross(initialForward, initialRight));
 
     float3 diff = worldPosition-catPosition;
@@ -230,7 +246,8 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float dist, float 
 
     float diffDistance = length(diff);
 
-    float2 girthSampleUV = float2((data.worldDistance + dist)/data.worldLength, (-holeAngle+data.angle)/6.28318530718);
+    float dist = TimeToDistance(curveIndex, t);
+    float2 girthSampleUV = float2(dist/data.worldLength, (-holeAngle+data.angle)/6.28318530718);
 
     float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
 

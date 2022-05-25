@@ -52,15 +52,15 @@ namespace PenetrationTech {
                                     "Please make sure the Penetrables array doesn't have any nulls...");
                             }
                             Vector3 worldPosition = skinnedMeshRenderer.rootBone.TransformPoint(newMesh.bindposes[0].MultiplyPoint(vertices[i]));
-                            CatmullSpline penPath = p.GetPathExpensive();
+                            CatmullSpline penPath = p.GetSplinePath();
                             float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
-                            float nearestDistance = penPath.GetDistanceFromTime(nearestT);
+                            //float nearestDistance = penPath.GetDistanceFromTime(nearestT);
                             //Debug.DrawLine(worldPosition, p.GetPath().GetPositionFromT(nearestT), Color.red, 10f);
                             switch(o) {
-                                case 0: uvs[i] = new Vector4(nearestDistance,uvs[i].y,uvs[i].z,uvs[i].w);break;
-                                case 1: uvs[i] = new Vector4(uvs[i].x,nearestDistance,uvs[i].z,uvs[i].w);break;
-                                case 2: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,nearestDistance,uvs[i].w);break;
-                                case 3: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,uvs[i].z,nearestDistance);break;
+                                case 0: uvs[i] = new Vector4(nearestT,uvs[i].y,uvs[i].z,uvs[i].w);break;
+                                case 1: uvs[i] = new Vector4(uvs[i].x,nearestT,uvs[i].z,uvs[i].w);break;
+                                case 2: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,nearestT,uvs[i].w);break;
+                                case 3: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,uvs[i].z,nearestT);break;
                                 default: throw new UnityException("We only support up to 4 penetrables per procedural deformation...");
                             }
                         }
@@ -108,18 +108,21 @@ namespace PenetrationTech {
             float worldDistance;
             float girthScaleFactor;
             float angle;
+            int holeSubCurveCount;
             public PenetratorData(float blend) {
                 this.blend = worldLength = worldDistance = girthScaleFactor = angle = blend;
+                holeSubCurveCount = 0;
             }
-            public PenetratorData(Penetrator penetrator, float worldDistance) {
+            public PenetratorData(Penetrable penetrable, Penetrator penetrator, float worldDistance) {
                 worldLength = penetrator.GetWorldLength();
                 blend = worldDistance<worldLength ? 1f : 0f;
                 this.worldDistance = worldDistance;
                 girthScaleFactor = penetrator.GetGirthScaleFactor();
                 angle = penetrator.GetPenetratorAngleOffset();
+                holeSubCurveCount = penetrable.GetSplinePath().GetWeights().Count / 4;
             }
             public static int GetSize() {
-                return sizeof(float)*5;
+                return sizeof(float)*5+sizeof(int)*1;
             }
         }
         //private void Bake() { }
@@ -169,8 +172,8 @@ namespace PenetrationTech {
         }
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
             int index = penetrableTargets.IndexOf(penetrable);
-            data[index] = new PenetratorData(penetrator, worldSpaceDistanceToPenisRoot);
-            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrator.GetPath());
+            data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
+            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrator.GetSplinePath());
             foreach(Material m in materials) {
                 switch(index) {
                     case 0: m.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;

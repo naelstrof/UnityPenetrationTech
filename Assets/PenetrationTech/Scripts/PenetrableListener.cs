@@ -32,9 +32,8 @@ namespace PenetrationTech {
             NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, true, true, true);
         }
         protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, bool girth, bool depth, bool offset) {
-            CatmullSpline spline = penetrator.GetPath();
-            // We need to sample the sub-spline that's 
-            float dist = Mathf.Max(0f,spline.GetDistanceFromSubT(1, 1+penetrable.GetSubSplineCount(), GetT(penetrable))-worldSpaceDistanceToPenisRoot);
+            CatmullSpline holeSpline = penetrable.GetSplinePath();
+            float dist = holeSpline.GetDistanceFromTime(GetT(penetrable));
             float penetratedAmount = Mathf.Max(0f,penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot);
             float newGirthRadius = 0f;
             float newDepth = 0f;
