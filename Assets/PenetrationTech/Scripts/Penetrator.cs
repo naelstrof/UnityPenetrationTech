@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
-        private List<Vector3> weights = new List<Vector3>();
+        private List<Vector3> weights;
         [SerializeField]
         private GirthData girthData;
         [SerializeField]
@@ -36,11 +35,14 @@ namespace PenetrationTech {
         }
         protected override void Start() {
             base.Start();
-            weights = new List<Vector3>();
-            weights.Add(transform.position);
-            weights.Add(transform.position+transform.forward*0.5f);
-            weights.Add(transform.position+transform.forward*0.5f);
-            weights.Add(transform.position+transform.forward);
+            var position = transform.position;
+            var forward = transform.forward;
+            weights = new List<Vector3> {
+                position,
+                position+forward * 0.5f,
+                position+forward*0.5f,
+                position+forward
+            };
             path = new CatmullSpline().SetWeights(weights);
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
         }
@@ -57,8 +59,9 @@ namespace PenetrationTech {
         }
 
         private void ConstructPath(Vector3 holePos, Vector3 holeForward) {
-            float dist = Vector3.Distance(rootBone.position, holePos);
-            Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
+            var rootBonePosition = rootBone.position;
+            float dist = Vector3.Distance(rootBonePosition, holePos);
+            Vector3 tipPosition = rootBonePosition + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
@@ -72,20 +75,20 @@ namespace PenetrationTech {
                 if (insertionFactor >= 0.99f) inserted = true;
             }
 
-            Vector3 PenetratorTangent = Vector3.Lerp(
-                rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f,
-                rootBone.TransformDirection(localRootForward) * dist * 0.66f,
+            Vector3 penetratorTangent = Vector3.Lerp(
+                rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f),
+                rootBone.TransformDirection(localRootForward) * (dist * 0.66f),
                 insertionFactor
             );
-            weights.Add(rootBone.position);
-            weights.Add(PenetratorTangent);
+            weights.Add(rootBonePosition);
+            weights.Add(penetratorTangent);
             Vector3 insertionTangent = Vector3.Lerp(
-                -rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f, 
-                holeForward * dist * 0.66f,
+                -rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f), 
+                holeForward * (dist * 0.66f),
                 insertionFactor
             );
             Vector3 insertionPoint = Vector3.Lerp(
-                tipPosition + (tipPosition - rootBone.position) * girthData.GetWorldLength() * 0.1f,
+                tipPosition + (tipPosition - rootBonePosition) * (girthData.GetWorldLength() * 0.1f),
                 holePos,
                 insertionFactor
                 );
@@ -93,6 +96,12 @@ namespace PenetrationTech {
             weights.Add(insertionPoint);
             if (inserted) {
                 weights.AddRange(targetHole.GetPath().GetWeights());
+                Vector3 outPosition = weights[weights.Count - 1];
+                Vector3 outTangent = targetHole.GetPath().GetVelocityFromT(1f).normalized;
+                weights.Add(outPosition);
+                weights.Add(outTangent);
+                weights.Add(outTangent);
+                weights.Add(outPosition+outTangent*GetWorldLength());
             }
             path.SetWeights(weights);
         }
