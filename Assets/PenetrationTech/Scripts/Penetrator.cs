@@ -46,7 +46,7 @@ namespace PenetrationTech {
             path = new CatmullSpline().SetWeights(weights);
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
         }
-        protected override void Update() {
+        protected override void LateUpdate() {
             Vector3 holePos = targetHole.GetPath().GetPositionFromT(0f);
             Vector3 holeForward = (targetHole.GetPath().GetVelocityFromT(0f)).normalized;
             ConstructPath(holePos, holeForward);
@@ -55,13 +55,18 @@ namespace PenetrationTech {
                 //targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
                 targetHole.SetPenetrationDepth(this, firstArcLength);
             }
-            base.Update();
+            base.LateUpdate();
         }
 
         private void ConstructPath(Vector3 holePos, Vector3 holeForward) {
             var rootBonePosition = rootBone.position;
             float dist = Vector3.Distance(rootBonePosition, holePos);
             Vector3 tipPosition = rootBonePosition + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
+            Vector3 tipTangent = -rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength() * 0.66f;
+            if (tipTarget != null) {
+                tipPosition = tipTarget.position+tipTarget.forward * girthData.GetWorldLength() * 0.1f;
+                tipTangent = tipTarget.forward * girthData.GetWorldLength();
+            }
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
@@ -83,7 +88,7 @@ namespace PenetrationTech {
             weights.Add(rootBonePosition);
             weights.Add(penetratorTangent);
             Vector3 insertionTangent = Vector3.Lerp(
-                -rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f), 
+                tipTangent, 
                 holeForward * (dist * 0.66f),
                 insertionFactor
             );

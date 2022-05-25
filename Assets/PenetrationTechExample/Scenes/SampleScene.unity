@@ -296,6 +296,57 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &288769567
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 288769568}
+  - component: {fileID: 288769569}
+  m_Layer: 0
+  m_Name: Physics
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &288769568
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288769567}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 2048765614}
+  m_Father: {fileID: 1293087553}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &288769569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288769567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d76f24409a39604ca3986f91ce6d28a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interpolate: 1
+  jiggleRigs:
+  - rootTransform: {fileID: 288769568}
+    jiggleSettings: {fileID: 11400000, guid: 3f0d44331c5e76a4ea21f2055d8bd3bc, type: 2}
+    ignoredTransforms: []
+  wind: {x: 0, y: 0, z: 0}
+  debugDraw: 0
 --- !u!137 &409403247 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
@@ -497,6 +548,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 1, z: -0}
   localRootRight: {x: -1, y: 0, z: 0}
   rootBone: {fileID: 736474150}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 736474148}
   girthData:
@@ -553,6 +605,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: -1, z: -0}
   localRootRight: {x: -1, y: 0, z: 0}
   rootBone: {fileID: 745249743}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 745249741}
   girthData:
@@ -1174,11 +1227,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.303
+      value: -0.361
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.237
+      value: -0.213
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1578,6 +1631,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: 1, y: 0, z: 0}
   rootBone: {fileID: 1231987806}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1231987805}
   girthData:
@@ -1708,6 +1762,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: 1, y: 0, z: 0}
   rootBone: {fileID: 1293087553}
+  tipTarget: {fileID: 2048765614}
   targetRenderers:
   - {fileID: 1293928328}
   girthData:
@@ -2042,6 +2097,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: 1, y: 0, z: 0}
   rootBone: {fileID: 1611147634}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1611147633}
   girthData:
@@ -2088,6 +2144,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: -1, z: -0}
   localRootRight: {x: -1, y: 0, z: 0}
   rootBone: {fileID: 1634065968}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1634065966}
   girthData:
@@ -2231,6 +2288,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: -1, y: 0, z: 0}
   rootBone: {fileID: 1705051641}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1705051640}
   girthData:
@@ -2321,6 +2379,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1891150223
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1891150224}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1891150224
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891150223}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2048765614}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2048765613
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2048765614}
+  m_Layer: 0
+  m_Name: PhysicsTip
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2048765614
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2048765613}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.419}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1891150224}
+  m_Father: {fileID: 288769568}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2087172213 stripped
 Transform:

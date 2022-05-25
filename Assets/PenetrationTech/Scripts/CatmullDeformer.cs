@@ -14,6 +14,8 @@ namespace PenetrationTech {
         [SerializeField]
         protected Transform rootBone;
         [SerializeField]
+        protected Transform tipTarget;
+        [SerializeField]
         private List<Renderer> targetRenderers;
         private HashSet<Material> targetMaterials;
         private static readonly int catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
@@ -89,7 +91,7 @@ namespace PenetrationTech {
                 }
             }
         }
-        protected virtual void Update() {
+        protected virtual void LateUpdate() {
             data[0] = new CatmullSplineData(path);
             catmullBuffer.SetData(data, 0, 0, 1);
             foreach(Material material in targetMaterials) {
