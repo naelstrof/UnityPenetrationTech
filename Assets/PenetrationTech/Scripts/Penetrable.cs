@@ -48,7 +48,8 @@ namespace PenetrationTech {
     }
     #endif
     public class Penetrable : CatmullDisplay {
-        public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator);
+        public delegate void SetClipDistanceAction(float startDistWorld, float endDistWorld);
+        public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator, SetClipDistanceAction clipAction);
         public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
         private Transform[] points;
@@ -105,13 +106,13 @@ namespace PenetrationTech {
                 listener.OnValidate(this);
             }
         }
-        public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+        public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot, SetClipDistanceAction clipAction) {
             UpdateWorldPoints();
             path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
-                listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot);
+                listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
             }
-            penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot);
+            penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
         }
         public CatmullSpline GetSplinePath() {
             if (path == null) {

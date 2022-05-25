@@ -28,10 +28,10 @@ namespace PenetrationTech {
         protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) { }
-        public virtual void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
-            NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, true, true, true);
+        public virtual void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
+            NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, true, true, true);
         }
-        protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, bool girth, bool depth, bool offset) {
+        protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction, bool girth, bool depth, bool offset) {
             CatmullSpline holeSpline = penetrable.GetSplinePath();
             float dist = holeSpline.GetDistanceFromTime(GetT(penetrable));
             float penetratedAmount = Mathf.Max(0f,penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot);

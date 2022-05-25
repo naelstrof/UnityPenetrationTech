@@ -476,6 +476,7 @@ MonoBehaviour:
   - {fileID: 8253403588063006845}
   listeners:
   - id: 0
+  - id: 1
   references:
     version: 1
     00000000:
@@ -501,6 +502,12 @@ MonoBehaviour:
         blendShapeGirth: 0.045
         pullT: -0.028
         pushT: 0.02
+    00000001:
+      type: {class: ClipListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        t: 0.112
+        allowForAllTheWayThrough: 1
+        endT: 1
 --- !u!1 &1272949566387055476
 GameObject:
   m_ObjectHideFlags: 0
@@ -2209,6 +2216,7 @@ MonoBehaviour:
   - {fileID: 4591235460947445842}
   listeners:
   - id: 0
+  - id: 1
   references:
     version: 1
     00000000:
@@ -2234,6 +2242,12 @@ MonoBehaviour:
         blendShapeGirth: 0.045
         pullT: -0.04
         pushT: 0.04
+    00000001:
+      type: {class: ClipListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        t: 0.112
+        allowForAllTheWayThrough: 0
+        endT: 1
 --- !u!1 &6663738809834999277
 GameObject:
   m_ObjectHideFlags: 0
