@@ -24,6 +24,7 @@ namespace PenetrationTech {
         private Vector3 localDickUp;
         private Vector3 localDickRight;
         private Vector3 localDickRoot;
+        
         private Matrix4x4 objectToWorld {
             get { return renderer.localToWorldMatrix; }
         }
@@ -35,6 +36,8 @@ namespace PenetrationTech {
             return data != null && data.texture != null && data.renderer != null && data.localGirthRadiusCurve != null &&
                    data.localGirthRadiusCurve.keys.Length != 0;
         }
+
+        public float GetLocalLength() => maxLocalLength;
 
         public float GetGirthScaleFactor() {
             Vector3 localGirth = localDickUp*maxLocalGirthRadius;

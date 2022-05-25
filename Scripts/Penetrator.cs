@@ -59,8 +59,11 @@ namespace PenetrationTech {
         public List<PenetratorListener> listeners;
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
+        public float GetLocalLength() => girthData.GetLocalLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
         public RenderTexture GetGirthMap() => girthData.GetGirthMap();
+        private static readonly int startClipID = Shader.PropertyToID("_StartClip");
+        private static readonly int endClipID = Shader.PropertyToID("_EndClip");
         public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
@@ -116,6 +119,13 @@ namespace PenetrationTech {
             }
         }
 
+        void OnSetClip(float startDistance, float endDistance) {
+            foreach (Material material in GetTargetMaterials()) {
+                material.SetFloat(startClipID, startDistance);
+                material.SetFloat(endClipID, endDistance);
+            }
+        }
+
         protected override void LateUpdate() {
             CatmullSpline holeSplinePath = targetHole.GetSplinePath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
@@ -124,7 +134,8 @@ namespace PenetrationTech {
             if (inserted) {
                 float firstArcLength = path.GetDistanceFromSubT(0, 1, 1f);
                 //targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
-                targetHole.SetPenetrationDepth(this, firstArcLength);
+                OnSetClip(1f, 1f);
+                targetHole.SetPenetrationDepth(this, firstArcLength, OnSetClip);
                 foreach (PenetratorListener listener in listeners) {
                     listener.NotifyPenetrationUpdate(this, targetHole, firstArcLength);
                 }
@@ -152,7 +163,7 @@ namespace PenetrationTech {
                 insertionFactor = 1f;
                 if (dist > girthData.GetWorldLength()) {
                     inserted = false;
-                    targetHole.SetPenetrationDepth(this, GetWorldLength() + 1f);
+                    targetHole.SetPenetrationDepth(this, GetWorldLength() + 1f, OnSetClip);
                 }
             } else {
                 insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
