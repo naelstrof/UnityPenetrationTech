@@ -29,7 +29,7 @@ namespace PenetrationTech {
         protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) {
-            t = p.GetPath().GetTimeFromDistance(dist);
+            t = p.GetPathExpensive().GetTimeFromDistance(dist);
         }
         public virtual void NotifyPenetration(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
             NotifyPenetrationGDO(penetrator, worldSpaceDistanceToPenisRoot, true, true, true);

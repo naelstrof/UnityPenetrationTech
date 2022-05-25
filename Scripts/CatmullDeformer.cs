@@ -25,6 +25,8 @@ namespace PenetrationTech {
         private ComputeBuffer catmullBuffer;
         private NativeArray<CatmullSplineData> data;
         protected List<Renderer> GetTargetRenderers() => targetRenderers;
+        //TODO: Currently this is only used to send CatmullSplines to the GPU. It's used in other places
+        // (currently the ProceduralDeformation class), and should be considered for refactoring.
         public unsafe struct CatmullSplineData {
             private const int subSplineCount = 6;
             private const int binormalCount = 16;

@@ -14,7 +14,7 @@ namespace PenetrationTech {
         private static float Remap (float value, float from1, float to1, float from2, float to2) {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
-        private static Vector3 GetPosition(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
+        public static Vector3 GetPosition(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
             // Using the expanded form of a Hermite basis functions
             // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
             // p(t) = (2t³ - 3t² + 1)p₀ + (t³ - 2t² + t)m₀ + (-2t³ + 3t²)p₁ + (t³ - t²)m₁
@@ -24,7 +24,7 @@ namespace PenetrationTech {
                 + (t * t * t - t * t) * tanPoint2;
             return position;
         }
-        private static Vector3 GetVelocity(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
+        public static Vector3 GetVelocity(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
             // First derivative (velocity)
             // p'(t) = (6t² - 6t)p₀ + (3t² - 4t + 1)m₀ + (-6t² + 6t)p₁ + (3t² - 2t)m₁
             Vector3 tangent = (6f * t * t - 6f * t) * start
@@ -33,7 +33,7 @@ namespace PenetrationTech {
                 + (3f * t * t - 2f * t) * tanPoint2;
             return tangent;
         }
-        private static Vector3 GetAcceleration(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
+        public static Vector3 GetAcceleration(Vector3 start, Vector3 tanPoint1, Vector3 tanPoint2, Vector3 end, float t) {
             // Second derivative (acceleration)
             // p''(t) = (12t - 6)p₀ + (6t - 4)m₀ + (-12t + 6)p₁ + (6t - 2)m₁
             Vector3 curvature = (12f * t - 6f) * start
@@ -199,8 +199,7 @@ namespace PenetrationTech {
             return this;
         }
 
-        public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints) {
-            weights.Clear();
+        public static void GetWeightsFromPoints(ICollection<Vector3> weightCollection, IList<Vector3> newPoints) {
             for (int i=0;i<newPoints.Count-1;i++) {
                 Vector3 p0 = newPoints[i];
                 Vector3 p1 = newPoints[i+1];
@@ -217,11 +216,16 @@ namespace PenetrationTech {
                 } else {
                     m1 = (p1 - p0)*0.5f;
                 }
-                weights.Add(p0);
-                weights.Add(m0);
-                weights.Add(m1);
-                weights.Add(p1);
+                weightCollection.Add(p0);
+                weightCollection.Add(m0);
+                weightCollection.Add(m1);
+                weightCollection.Add(p1);
             }
+        }
+
+        public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints) {
+            weights.Clear();
+            GetWeightsFromPoints(weights,newPoints);
             GenerateDistanceLUT(32);
             GenerateBinormalLUT(16);
             bounds.Clear();

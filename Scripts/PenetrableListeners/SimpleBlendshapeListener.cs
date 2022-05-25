@@ -26,8 +26,9 @@ namespace PenetrationTech {
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
             #if UNITY_EDITOR
-            Vector3 position = p.GetPath().GetPositionFromT(t);
-            Vector3 normal = p.GetPath().GetVelocityFromT(t).normalized;
+            CatmullSpline path = p.GetPathExpensive();
+            Vector3 position = path.GetPositionFromT(t);
+            Vector3 normal = path.GetVelocityFromT(t).normalized;
             UnityEditor.Handles.color = Color.blue;
             UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
             #endif

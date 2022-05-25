@@ -52,8 +52,9 @@ namespace PenetrationTech {
                                     "Please make sure the Penetrables array doesn't have any nulls...");
                             }
                             Vector3 worldPosition = skinnedMeshRenderer.rootBone.TransformPoint(newMesh.bindposes[0].MultiplyPoint(vertices[i]));
-                            float nearestT = p.GetPath().GetClosestTimeFromPosition(worldPosition, 256);
-                            float nearestDistance = p.GetPath().GetDistanceFromTime(nearestT);
+                            CatmullSpline penPath = p.GetPathExpensive();
+                            float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
+                            float nearestDistance = penPath.GetDistanceFromTime(nearestT);
                             //Debug.DrawLine(worldPosition, p.GetPath().GetPositionFromT(nearestT), Color.red, 10f);
                             switch(o) {
                                 case 0: uvs[i] = new Vector4(nearestDistance,uvs[i].y,uvs[i].z,uvs[i].w);break;
