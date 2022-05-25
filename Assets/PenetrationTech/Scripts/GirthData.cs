@@ -30,6 +30,12 @@ namespace PenetrationTech {
         private Matrix4x4 worldToObject {
             get { return renderer.worldToLocalMatrix; }
         }
+
+        public static bool IsValid(GirthData data) {
+            return data != null && data.texture != null && data.renderer != null && data.localGirthRadiusCurve != null &&
+                   data.localGirthRadiusCurve.keys.Length != 0;
+        }
+
         public float GetGirthScaleFactor() {
             Vector3 localGirth = localDickUp*maxLocalGirthRadius;
             float scaleFactor = objectToWorld.MultiplyVector(localGirth).magnitude;
@@ -65,7 +71,7 @@ namespace PenetrationTech {
         }
         private void PopulateOffsetCurves(RenderTexture girthMap) {
             // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-            RenderTexture temp = RenderTexture.GetTemporary(32,32,16,RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
             Graphics.Blit(girthMap, temp);
             Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
             RenderTexture.active = temp;
@@ -117,7 +123,7 @@ namespace PenetrationTech {
         }
         private void PopulateGirthCurve(RenderTexture girthMap) {
             // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-            RenderTexture temp = RenderTexture.GetTemporary(32,32,16,RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
             Graphics.Blit(girthMap, temp);
             Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
             RenderTexture.active = temp;
@@ -143,7 +149,8 @@ namespace PenetrationTech {
         
         public GirthData(Renderer renderer, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
             this.renderer = renderer;
-            texture = new RenderTexture(256,256, 16, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            texture = new RenderTexture(256,256, 16, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+            texture.antiAliasing = 1;
             texture.useMipMap = true;
             texture.autoGenerateMips = false;
             texture.wrapMode = TextureWrapMode.Repeat;

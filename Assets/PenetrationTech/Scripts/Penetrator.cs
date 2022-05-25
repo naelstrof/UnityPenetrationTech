@@ -1,16 +1,62 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using System;
+using System.Reflection;
+using UnityEditor;
+#endif
 
 namespace PenetrationTech {
+    #if UNITY_EDITOR
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(Penetrator))]
+    public class PenetratorEditor : Editor {
+        static IEnumerable<PenetratorListenerAttribute> GetPenetratorListenerAttributes() {
+            foreach(Type type in Assembly.GetExecutingAssembly().GetTypes()) {
+                var attributes = (PenetratorListenerAttribute[])type.GetCustomAttributes(typeof(PenetratorListenerAttribute), true);
+                if (attributes.Length > 0) {
+                    yield return attributes[0];
+                }
+            }
+        }
+        public override void OnInspectorGUI() {
+            DrawDefaultInspector();
+            
+            if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
+                return;
+            }
+
+            GenericMenu menu = new GenericMenu();
+            List<PenetratorListenerAttribute> attributes =
+                new List<PenetratorListenerAttribute>(GetPenetratorListenerAttributes());
+            foreach(var attribute in attributes) {
+                menu.AddItem(new GUIContent(attribute.name), false, ()=>{
+                    foreach (var t in targets) {
+                        Penetrator p = t as Penetrator;
+                        if (p.listeners == null) {
+                            p.listeners = new List<PenetratorListener>();
+                        }
+                        p.listeners.Add((PenetratorListener)Activator.CreateInstance(attribute.type));
+                        serializedObject.ApplyModifiedProperties();
+                        EditorUtility.SetDirty(p);
+                    }
+                });
+            }
+            menu.ShowAsContext();
+        }
+    }
+    #endif
     public class Penetrator : CatmullDeformer {
         private List<Vector3> weights;
-        [SerializeField]
+        //[SerializeField]
         private GirthData girthData;
         [SerializeField]
         private Penetrable targetHole;
         private float length;
         private bool inserted;
         private float insertionFactor;
+        [SerializeReference]
+        public List<PenetratorListener> listeners;
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
@@ -33,6 +79,23 @@ namespace PenetrationTech {
             float angle = GetPenetratorAngleOffset();
             return Quaternion.AngleAxis(angle*Mathf.Rad2Deg,path.GetVelocityFromT(t).normalized) * path.GetReferenceFrameFromT(t).MultiplyVector(offset);
         }
+
+        protected override void OnEnable() {
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnEnable(this);
+            }
+            base.OnEnable();
+        }
+
+        protected override void OnDisable() {
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnDisable();
+            }
+
+            base.OnDisable();
+        }
+
+
         protected override void Start() {
             base.Start();
             var position = transform.position;
@@ -46,15 +109,31 @@ namespace PenetrationTech {
             path = new CatmullSpline().SetWeights(weights);
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
         }
+
+        void Update() {
+            foreach (PenetratorListener listener in listeners) {
+                listener.Update();
+            }
+        }
+
         protected override void LateUpdate() {
             Vector3 holePos = targetHole.GetHolePosition(0f);
             Vector3 holeForward = targetHole.GetTangent(0f);
             ConstructPath(holePos, holeForward);
             if (inserted) {
-                float firstArcLength = path.GetDistanceFromTime(1f/(float)(weights.Count/4));
+                float firstArcLength = path.GetDistanceFromSubT(0, 1, 1f);
                 //targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
                 targetHole.SetPenetrationDepth(this, firstArcLength);
+                foreach (PenetratorListener listener in listeners) {
+                    listener.NotifyPenetrationUpdate(this, targetHole, firstArcLength);
+                }
             }
+            else {
+                foreach (PenetratorListener listener in listeners) {
+                    listener.NotifyPenetrationUpdate(this, targetHole, GetWorldLength()+1f);
+                }
+            }
+
             base.LateUpdate();
         }
 
@@ -70,7 +149,10 @@ namespace PenetrationTech {
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
-                if (dist > girthData.GetWorldLength()) inserted = false;
+                if (dist > girthData.GetWorldLength()) {
+                    inserted = false;
+                    targetHole.SetPenetrationDepth(this, GetWorldLength() + 1f);
+                }
             } else {
                 insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
                 insertionFactor = Mathf.Max(
@@ -111,18 +193,58 @@ namespace PenetrationTech {
             path.SetWeights(weights);
         }
 
+        private void OnValidate() {
+            if (listeners == null) {
+                return;
+            }
+
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnValidate(this);
+            }
+        }
+
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
-            #if UNITY_EDITOR
-            if (Application.isPlaying) {
-                for(float t=0;t<GetWorldLength();t+=0.025f) {
-                    UnityEditor.Handles.color = Color.white;
-                    Vector3 position = path.GetPositionFromDistance(t) + GetWorldOffset(t);
-                    float girth = GetWorldGirthRadius(t);
-                    UnityEditor.Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
+#if UNITY_EDITOR
+            if (GetTargetRenderers() == null || GetTargetRenderers().Count == 0 || GetTargetRenderers()[0] == null || rootBone == null) {
+                return;
+            }
+
+            if (!GirthData.IsValid(girthData)) {
+                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
+                    localRootUp, localRootRight);
+            }
+
+            if (!Application.isPlaying) {
+                if (path == null) {
+                    path = new CatmullSpline().SetWeightsFromPoints(new Vector3[] {
+                        rootBone.position,
+                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
+                    });
+                }
+                else {
+                    path.SetWeightsFromPoints(new Vector3[] {
+                        rootBone.position,
+                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
+                    });
                 }
             }
-            #endif
+
+            for(float t=0;t<GetWorldLength();t+=0.025f) {
+                UnityEditor.Handles.color = Color.white;
+                Vector3 position = path.GetPositionFromDistance(t) + GetWorldOffset(t);
+                float girth = GetWorldGirthRadius(t);
+                UnityEditor.Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
+            }
+
+            if (listeners == null) {
+                return;
+            }
+
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnDrawGizmosSelected(this);
+            }
+#endif
         }
         
     }

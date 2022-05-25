@@ -58,6 +58,10 @@ namespace PenetrationTech {
         public List<PenetrableListener> listeners;
         private CatmullSpline splinePath;
 
+        public int GetSubSplineCount() {
+            return points.Length - 1;
+        }
+
         public CatmullSpline GetPathExpensive() {
             if (splinePath == null) {
                 splinePath = new CatmullSpline();
@@ -74,7 +78,7 @@ namespace PenetrationTech {
             if (t < 0.5f) {
                 return (points[1].position - points[0].position).normalized;
             } else {
-                return points[points.Length - 1].position - points[points.Length - 2].position;
+                return (points[points.Length - 1].position - points[points.Length - 2].position).normalized;
             }
         }
 
@@ -136,7 +140,7 @@ namespace PenetrationTech {
         }
         public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
             foreach(PenetrableListener listener in listeners) {
-                listener.NotifyPenetration(penetrator, worldSpaceDistanceToPenisRoot);
+                listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot);
             }
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot);
         }

@@ -551,29 +551,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 736474148}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 1138008413}
+  listeners: []
+  references:
+    version: 1
 --- !u!23 &736474148 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
@@ -608,29 +589,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 745249741}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 0}
+  listeners: []
+  references:
+    version: 1
 --- !u!23 &745249741 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 05195e3204c80a547ad8f254d2fd0841, type: 3}
@@ -1634,29 +1596,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1231987805}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 1042027687}
+  listeners: []
+  references:
+    version: 1
 --- !u!1 &1233749578
 GameObject:
   m_ObjectHideFlags: 0
@@ -1762,32 +1705,21 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: 1, y: 0, z: 0}
   rootBone: {fileID: 1293087553}
-  tipTarget: {fileID: 2048765614}
+  tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1293928328}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 1042027688}
+  listeners:
+  - id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: PenetratorPassiveAudioListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        localDist: 0
+        clip: {fileID: 8300000, guid: 3adb4407fed5ec3428b0c3167af487c4, type: 3}
+        audioGroup: {fileID: 0}
+        volume: 1
 --- !u!137 &1293928328 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 465037639416872839, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
@@ -2100,29 +2032,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1611147633}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 1138008412}
+  listeners: []
+  references:
+    version: 1
 --- !u!1 &1634065964 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 05195e3204c80a547ad8f254d2fd0841, type: 3}
@@ -2147,29 +2060,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1634065966}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 0}
+  listeners: []
+  references:
+    version: 1
 --- !u!23 &1634065966 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 05195e3204c80a547ad8f254d2fd0841, type: 3}
@@ -2291,29 +2185,10 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1705051640}
-  girthData:
-    texture: {fileID: 0}
-    maxLocalLength: 0
-    maxLocalGirthRadius: 0
-    localGirthRadiusCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localXOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    localYOffsetCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
   targetHole: {fileID: 0}
+  listeners: []
+  references:
+    version: 1
 --- !u!1 &1833875365
 GameObject:
   m_ObjectHideFlags: 0

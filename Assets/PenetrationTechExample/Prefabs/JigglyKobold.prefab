@@ -481,7 +481,7 @@ MonoBehaviour:
     00000000:
       type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
-        dist: 0
+        t: 0
         targetBone: {fileID: 807804077407153469}
         targets:
         - skinnedMeshRenderer: {fileID: 7452297451520482250}
@@ -499,8 +499,8 @@ MonoBehaviour:
           pullBlendshapeID: 27
           pushBlendshapeID: 28
         blendShapeGirth: 0.045
-        pullDist: -0.028
-        pushDist: 0.02
+        pullT: -0.028
+        pushT: 0.02
 --- !u!1 &1272949566387055476
 GameObject:
   m_ObjectHideFlags: 0
@@ -2214,7 +2214,7 @@ MonoBehaviour:
     00000000:
       type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
-        dist: 0
+        t: 0
         targetBone: {fileID: 3952444606842804954}
         targets:
         - skinnedMeshRenderer: {fileID: 7452297451520482250}
@@ -2232,8 +2232,8 @@ MonoBehaviour:
           pullBlendshapeID: 30
           pushBlendshapeID: 31
         blendShapeGirth: 0.045
-        pullDist: -0.02
-        pushDist: 0.02
+        pullT: -0.04
+        pushT: 0.04
 --- !u!1 &6663738809834999277
 GameObject:
   m_ObjectHideFlags: 0
