@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace PenetrationTech {
@@ -12,9 +13,9 @@ namespace PenetrationTech {
         [SerializeField]
         private float blendShapeGirth;
         [SerializeField]
-        private float pullDist;
+        private float pullT;
         [SerializeField]
-        private float pushDist;
+        private float pushT;
         private float pullPushAmount;
         private float lastPenetrationDepth;
         public override void OnEnable(Penetrable p) {
@@ -38,14 +39,14 @@ namespace PenetrationTech {
         }
         public override void OnValidate(Penetrable p) {
             base.OnValidate(p);
-            pullDist = Mathf.Min(pullDist, 0f);
-            pushDist = Mathf.Max(pushDist, 0f);
+            pullT = Mathf.Min(pullT, 0f);
+            pushT = Mathf.Max(pushT, 0f);
         }
-        protected override float GetDist() {
+        protected override float GetT(Penetrable p) {
             float pushAmount = Mathf.Clamp01(pullPushAmount);
             float pullAmount = Mathf.Clamp01(-pullPushAmount);
-            float d = Mathf.Lerp(dist, dist+pushDist, pushAmount);
-            d = Mathf.Lerp(d, dist-pullDist, pullAmount);
+            float d = Mathf.Lerp(t, t+pushT, pushAmount);
+            d = Mathf.Lerp(d, t-pullT, pullAmount);
             return d;
         }
         public override void Update() {
@@ -66,17 +67,17 @@ namespace PenetrationTech {
             UnityEditor.Handles.color = Color.blue;
             UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
 
-            Vector3 tugPosition = position + normal * pullDist;
+            Vector3 tugPosition = position + normal * pullT * path.arcLength;
             UnityEditor.Handles.color = Color.cyan;
             UnityEditor.Handles.DrawWireDisc(tugPosition, normal, blendShapeGirth);
 
-            Vector3 pushPosition = position + normal * pushDist;
+            Vector3 pushPosition = position + normal * pushT * path.arcLength;
             UnityEditor.Handles.color = Color.magenta;
             UnityEditor.Handles.DrawWireDisc(pushPosition, normal, blendShapeGirth);
             #endif
         }
-        public override void NotifyPenetration(Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
-            NotifyPenetrationGDO(penetrator, worldSpaceDistanceToPenisRoot, true, true, true);
+        public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot) {
+            NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, true, true, true);
         }
     }
 }

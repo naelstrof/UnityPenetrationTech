@@ -222,6 +222,14 @@ namespace PenetrationTech {
                 weightCollection.Add(p1);
             }
         }
+        public float GetDistanceFromSubT(int start, int end, float subT) {
+            int subSplineCount = (weights.Count / 4);
+            int subSection = end - start;
+            float multi = (float)subSection / (float)subSplineCount;
+            float startT = (float)start / (float)subSplineCount;
+            float t = subT * multi + startT;
+            return GetDistanceFromTime(t);
+        }
 
         public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints) {
             weights.Clear();
