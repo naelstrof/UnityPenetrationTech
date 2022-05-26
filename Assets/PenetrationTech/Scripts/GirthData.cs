@@ -50,6 +50,7 @@ namespace PenetrationTech {
             if (worldDistanceAlongDick < 0f || worldDistanceAlongDick > GetWorldLength()) {
                 return 0f;
             }
+
             float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector((localDickForward)).normalized).magnitude;
             return GetPiecewiseDerivative(localGirthRadiusCurve, localDistanceAlongDick);
         }

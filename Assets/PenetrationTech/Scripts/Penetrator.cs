@@ -150,7 +150,7 @@ namespace PenetrationTech {
                 OnSetClip(1f, 1f);
                 targetHole.SetPenetrationDepth(this, firstArcLength/virtualSquashAndStretch, OnSetClip);
                 foreach (PenetratorListener listener in listeners) {
-                    listener.NotifyPenetrationUpdate(this, targetHole, firstArcLength);
+                    listener.NotifyPenetrationUpdate(this, targetHole, firstArcLength/virtualSquashAndStretch);
                 }
             } else {
                 foreach (PenetratorListener listener in listeners) {

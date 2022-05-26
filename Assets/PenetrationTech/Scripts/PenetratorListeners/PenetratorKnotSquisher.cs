@@ -20,8 +20,8 @@ namespace PenetrationTech {
 
         protected override void OnPenetrationDepthChange(float depth) {
             float dir = Mathf.Sign(depth - lastDepth);
-            float knotForce = penetrator.GetKnotForce(penetrator.GetWorldLength()-depth);
-            penetrator.squashAndStretch = Mathf.SmoothDamp(penetrator.squashAndStretch, 1f, ref currentVelocity, 30f);
+            float knotForce = Mathf.Clamp(penetrator.GetKnotForce(penetrator.GetWorldLength()-depth), -knotForceFactor,  knotForceFactor);
+            penetrator.squashAndStretch = Mathf.SmoothDamp(penetrator.squashAndStretch, 1f, ref currentVelocity, 0.6f);
             if (knotForce * dir < 0f) {
                 penetrator.squashAndStretch += knotForce*Time.deltaTime*2f;
             } else {
