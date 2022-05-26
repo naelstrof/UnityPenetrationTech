@@ -62,6 +62,13 @@ namespace PenetrationTech {
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetLocalLength() => girthData.GetLocalLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
+        public float GetKnotForce(float worldDistanceAlongDick) => girthData.GetKnotForce(worldDistanceAlongDick);
+
+        public float squashAndStretch {
+            get => virtualSquashAndStretch;
+            set => virtualSquashAndStretch = value;
+        }
+
         public RenderTexture GetGirthMap() => girthData.GetGirthMap();
         private static readonly int startClipID = Shader.PropertyToID("_StartClip");
         private static readonly int endClipID = Shader.PropertyToID("_EndClip");

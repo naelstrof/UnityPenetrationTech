@@ -15,10 +15,11 @@ namespace PenetrationTech {
     [System.Serializable]
     public class PenetratorListener {
         [SerializeField][Range(0f,1f)]
-        private float localDist;
+        protected float localDist;
         protected virtual void OnPenetrationDepthChange(float depthDist) { }
+        protected virtual void OnPenetrationKnotForceChange(float girthVelocity) { }
         public virtual void OnValidate(Penetrator p) { }
-        public virtual void OnEnable(Penetrator p) { }
+        public virtual void OnEnable(Penetrator newPenetrator) { }
         public virtual void Update() { }
         public virtual void OnDisable() { }
         public virtual void OnDrawGizmosSelected(Penetrator p) {

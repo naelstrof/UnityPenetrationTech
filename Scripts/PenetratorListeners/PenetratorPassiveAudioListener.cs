@@ -19,9 +19,9 @@ namespace PenetrationTech {
         [SerializeField] private float volume = 1f;
         private AudioSource source;
 
-        public override void OnEnable(Penetrator p) {
-            base.OnEnable(p);
-            source = p.gameObject.AddComponent<AudioSource>();
+        public override void OnEnable(Penetrator newPenetrator) {
+            base.OnEnable(newPenetrator);
+            source = newPenetrator.gameObject.AddComponent<AudioSource>();
             source.clip = clip;
             source.loop = true;
             source.volume = volume;
