@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -38,6 +39,7 @@ namespace PenetrationTech {
                             p.listeners = new List<PenetrableListener>();
                         }
                         p.listeners.Add((PenetrableListener)Activator.CreateInstance(attribute.type));
+                        p.listeners[p.listeners.Count - 1].OnEnable(p);
                         serializedObject.ApplyModifiedProperties();
                         EditorUtility.SetDirty(p);
                     }
@@ -47,6 +49,7 @@ namespace PenetrationTech {
         }
     }
     #endif
+    [ExecuteAlways]
     public class Penetrable : CatmullDisplay {
         public delegate void SetClipDistanceAction(float startDistWorld, float endDistWorld);
         public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator, SetClipDistanceAction clipAction);
