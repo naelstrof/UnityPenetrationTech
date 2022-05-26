@@ -46,6 +46,7 @@ namespace PenetrationTech {
         }
     }
     #endif
+    [ExecuteAlways]
     public class Penetrator : CatmullDeformer {
         [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
         private List<Vector3> weights;
@@ -58,6 +59,7 @@ namespace PenetrationTech {
         private float insertionFactor;
         [SerializeReference]
         public List<PenetratorListener> listeners;
+        private MaterialPropertyBlock propertyBlock;
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetLocalLength() => girthData.GetLocalLength();
@@ -98,6 +100,8 @@ namespace PenetrationTech {
             foreach (PenetratorListener listener in listeners) {
                 listener.OnEnable(this);
             }
+
+            propertyBlock = new MaterialPropertyBlock();
             base.OnEnable();
         }
 
@@ -106,12 +110,12 @@ namespace PenetrationTech {
                 listener.OnDisable();
             }
 
+            propertyBlock = null;
             base.OnDisable();
         }
 
 
-        protected override void Start() {
-            base.Start();
+        void Start() {
             var position = transform.position;
             var forward = transform.forward;
             weights = new List<Vector3> {
@@ -128,17 +132,22 @@ namespace PenetrationTech {
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
             }
-
         }
 
         void OnSetClip(float startDistance, float endDistance) {
-            foreach (Material material in GetTargetMaterials()) {
-                material.SetFloat(startClipID, startDistance);
-                material.SetFloat(endClipID, endDistance);
+            foreach (Renderer renderer in GetTargetRenderers()) {
+                renderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetFloat(startClipID, startDistance);
+                propertyBlock.SetFloat(endClipID, endDistance);
+                renderer.SetPropertyBlock(propertyBlock);
             }
         }
 
         protected override void LateUpdate() {
+            if (targetHole == null) {
+                return;
+            }
+
             CatmullSpline holeSplinePath = targetHole.GetSplinePath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
             Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
@@ -158,10 +167,12 @@ namespace PenetrationTech {
                 }
             }
 
-            foreach (Material material in GetTargetMaterials()) {
-                material.SetFloat(squashStretchCorrectionID, virtualSquashAndStretch);
-                material.SetFloat(dickWorldLengthID, GetWorldLength());
-                material.SetFloat(distanceToHoleID, path.GetDistanceFromSubT(0, 1, 1f));
+            foreach (Renderer renderer in GetTargetRenderers()) {
+                renderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetFloat(squashStretchCorrectionID, virtualSquashAndStretch);
+                propertyBlock.SetFloat(dickWorldLengthID, GetWorldLength());
+                propertyBlock.SetFloat(distanceToHoleID, path.GetDistanceFromSubT(0, 1, 1f));
+                renderer.SetPropertyBlock(propertyBlock);
             }
             base.LateUpdate();
         }
@@ -250,12 +261,6 @@ namespace PenetrationTech {
             if (!Application.isPlaying) {
                 if (path == null) {
                     path = new CatmullSpline().SetWeightsFromPoints(new Vector3[] {
-                        rootBone.position,
-                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
-                    });
-                }
-                else {
-                    path.SetWeightsFromPoints(new Vector3[] {
                         rootBone.position,
                         rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
                     });

@@ -73,7 +73,8 @@ namespace PenetrationTech {
             CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
         }
 
-        void OnEnable() {
+
+        protected override void OnEnable() {
             worldPoints = new List<Vector3>();
             foreach(PenetrableListener listener in listeners) {
                 listener.OnEnable(this);
