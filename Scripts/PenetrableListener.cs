@@ -15,6 +15,20 @@ namespace PenetrationTech {
 
     [System.Serializable]
     public class PenetrableListener {
+        [System.Flags]
+        protected enum PenData {
+            None = 0,
+            Girth = (1 << 0),
+            Depth = (1 << 1),
+            Offset = (1 << 2),
+            KnotForce = (1<<3),
+            All = ~(0),
+        }
+
+        protected static bool HasFlag(PenData flags, PenData flag) {
+            return ((int)flags & (int)flag) != 0;
+        }
+
         [Range(0f,1f)][SerializeField]
         protected float t;
         public virtual void OnEnable(Penetrable p) { }
@@ -26,32 +40,38 @@ namespace PenetrationTech {
         protected virtual void OnPenetrationGirthRadiusChange(float newGirthRadius) { }
         protected virtual void OnPenetrationDepthChange(float newDepth) { }
         protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
+        protected virtual void OnPenetrationKnotForceChange(float knotForce) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) { }
         public virtual void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
-            NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, true, true, true);
+            NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, PenData.All);
         }
-        protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction, bool girth, bool depth, bool offset) {
+        protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction, PenData penetrationData) {
             CatmullSpline holeSpline = penetrable.GetSplinePath();
             float dist = holeSpline.GetDistanceFromTime(GetT(penetrable));
             float penetratedAmount = Mathf.Max(0f,penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot);
             float newGirthRadius = 0f;
             float newDepth = 0f;
+            float newKnotForce = 0f;
             Vector3 newOffset = Vector3.zero;
             if (dist < penetratedAmount) {
-                if (girth) {
+                if (HasFlag(penetrationData, PenData.Girth)) {
                     newGirthRadius = penetrator.GetWorldGirthRadius(worldSpaceDistanceToPenisRoot+dist);
                 }
-                if (depth) {
+                if (HasFlag(penetrationData, PenData.Depth)) {
                     newDepth = Mathf.Max(penetratedAmount-dist,0f);
                 }
-                if (offset) {
+                if (HasFlag(penetrationData, PenData.Offset)) {
                     newOffset = penetrator.GetWorldOffset(worldSpaceDistanceToPenisRoot+dist);
+                }
+                if (HasFlag(penetrationData, PenData.KnotForce)) {
+                    newKnotForce = penetrator.GetKnotForce(worldSpaceDistanceToPenisRoot+dist);
                 }
             }
             OnPenetrationGirthRadiusChange(newGirthRadius);
             OnPenetrationOffsetChange(newOffset);
             OnPenetrationDepthChange(newDepth);
+            OnPenetrationKnotForceChange(newKnotForce);
         }
     }
 }
