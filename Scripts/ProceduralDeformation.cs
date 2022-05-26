@@ -102,27 +102,44 @@ namespace PenetrationTech {
         private static readonly int dickGirthMapZID = Shader.PropertyToID("_DickGirthMapZ");
         private static readonly int dickGirthMapWID = Shader.PropertyToID("_DickGirthMapW");
 
-        private struct PenetratorData {
+        private unsafe struct PenetratorData {
             float blend;
-            float worldLength;
+            float worldDickLength;
             float worldDistance;
             float girthScaleFactor;
             float angle;
+            fixed float initialRight[3];
+            fixed float initialUp[3];
             int holeSubCurveCount;
             public PenetratorData(float blend) {
-                this.blend = worldLength = worldDistance = girthScaleFactor = angle = blend;
+                this.blend = worldDickLength = worldDistance = girthScaleFactor = angle = blend;
                 holeSubCurveCount = 0;
+                initialRight[0] = 0;
+                initialRight[1] = 0;
+                initialRight[2] = 0;
+                initialUp[0] = 0;
+                initialUp[1] = 0;
+                initialUp[2] = 0;
             }
             public PenetratorData(Penetrable penetrable, Penetrator penetrator, float worldDistance) {
-                worldLength = penetrator.GetWorldLength();
-                blend = worldDistance<worldLength ? 1f : 0f;
+                worldDickLength = penetrator.GetWorldLength();
+                blend = worldDistance > worldDickLength ? 0f : 1f;
                 this.worldDistance = worldDistance;
                 girthScaleFactor = penetrator.GetGirthScaleFactor();
                 angle = penetrator.GetPenetratorAngleOffset();
                 holeSubCurveCount = penetrable.GetSplinePath().GetWeights().Count / 4;
+                Vector3 iRight = penetrator.GetSplinePath().GetBinormalFromT(0f);
+                Vector3 iForward = penetrator.GetSplinePath().GetVelocityFromT(0f).normalized;
+                Vector3 iUp = Vector3.Cross(iForward, iRight).normalized;
+                initialRight[0] = iRight.x;
+                initialRight[1] = iRight.y;
+                initialRight[2] = iRight.z;
+                initialUp[0] = iUp.x;
+                initialUp[1] = iUp.y;
+                initialUp[2] = iUp.z;
             }
             public static int GetSize() {
-                return sizeof(float)*5+sizeof(int)*1;
+                return sizeof(float)*11+sizeof(int)*1;
             }
         }
         //private void Bake() { }
@@ -173,7 +190,7 @@ namespace PenetrationTech {
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
-            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrator.GetSplinePath());
+            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
             foreach(Material m in materials) {
                 switch(index) {
                     case 0: m.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;

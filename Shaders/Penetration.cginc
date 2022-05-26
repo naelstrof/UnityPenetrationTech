@@ -213,10 +213,12 @@ sampler2D _DickGirthMapW;
 
 struct PenetratorData {
     float blend;
-    float worldLength;
+    float worldDickLength;
     float worldDistance;
     float girthScaleFactor;
     float angle;
+    float3 initialRight;
+    float3 initialUp;
     int holeSubCurveCount;
 };
 
@@ -227,27 +229,22 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     if (data.blend == 0) {
         return;
     }
-    float t = GetTFromSubT(curveIndex, 1, 1+data.holeSubCurveCount, holeT);
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
-    float subT = GetCurveSegment(curveIndex, t, curveSegmentIndex);
+    float subT = GetCurveSegment(curveIndex, holeT, curveSegmentIndex);
 
     float3 catPosition = SampleCurveSegmentPosition(curveIndex,curveSegmentIndex, subT);
-
-    float3 initialRight = GetBinormalFromT(curveIndex,0);
-    float3 initialForward = normalize(SampleCurveSegmentVelocity(curveIndex,0,0));
-    float3 initialUp = normalize(cross(initialForward, initialRight));
 
     float3 diff = worldPosition-catPosition;
     float3 diffNorm = normalize(diff);
     // Get the rotation around the curve that we need to sample.
-    float2 holeFlat = float2(dot(diffNorm,initialRight), dot(diffNorm,initialUp));
+    float2 holeFlat = float2(dot(diffNorm,data.initialRight), dot(diffNorm,data.initialUp));
     float holeAngle = atan2(holeFlat.y, holeFlat.x)+3.14159265359;
 
     float diffDistance = length(diff);
 
-    float dist = TimeToDistance(curveIndex, t);
-    float2 girthSampleUV = float2(dist/data.worldLength, (-holeAngle+data.angle)/6.28318530718);
+    float dist = TimeToDistance(curveIndex, holeT)+data.worldDistance;
+    float2 girthSampleUV = float2(saturate(dist/data.worldDickLength), (-holeAngle+data.angle)/6.28318530718);
 
     float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
 
