@@ -47,6 +47,7 @@ namespace PenetrationTech {
     }
     #endif
     public class Penetrator : CatmullDeformer {
+        [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
         private List<Vector3> weights;
         //[SerializeField]
         private GirthData girthData;
@@ -64,6 +65,9 @@ namespace PenetrationTech {
         public RenderTexture GetGirthMap() => girthData.GetGirthMap();
         private static readonly int startClipID = Shader.PropertyToID("_StartClip");
         private static readonly int endClipID = Shader.PropertyToID("_EndClip");
+        private static readonly int squashStretchCorrectionID = Shader.PropertyToID("_SquashStretchCorrection");
+        private static readonly int distanceToHoleID = Shader.PropertyToID("_DistanceToHole");
+        private static readonly int dickWorldLengthID = Shader.PropertyToID("_DickWorldLength");
         public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
@@ -117,6 +121,7 @@ namespace PenetrationTech {
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
             }
+
         }
 
         void OnSetClip(float startDistance, float endDistance) {
@@ -130,22 +135,27 @@ namespace PenetrationTech {
             CatmullSpline holeSplinePath = targetHole.GetSplinePath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
             Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
+            
+            //Vector3 virtualHolePosition = holePos + holeForward * (extendAmount - retreatAmount);
             ConstructPath(holePos, holeForward);
             if (inserted) {
                 float firstArcLength = path.GetDistanceFromSubT(0, 1, 1f);
-                //targetHole.SetPenetrationDepth(this, Vector3.Distance(rootBone.position,holePos));
                 OnSetClip(1f, 1f);
-                targetHole.SetPenetrationDepth(this, firstArcLength, OnSetClip);
+                targetHole.SetPenetrationDepth(this, firstArcLength/virtualSquashAndStretch, OnSetClip);
                 foreach (PenetratorListener listener in listeners) {
                     listener.NotifyPenetrationUpdate(this, targetHole, firstArcLength);
                 }
-            }
-            else {
+            } else {
                 foreach (PenetratorListener listener in listeners) {
                     listener.NotifyPenetrationUpdate(this, targetHole, GetWorldLength()+1f);
                 }
             }
 
+            foreach (Material material in GetTargetMaterials()) {
+                material.SetFloat(squashStretchCorrectionID, virtualSquashAndStretch);
+                material.SetFloat(dickWorldLengthID, GetWorldLength());
+                material.SetFloat(distanceToHoleID, path.GetDistanceFromSubT(0, 1, 1f));
+            }
             base.LateUpdate();
         }
 
@@ -161,7 +171,7 @@ namespace PenetrationTech {
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
-                if (dist > girthData.GetWorldLength()) {
+                if (dist > girthData.GetWorldLength()*1.25f) {
                     inserted = false;
                     targetHole.SetPenetrationDepth(this, GetWorldLength() + 1f, OnSetClip);
                 }

@@ -551,6 +551,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 736474148}
+  virtualSquashAndStretch: 1
   targetHole: {fileID: 1138008413}
   listeners: []
   references:
@@ -589,6 +590,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 745249741}
+  virtualSquashAndStretch: 0
   targetHole: {fileID: 0}
   listeners: []
   references:
@@ -1628,6 +1630,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1231987805}
+  virtualSquashAndStretch: 1
   targetHole: {fileID: 1042027687}
   listeners: []
   references:
@@ -1740,6 +1743,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1293928328}
+  virtualSquashAndStretch: 1
   targetHole: {fileID: 1042027688}
   listeners:
   - id: 0
@@ -2072,6 +2076,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1611147633}
+  virtualSquashAndStretch: 1
   targetHole: {fileID: 1138008412}
   listeners: []
   references:
@@ -2100,6 +2105,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1634065966}
+  virtualSquashAndStretch: 0
   targetHole: {fileID: 0}
   listeners: []
   references:
@@ -2225,6 +2231,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1705051640}
+  virtualSquashAndStretch: 0
   targetHole: {fileID: 0}
   listeners: []
   references:
