@@ -14,7 +14,16 @@ namespace PenetrationTech {
     [CustomEditor(typeof(ProceduralDeformation))]
     public class ProceduralDeformationEditor : Editor {
         public override void OnInspectorGUI() {
+            ProceduralDeformation deformation = target as ProceduralDeformation;
+            SerializedProperty runInEditor = serializedObject.FindProperty("runInEditor");
+            if (runInEditor.boolValue) {
+                EditorGUILayout.PropertyField(runInEditor);
+                EditorGUILayout.HelpBox("While running in the editor, settings cannot be changed.", MessageType.Info);
+                serializedObject.ApplyModifiedProperties();
+                return;
+            }
             DrawDefaultInspector();
+
             if (GUILayout.Button("Bake All...")) {
                 SerializedProperty renderTargetList = serializedObject.FindProperty("renderTargets");
                 string path = EditorUtility.OpenFolderPanel("Output mesh location","","");
@@ -76,7 +85,9 @@ namespace PenetrationTech {
         }
     }
 #endif
+    [ExecuteAlways]
     public class ProceduralDeformation : MonoBehaviour {
+        public bool runInEditor = false;
         [SerializeField]
         private List<Penetrable> penetrableTargets;
         [System.Serializable]
@@ -90,11 +101,11 @@ namespace PenetrationTech {
         }
         [SerializeField]
         private List<RenderTarget> renderTargets;
-        private List<Material> materials;
         private ComputeBuffer penetratorBuffer;
         private ComputeBuffer splineBuffer;
         private NativeArray<PenetratorData> data;
         private NativeArray<CatmullDeformer.CatmullSplineData> splineData;
+        private MaterialPropertyBlock propertyBlock;
         private static readonly int penetratorDataArrayID = Shader.PropertyToID("_PenetratorData");
         private static readonly int splineDataArrayID = Shader.PropertyToID("_CatmullSplines");
         private static readonly int dickGirthMapXID = Shader.PropertyToID("_DickGirthMapX");
@@ -144,7 +155,6 @@ namespace PenetrationTech {
         }
         //private void Bake() { }
         void OnEnable() {
-            materials = new List<Material>();
             penetratorBuffer = new ComputeBuffer(4,PenetratorData.GetSize());
             data = new NativeArray<PenetratorData>(4, Allocator.Persistent);
             for (int i=0;i<4;i++) {
@@ -152,52 +162,90 @@ namespace PenetrationTech {
             }
             splineBuffer = new ComputeBuffer(4,CatmullDeformer.CatmullSplineData.GetSize());
             splineData = new NativeArray<CatmullDeformer.CatmullSplineData>(4, Allocator.Persistent);
-            foreach(RenderTarget target in renderTargets) {
-                target.savedMesh = target.renderer.sharedMesh;
-                target.renderer.sharedMesh = target.bakedMesh;
-                List<Material> grabMaterials = new List<Material>();
-                target.renderer.GetMaterials(grabMaterials);
-                materials.AddRange(grabMaterials);
+
+            propertyBlock = new MaterialPropertyBlock();
+            SwapTo(true);
+        }
+
+        public void SwapTo(bool baked) {
+            foreach (RenderTarget target in renderTargets) {
+                if (baked) {
+                    if (target.savedMesh != null || target.bakedMesh == null) {
+                        continue;
+                    }
+
+                    target.savedMesh = target.renderer.sharedMesh;
+                    target.renderer.sharedMesh = target.bakedMesh;
+                } else {
+                    if (target.savedMesh == null) {
+                        continue;
+                    }
+
+                    target.renderer.sharedMesh = target.savedMesh;
+                    target.savedMesh = null;
+                }
             }
-            foreach(Penetrable penetrable in penetrableTargets) {
-                penetrable.penetrationNotify += NotifyPenetration;
+            foreach (Penetrable penetrable in penetrableTargets) {
+                if (penetrable == null) {
+                    continue;
+                }
+
+                if (baked) {
+                    penetrable.penetrationNotify += NotifyPenetration;
+                } else {
+                    penetrable.penetrationNotify -= NotifyPenetration;
+                }
             }
         }
+
         void OnDisable() {
-            foreach(Penetrable penetrable in penetrableTargets) {
-                penetrable.penetrationNotify -= NotifyPenetration;
-            }
+            SwapTo(false);
             penetratorBuffer.Dispose();
             splineBuffer.Dispose();
             splineData.Dispose();
             data.Dispose();
-            foreach (RenderTarget target in renderTargets) {
-                target.renderer.sharedMesh = target.savedMesh;
-            }
         }
         void LateUpdate() {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying) {
+                SwapTo(runInEditor);
+            } else {
+                return;
+            }
+            #endif
+
             // Make sure data we're not using is zero'd so the shader doesn't freak out.
             for (int i=penetrableTargets.Count;i<4;i++) {
                 data[i] = new PenetratorData(0);
             }
             penetratorBuffer.SetData(data);
             splineBuffer.SetData(splineData);
-            foreach(Material m in materials) {
-                m.SetBuffer(splineDataArrayID, splineBuffer);
-                m.SetBuffer(penetratorDataArrayID,penetratorBuffer);
+            foreach(RenderTarget target in renderTargets) {
+                target.renderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetBuffer(splineDataArrayID, splineBuffer);
+                propertyBlock.SetBuffer(penetratorDataArrayID,penetratorBuffer);
+                target.renderer.SetPropertyBlock(propertyBlock);
             }
         }
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying && !runInEditor) {
+                return;
+            }
+            #endif
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
             splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
-            foreach(Material m in materials) {
+            foreach(RenderTarget target in renderTargets) {
+                target.renderer.GetPropertyBlock(propertyBlock);
                 switch(index) {
-                    case 0: m.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
-                    case 1: m.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
-                    case 2: m.SetTexture(dickGirthMapZID, penetrator.GetGirthMap()); break;
-                    case 3: m.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
+                    case 0: propertyBlock.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
+                    case 1: propertyBlock.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
+                    case 2: propertyBlock.SetTexture(dickGirthMapZID, penetrator.GetGirthMap()); break;
+                    case 3: propertyBlock.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
                 }
+
+                target.renderer.SetPropertyBlock(propertyBlock);
             }
         }
     }
