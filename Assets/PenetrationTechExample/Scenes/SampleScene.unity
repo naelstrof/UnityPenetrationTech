@@ -136,27 +136,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.2921513
+      value: 0.5611642
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.2921513
+      value: 0.5611642
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.2921513
+      value: 0.5611642
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.205
+      value: 1.2859
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.15
+      value: -0.122
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.037
+      value: -0.007
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65c0e661171434d44999f8eb88d09a80, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1058,6 +1058,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 807804077407153469, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 807804077407153469, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 807804077407153469, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3952444606842804954, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3952444606842804954, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3952444606842804954, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5330333750980878102, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[26]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5330333750980878102, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[29]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5842039203488493478, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: listeners.Array.size
       value: 2
@@ -1086,6 +1118,14 @@ PrefabInstance:
       propertyPath: listeners.Array.data[1].targets.Array.data[0]
       value: 
       objectReference: {fileID: 409403247}
+    - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[26]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[29]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8521064559583617395, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -1191,11 +1231,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.408
+      value: -0.264
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.243
+      value: 0.076
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1229,10 +1269,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 465037639416872839, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 368c9d72d33ba3e4d9a90f0fad0b081d, type: 2}
     - target: {fileID: 919132149155446097, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_Name
       value: KnottedDildo
@@ -1524,27 +1560,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.9357438
+      value: 1.5876195
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.9357438
+      value: 1.5876195
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.9357438
+      value: 1.5876195
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.217
+      value: 5.232
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.396
+      value: -0.225
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.604
+      value: -0.939
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1578,10 +1614,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 465037639416872839, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 368c9d72d33ba3e4d9a90f0fad0b081d, type: 2}
     - target: {fileID: 919132149155446097, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_Name
       value: KnottedDildo (2)
@@ -1630,7 +1662,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1231987805}
-  virtualSquashAndStretch: 1
+  virtualSquashAndStretch: 1.0001198
   targetHole: {fileID: 1042027687}
   listeners:
   - id: 0
@@ -1992,11 +2024,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.344
+      value: -0.331
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.566
+      value: -0.784
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2030,10 +2062,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 465037639416872839, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 368c9d72d33ba3e4d9a90f0fad0b081d, type: 2}
     - target: {fileID: 919132149155446097, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_Name
       value: KnottedDildo (1)
@@ -2199,7 +2227,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b8cb356ea0618cc46afc0f03de3b15e9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8cb356ea0618cc46afc0f03de3b15e9, type: 3}

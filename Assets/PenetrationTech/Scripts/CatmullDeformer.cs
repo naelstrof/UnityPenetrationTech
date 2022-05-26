@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 
 namespace PenetrationTech {
@@ -17,17 +18,23 @@ namespace PenetrationTech {
         protected Transform tipTarget;
         [SerializeField]
         private List<Renderer> targetRenderers;
-        private HashSet<Material> targetMaterials;
         private static readonly int catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
         private static readonly int dickForwardID = Shader.PropertyToID("_DickForwardWorld");
         private static readonly int dickRightID = Shader.PropertyToID("_DickRightWorld");
         private static readonly int dickUpID = Shader.PropertyToID("_DickUpWorld");
+        private static readonly int curveBlendID = Shader.PropertyToID("_CurveBlend");
         private ComputeBuffer catmullBuffer;
         private NativeArray<CatmullSplineData> data;
-        protected List<Renderer> GetTargetRenderers() => targetRenderers;
-        protected HashSet<Material> GetTargetMaterials() => targetMaterials;
-        //TODO: Currently this is only used to send CatmullSplines to the GPU. It's used in other places
-        // (currently the ProceduralDeformation class), and should be considered for refactoring.
+        private MaterialPropertyBlock propertyBlock;
+
+        protected List<Renderer> GetTargetRenderers() {
+            if (targetRenderers == null) {
+                targetRenderers = new List<Renderer>();
+            }
+            return targetRenderers;
+        }
+
+        //TODO: Currently this is only used to send CatmullSplines to the GPU. It's used in other places (currently the ProceduralDeformation class), and should be considered for refactoring.
         public unsafe struct CatmullSplineData {
             private const int subSplineCount = 6;
             private const int binormalCount = 16;
@@ -62,46 +69,29 @@ namespace PenetrationTech {
                 return sizeof(float)*(subSplineCount*3*4+1+binormalCount*3+distanceCount) + sizeof(int);
             }
         }
-        public void AddTargetRenderer(Renderer renderer) {
-            List<Material> tempMaterials = new List<Material>();
-            renderer.GetMaterials(tempMaterials);
-            foreach(Material m in tempMaterials) {
-                targetMaterials.Add(m);
-            }
-        }
-        public void RemoveTargetRenderer(Renderer renderer) {
-            List<Material> tempMaterials = new List<Material>();
-            renderer.GetMaterials(tempMaterials);
-            foreach(Material m in tempMaterials) {
-                targetMaterials.Remove(m);
-            }
-        }
-        protected virtual void OnEnable() {
+        protected override void OnEnable() {
+            base.OnEnable();
             catmullBuffer = new ComputeBuffer(1, CatmullSplineData.GetSize());
             data = new NativeArray<CatmullSplineData>(1, Allocator.Persistent);
+            List<Material> tempMaterials = new List<Material>();
+            propertyBlock = new MaterialPropertyBlock();
         }
         protected virtual void OnDisable() {
             catmullBuffer.Release();
             data.Dispose();
-        }
-        protected virtual void Start() {
-            targetMaterials = new HashSet<Material>();
-            List<Material> tempMaterials = new List<Material>();
-            foreach(Renderer renderer in targetRenderers) {
-                renderer.GetMaterials(tempMaterials);
-                foreach(Material m in tempMaterials) {
-                    targetMaterials.Add(m);
-                }
-            }
+            propertyBlock = null;
         }
         protected virtual void LateUpdate() {
             data[0] = new CatmullSplineData(path);
             catmullBuffer.SetData(data, 0, 0, 1);
-            foreach(Material material in targetMaterials) {
-                material.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
-                material.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
-                material.SetVector(dickUpID, rootBone.TransformDirection(localRootUp));
-                material.SetBuffer(catmullSplinesID, catmullBuffer);
+            foreach(Renderer renderer in targetRenderers) {
+                renderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetFloat(curveBlendID, 1f);
+                propertyBlock.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
+                propertyBlock.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
+                propertyBlock.SetVector(dickUpID, rootBone.TransformDirection(localRootUp));
+                propertyBlock.SetBuffer(catmullSplinesID, catmullBuffer);
+                renderer.SetPropertyBlock(propertyBlock);
             }
         }
     }

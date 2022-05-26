@@ -21,6 +21,10 @@ namespace PenetrationTech {
 
         public override void OnEnable(Penetrator newPenetrator) {
             base.OnEnable(newPenetrator);
+            if (!Application.isPlaying) {
+                return;
+            }
+
             source = newPenetrator.gameObject.AddComponent<AudioSource>();
             source.clip = clip;
             source.loop = true;
@@ -31,14 +35,20 @@ namespace PenetrationTech {
             source.rolloffMode = AudioRolloffMode.Linear;
             source.outputAudioMixerGroup = audioGroup;
             source.enabled = false;
+            source.hideFlags = HideFlags.DontSave;
         }
 
         public override void OnDisable() {
-            Object.Destroy(source);
+            if (Application.isPlaying) {
+                Object.Destroy(source);
+            }
         }
 
         public override void Update() {
             base.Update();
+            if (!Application.isPlaying) {
+                return;
+            }
             source.volume = Mathf.MoveTowards(source.volume, 0f, Time.deltaTime*4f*volume);
             source.pitch = Mathf.Lerp(0.5f, 1f, source.volume / volume);
             if (source.volume == 0f && lastDepth == 0f) {
@@ -47,6 +57,10 @@ namespace PenetrationTech {
         }
 
         protected override void OnPenetrationDepthChange(float depth) {
+            base.OnPenetrationDepthChange(depth);
+            if (!Application.isPlaying) {
+                return;
+            }
             if (!source.enabled) {
                 source.timeSamples = UnityEngine.Random.Range(0, clip.samples);
                 source.enabled = true;
