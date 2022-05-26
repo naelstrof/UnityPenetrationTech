@@ -18,7 +18,11 @@ namespace PenetrationTech {
         protected float localDist;
         protected virtual void OnPenetrationDepthChange(float depthDist) { }
         protected virtual void OnPenetrationKnotForceChange(float girthVelocity) { }
-        public virtual void OnValidate(Penetrator p) { }
+        public virtual void OnValidate(Penetrator p) {
+            // TODO: Right now it's not clear that OnEnable would be called during OnValidate(). This is so that penetrators can run during the editor properly.
+            // It's probably fine, but just writing a note to remind myself that it's kinda weird and can trip people up.
+            OnEnable(p);
+        }
         public virtual void OnEnable(Penetrator newPenetrator) { }
         public virtual void Update() { }
         public virtual void OnDisable() { }

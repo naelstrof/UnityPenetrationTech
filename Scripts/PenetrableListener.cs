@@ -42,7 +42,11 @@ namespace PenetrationTech {
         protected virtual void OnPenetrationOffsetChange(Vector3 worldOffset) { }
         protected virtual void OnPenetrationKnotForceChange(float knotForce) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
-        public virtual void OnValidate(Penetrable p) { }
+        public virtual void OnValidate(Penetrable p) {
+            // TODO: Right now it's not clear that OnEnable would be called during OnValidate(). This is so that penetrables can run during the editor properly.
+            // It's probably fine, but just writing a note to remind myself that it's kinda weird and can trip people up.
+            OnEnable(p);
+        }
         public virtual void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, PenData.All);
         }
