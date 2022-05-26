@@ -146,6 +146,7 @@ namespace PenetrationTech {
 
         protected override void LateUpdate() {
             if (targetHole == null) {
+                OnSetClip(0f, 0f);
                 return;
             }
 
