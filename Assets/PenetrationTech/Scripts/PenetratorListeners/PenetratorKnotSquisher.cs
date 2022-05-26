@@ -14,13 +14,19 @@ namespace PenetrationTech {
         private Penetrator penetrator;
         private float currentVelocity;
         private float lastDepth;
+        private float dir;
         public override void OnEnable(Penetrator newPenetrator) {
             penetrator = newPenetrator;
         }
 
         protected override void OnPenetrationDepthChange(float depth) {
-            float dir = Mathf.Sign(depth - lastDepth);
-            float knotForce = Mathf.Clamp(penetrator.GetKnotForce(penetrator.GetWorldLength()-depth), -knotForceFactor,  knotForceFactor);
+            dir = Mathf.Sign(depth - lastDepth);
+            lastDepth = depth;
+        }
+
+        protected override void OnPenetrationKnotForceChange(float knotForce) {
+            base.OnPenetrationKnotForceChange(knotForce);
+            knotForce = Mathf.Clamp(knotForce, -knotForceFactor,  knotForceFactor);
             penetrator.squashAndStretch = Mathf.SmoothDamp(penetrator.squashAndStretch, 1f, ref currentVelocity, 0.6f);
             if (knotForce * dir < 0f) {
                 penetrator.squashAndStretch += knotForce*Time.deltaTime*2f;
@@ -28,7 +34,6 @@ namespace PenetrationTech {
                 penetrator.squashAndStretch += knotForce * Time.deltaTime*0.5f;
             }
             penetrator.squashAndStretch = Mathf.Clamp(penetrator.squashAndStretch, Mathf.Max(1f-knotForceFactor,0f), 1f+knotForceFactor);
-            lastDepth = depth;
         }
 
         public override void OnDrawGizmosSelected(Penetrator p) {

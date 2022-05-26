@@ -36,8 +36,10 @@ namespace PenetrationTech {
             float penetrateDist = realDist - distToHole;
             if (penetrateDist > 0f) {
                 OnPenetrationDepthChange(penetrateDist);
+                OnPenetrationKnotForceChange(a.GetKnotForce(a.GetWorldLength()-penetrateDist));
             } else {
                 OnPenetrationDepthChange(0f);
+                OnPenetrationKnotForceChange(0f);
             }
         }
     }
