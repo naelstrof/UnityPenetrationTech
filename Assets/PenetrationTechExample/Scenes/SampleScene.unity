@@ -1632,9 +1632,15 @@ MonoBehaviour:
   - {fileID: 1231987805}
   virtualSquashAndStretch: 1
   targetHole: {fileID: 1042027687}
-  listeners: []
+  listeners:
+  - id: 0
   references:
     version: 1
+    00000000:
+      type: {class: PenetratorKnotSquisher, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        localDist: 0
+        knotForceFactor: 0.1
 --- !u!1 &1233749578
 GameObject:
   m_ObjectHideFlags: 0

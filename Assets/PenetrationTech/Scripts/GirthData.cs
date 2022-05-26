@@ -24,7 +24,14 @@ namespace PenetrationTech {
         private Vector3 localDickUp;
         private Vector3 localDickRight;
         private Vector3 localDickRoot;
-        
+
+        private static float GetPiecewiseDerivative(AnimationCurve curve, float t) {
+            float epsilon = 0.00001f;
+            float a = curve.Evaluate(t - epsilon);
+            float b = curve.Evaluate(t + epsilon);
+            return (b - a) / (epsilon * 2f);
+        }
+
         private Matrix4x4 objectToWorld {
             get { return renderer.localToWorldMatrix; }
         }
@@ -38,6 +45,14 @@ namespace PenetrationTech {
         }
 
         public float GetLocalLength() => maxLocalLength;
+
+        public float GetKnotForce(float worldDistanceAlongDick) {
+            if (worldDistanceAlongDick < 0f || worldDistanceAlongDick > GetWorldLength()) {
+                return 0f;
+            }
+            float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector((localDickForward)).normalized).magnitude;
+            return GetPiecewiseDerivative(localGirthRadiusCurve, localDistanceAlongDick);
+        }
 
         public float GetGirthScaleFactor() {
             Vector3 localGirth = localDickUp*maxLocalGirthRadius;
