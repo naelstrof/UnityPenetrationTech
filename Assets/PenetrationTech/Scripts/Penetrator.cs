@@ -37,6 +37,7 @@ namespace PenetrationTech {
                             p.listeners = new List<PenetratorListener>();
                         }
                         p.listeners.Add((PenetratorListener)Activator.CreateInstance(attribute.type));
+                        p.listeners[p.listeners.Count - 1].OnEnable(p);
                         serializedObject.ApplyModifiedProperties();
                         EditorUtility.SetDirty(p);
                     }
