@@ -82,7 +82,7 @@ namespace PenetrationTech {
         }
         public float GetWorldGirthRadius(float worldDistanceAlongDick) {
             float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector(localDickForward).normalized).magnitude;
-            // TODO: There's no real way to actually get the girth correctly, since we cannot interpret skewed scales.
+            // TODO: There's no real way to actually get the girth correctly, since we cannot interpret skewed scales. This is probably acceptable, though instead of just using localDickUp, maybe it should be a diagonal between up and right.
             // I currently just choose a single axis, though users shouldn't skew scale on the up/right axis anyway.
             float localGirthSample = localGirthRadiusCurve.Evaluate(localDistanceAlongDick);
             Vector3 localGirth = localDickUp*localGirthSample;

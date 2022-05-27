@@ -63,6 +63,7 @@ namespace PenetrationTech {
 
         private GameObject colliderEntrance;
         private GameObject colliderExit;
+        private bool refreshListeners;
 
         private void UpdateWorldPoints() {
             if (worldPoints == null) {
@@ -143,6 +144,13 @@ namespace PenetrationTech {
                 colliderExit.transform.localPosition = Vector3.zero;
             }
 
+            // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
+            foreach (PenetrableListener listener in listeners) {
+                listener.OnDisable();
+            }
+            foreach (PenetrableListener listener in listeners) {
+                listener.OnEnable(this);
+            }
             foreach(PenetrableListener listener in listeners) {
                 if (listener == null) {
                     continue;
