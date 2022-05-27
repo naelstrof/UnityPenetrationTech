@@ -14,16 +14,7 @@ namespace PenetrationTech {
     [CustomEditor(typeof(ProceduralDeformation))]
     public class ProceduralDeformationEditor : Editor {
         public override void OnInspectorGUI() {
-            ProceduralDeformation deformation = target as ProceduralDeformation;
-            SerializedProperty runInEditor = serializedObject.FindProperty("runInEditor");
-            if (runInEditor.boolValue) {
-                EditorGUILayout.PropertyField(runInEditor);
-                EditorGUILayout.HelpBox("While running in the editor, settings cannot be changed.", MessageType.Info);
-                serializedObject.ApplyModifiedProperties();
-                return;
-            }
             DrawDefaultInspector();
-
             if (GUILayout.Button("Bake All...")) {
                 SerializedProperty renderTargetList = serializedObject.FindProperty("renderTargets");
                 string path = EditorUtility.OpenFolderPanel("Output mesh location","","");
@@ -77,7 +68,7 @@ namespace PenetrationTech {
                     newMesh.SetUVs(2, uvs);
                     string meshPath = $"{path}/{newMesh.name}.mesh";
                     AssetDatabase.CreateAsset(newMesh, meshPath);
-                    targetProp.FindPropertyRelative("bakedMesh").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+                    skinnedMeshRenderer.sharedMesh = newMesh;
                 }
             }
             serializedObject.ApplyModifiedProperties();
@@ -86,18 +77,13 @@ namespace PenetrationTech {
     }
 #endif
     [ExecuteAlways]
-    public class ProceduralDeformation : MonoBehaviour {
-        public bool runInEditor = false;
+    public class ProceduralDeformation : MonoBehaviour, ISerializationCallbackReceiver {
         [SerializeField]
         private List<Penetrable> penetrableTargets;
         [System.Serializable]
         public class RenderTarget {
             [SerializeField]
             public SkinnedMeshRenderer renderer;
-            [SerializeField]
-            public Mesh bakedMesh;
-            [HideInInspector]
-            public Mesh savedMesh;
         }
         [SerializeField]
         private List<RenderTarget> renderTargets;
@@ -153,7 +139,6 @@ namespace PenetrationTech {
                 return sizeof(float)*11+sizeof(int)*1;
             }
         }
-        //private void Bake() { }
         void OnEnable() {
             penetratorBuffer = new ComputeBuffer(4,PenetratorData.GetSize());
             data = new NativeArray<PenetratorData>(4, Allocator.Persistent);
@@ -164,57 +149,29 @@ namespace PenetrationTech {
             splineData = new NativeArray<CatmullDeformer.CatmullSplineData>(4, Allocator.Persistent);
 
             propertyBlock = new MaterialPropertyBlock();
-            SwapTo(true);
-        }
-
-        public void SwapTo(bool baked) {
-            foreach (RenderTarget target in renderTargets) {
-                if (baked) {
-                    if (target.savedMesh != null || target.bakedMesh == null) {
-                        continue;
-                    }
-
-                    target.savedMesh = target.renderer.sharedMesh;
-                    target.renderer.sharedMesh = target.bakedMesh;
-                } else {
-                    if (target.savedMesh == null) {
-                        continue;
-                    }
-
-                    target.renderer.sharedMesh = target.savedMesh;
-                    target.savedMesh = null;
-                }
-            }
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
                     continue;
                 }
-
-                if (baked) {
-                    penetrable.penetrationNotify -= NotifyPenetration;
-                    penetrable.penetrationNotify += NotifyPenetration;
-                } else {
-                    penetrable.penetrationNotify -= NotifyPenetration;
-                }
+                penetrable.penetrationNotify -= NotifyPenetration;
+                penetrable.penetrationNotify += NotifyPenetration;
             }
         }
 
         void OnDisable() {
-            SwapTo(false);
             penetratorBuffer.Dispose();
             splineBuffer.Dispose();
             splineData.Dispose();
             data.Dispose();
-        }
-        void LateUpdate() {
-            #if UNITY_EDITOR
-            if (!Application.isPlaying) {
-                SwapTo(runInEditor);
-            } else {
-                return;
+            foreach (Penetrable penetrable in penetrableTargets) {
+                if (penetrable == null) {
+                    continue;
+                }
+                penetrable.penetrationNotify -= NotifyPenetration;
             }
-            #endif
+        }
 
+        void LateUpdate() {
             // Make sure data we're not using is zero'd so the shader doesn't freak out.
             for (int i=penetrableTargets.Count;i<4;i++) {
                 data[i] = new PenetratorData(0);
@@ -229,11 +186,6 @@ namespace PenetrationTech {
             }
         }
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
-            #if UNITY_EDITOR
-            if (!Application.isPlaying && !runInEditor) {
-                return;
-            }
-            #endif
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
             splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
@@ -247,6 +199,25 @@ namespace PenetrationTech {
                 }
 
                 target.renderer.SetPropertyBlock(propertyBlock);
+            }
+        }
+
+        public void OnBeforeSerialize() {
+            foreach (Penetrable penetrable in penetrableTargets) {
+                if (penetrable == null) {
+                    continue;
+                }
+                penetrable.penetrationNotify -= NotifyPenetration;
+            }
+        }
+
+        public void OnAfterDeserialize() {
+            foreach (Penetrable penetrable in penetrableTargets) {
+                if (penetrable == null) {
+                    continue;
+                }
+                penetrable.penetrationNotify -= NotifyPenetration;
+                penetrable.penetrationNotify += NotifyPenetration;
             }
         }
     }
