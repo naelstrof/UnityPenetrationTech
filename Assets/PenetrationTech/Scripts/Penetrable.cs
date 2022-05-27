@@ -61,6 +61,9 @@ namespace PenetrationTech {
         [SerializeReference]
         public List<PenetrableListener> listeners;
 
+        private GameObject colliderEntrance;
+        private GameObject colliderExit;
+
         private void UpdateWorldPoints() {
             if (worldPoints == null) {
                 worldPoints = new List<Vector3>();
@@ -76,16 +79,44 @@ namespace PenetrationTech {
             CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
         }
 
+        private void SetUpCollider(ref GameObject obj, Transform point, bool backwards) {
+            obj = new GameObject($"{name} collider", new Type[] { typeof(SphereCollider), typeof(PenetrableOwner) });
+            obj.layer = PenetrationTechTools.GetPenetrableLayer();
+            obj.hideFlags = HideFlags.HideAndDontSave;
+            obj.transform.parent = point;
+            obj.transform.localPosition = Vector3.zero;
+            obj.GetComponent<SphereCollider>().isTrigger = true;
+            obj.GetComponent<SphereCollider>().radius = 0.2f;
+            obj.GetComponent<PenetrableOwner>().owner = this;
+            obj.GetComponent<PenetrableOwner>().backwards = backwards;
+        }
+
 
         protected override void OnEnable() {
             worldPoints = new List<Vector3>();
             foreach(PenetrableListener listener in listeners) {
                 listener.OnEnable(this);
             }
+
+            if (colliderEntrance == null && points.Length > 0) {
+                SetUpCollider(ref colliderEntrance, points[0], false);
+            }
+            if (colliderExit == null && points.Length > 1) {
+                SetUpCollider(ref colliderExit, points[points.Length-1], true);
+            }
         }
         void OnDisable() {
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDisable();
+            }
+
+            if (Application.isPlaying) {
+                GameObject.Destroy(colliderEntrance);
+                GameObject.Destroy(colliderExit);
+            }
+            else {
+                GameObject.DestroyImmediate(colliderEntrance);
+                GameObject.DestroyImmediate(colliderExit);
             }
         }
         void Update() {
@@ -103,6 +134,15 @@ namespace PenetrationTech {
             }
         }
         void OnValidate() {
+            if (colliderEntrance != null && points.Length > 0 && colliderEntrance.transform.parent != points[0]) {
+                colliderEntrance.transform.parent = points[0];
+                colliderEntrance.transform.localPosition = Vector3.zero;
+            }
+            if (colliderExit != null && points.Length > 1 && colliderExit.transform.parent != points[points.Length-1]) {
+                colliderExit.transform.parent = points[points.Length-1];
+                colliderExit.transform.localPosition = Vector3.zero;
+            }
+
             foreach(PenetrableListener listener in listeners) {
                 if (listener == null) {
                     continue;
