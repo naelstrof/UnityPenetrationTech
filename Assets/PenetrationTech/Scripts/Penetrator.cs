@@ -192,6 +192,7 @@ namespace PenetrationTech {
                     rootBone.position,
                     rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
                 });
+                ConstructPath(Vector3.zero, Vector3.up);
                 base.LateUpdate();
                 return;
             }

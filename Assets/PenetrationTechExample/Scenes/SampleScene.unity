@@ -315,6 +315,36 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4766473574349541950, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
   m_PrefabInstance: {fileID: 1042027686}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &580677550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 580677551}
+  m_Layer: 0
+  m_Name: DickWobble
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &580677551
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580677550}
+  m_LocalRotation: {x: -0.7071066, y: -0.000000014901159, z: -3.1815037e-11, w: 0.70710707}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1611147637}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!1001 &615144234
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1964,6 +1994,26 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.05599805
       objectReference: {fileID: 0}
+    - target: {fileID: 4458463996759615198, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458463996759615198, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[2]
+      value: Naelstrof.PenetrationTech PenetrationTech.ClipListener
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458463996759615198, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[2].t
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458463996759615198, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[2].endT
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458463996759615198, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
+      propertyPath: listeners.Array.data[2].allowForAllTheWayThrough
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5330333750980878102, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[26]
       value: 0
@@ -1982,7 +2032,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5330333750980878102, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[30]
-      value: 42.063217
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5330333750980878102, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[31]
@@ -2006,7 +2056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[30]
-      value: 42.063217
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7452297451520482250, guid: 07c96f6d4cb67b444b66d4b7d5d119e7, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[31]
@@ -4015,11 +4065,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.182
+      value: -0.025
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.443
+      value: -1.308
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4101,7 +4151,7 @@ MonoBehaviour:
   tipTarget: {fileID: 0}
   targetRenderers:
   - {fileID: 1231987805}
-  virtualSquashAndStretch: 1.0002811
+  virtualSquashAndStretch: 1
   girthData:
     texture: {fileID: 1092621680}
     maxLocalLength: 0.411282
@@ -6237,27 +6287,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.120325
+      value: 1.6807574
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.120325
+      value: 1.6807574
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.120325
+      value: 1.6807574
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.195
+      value: 1.161
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.105
+      value: 0.362
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.659
+      value: -1.952
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6336,7 +6386,7 @@ MonoBehaviour:
   localRootForward: {x: -0, y: 0, z: 1}
   localRootRight: {x: 1, y: 0, z: 0}
   rootBone: {fileID: 1611147634}
-  tipTarget: {fileID: 0}
+  tipTarget: {fileID: 580677551}
   targetRenderers:
   - {fileID: 1611147633}
   virtualSquashAndStretch: 1
@@ -7226,11 +7276,40 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  targetHole: {fileID: 1138008412}
-  autoPenetrate: 0
+  targetHole: {fileID: 1138008413}
+  autoPenetrate: 1
   listeners: []
   references:
     version: 1
+--- !u!4 &1611147636 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1470076925461485966, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
+  m_PrefabInstance: {fileID: 1611147631}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1611147637 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9128898809377161421, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
+  m_PrefabInstance: {fileID: 1611147631}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1611147638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611147632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d76f24409a39604ca3986f91ce6d28a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interpolate: 1
+  jiggleRigs:
+  - rootTransform: {fileID: 1611147636}
+    jiggleSettings: {fileID: 11400000, guid: 3f0d44331c5e76a4ea21f2055d8bd3bc, type: 2}
+    ignoredTransforms: []
+  wind: {x: 0, y: 0, z: 0}
+  debugDraw: 0
 --- !u!1 &1634065964 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 05195e3204c80a547ad8f254d2fd0841, type: 3}

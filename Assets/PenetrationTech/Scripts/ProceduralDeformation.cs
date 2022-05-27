@@ -77,7 +77,7 @@ namespace PenetrationTech {
     }
 #endif
     [ExecuteAlways]
-    public class ProceduralDeformation : MonoBehaviour, ISerializationCallbackReceiver {
+    public class ProceduralDeformation : MonoBehaviour {
         [SerializeField]
         private List<Penetrable> penetrableTargets;
         [System.Serializable]
@@ -202,16 +202,7 @@ namespace PenetrationTech {
             }
         }
 
-        public void OnBeforeSerialize() {
-            foreach (Penetrable penetrable in penetrableTargets) {
-                if (penetrable == null) {
-                    continue;
-                }
-                penetrable.penetrationNotify -= NotifyPenetration;
-            }
-        }
-
-        public void OnAfterDeserialize() {
+        private void OnValidate() {
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
                     continue;
