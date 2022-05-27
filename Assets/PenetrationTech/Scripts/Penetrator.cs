@@ -238,9 +238,11 @@ namespace PenetrationTech {
             weights.Clear();
             if (inserted) {
                 insertionFactor = 1f;
+                // TODO: The "uninsert" routine probably shouldn't be in ConstructPath-- it also should probably be a function so users can purposefully eject a penetrator easily.
                 if (dist > girthData.GetWorldLength()*1.25f) {
                     inserted = false;
                     targetHole.SetPenetrationDepth(this, GetWorldLength() + 1f, OnSetClip);
+                    OnSetClip(0f, 0f);
                 }
             } else {
                 insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
