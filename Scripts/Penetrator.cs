@@ -49,7 +49,7 @@ namespace PenetrationTech {
     }
     #endif
     [ExecuteAlways]
-    public class Penetrator : CatmullDeformer, ISerializationCallbackReceiver {
+    public class Penetrator : CatmullDeformer {
         [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
         private List<Vector3> weights;
         [SerializeField]
