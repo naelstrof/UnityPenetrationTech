@@ -20,9 +20,13 @@ namespace PenetrationTech {
         private float lastPenetrationDepth;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
+            if (targets == null) {
+                return;
+            }
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.OnEnable();
             }
+
             pullPushAmount = 0f;
             lastPenetrationDepth = 0f;
         }

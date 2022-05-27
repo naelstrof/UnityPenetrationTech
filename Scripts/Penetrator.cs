@@ -49,7 +49,7 @@ namespace PenetrationTech {
     }
     #endif
     [ExecuteAlways]
-    public class Penetrator : CatmullDeformer {
+    public class Penetrator : CatmullDeformer, ISerializationCallbackReceiver {
         [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
         private List<Vector3> weights;
         [SerializeField]
@@ -70,7 +70,6 @@ namespace PenetrationTech {
         public float GetLocalLength() => girthData.GetLocalLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
         public float GetKnotForce(float worldDistanceAlongDick) => girthData.GetKnotForce(worldDistanceAlongDick);
-
         public float squashAndStretch {
             get => virtualSquashAndStretch;
             set => virtualSquashAndStretch = value;
@@ -172,6 +171,7 @@ namespace PenetrationTech {
                     propertyBlock.SetFloat(endClipID, endDistance);
                 } else {
                     // TODO: So I try to keep everything in world-space, so even in the shader it ends up being the right scale. For some reason mesh renderers ignore some scale features-- which compound world space transformation problems.
+                    // This seemingly only affects the clip??? This cannot be-- need to test other situations.
                     float lossyScale = Vector3.Dot(rootBone.lossyScale,localRootForward);
                     propertyBlock.SetFloat(startClipID, (startDistance/lossyScale)/lossyScale);
                     propertyBlock.SetFloat(endClipID, (endDistance/lossyScale)/lossyScale);
@@ -289,7 +289,14 @@ namespace PenetrationTech {
             if (listeners == null) {
                 return;
             }
-
+            
+            // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnDisable();
+            }
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnEnable(this);
+            }
             foreach (PenetratorListener listener in listeners) {
                 listener.OnValidate(this);
             }
@@ -341,7 +348,6 @@ namespace PenetrationTech {
             }
 #endif
         }
-        
     }
 
 }

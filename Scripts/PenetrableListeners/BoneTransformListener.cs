@@ -32,10 +32,14 @@ namespace PenetrationTech {
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
+            if (targetBone == null) {
+                return;
+            }
             #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.white;
-            UnityEditor.Handles.DrawLine(targetBone.parent.TransformPoint(originalLocalPosition), targetBone.parent.TransformPoint(originalLocalPosition + localOffset));
-            UnityEditor.Handles.DrawWireCube(targetBone.parent.TransformPoint(originalLocalPosition + localOffset), Vector3.one*0.005f);
+            var parent = targetBone.parent;
+            UnityEditor.Handles.DrawLine(parent.TransformPoint(originalLocalPosition), parent.TransformPoint(originalLocalPosition + localOffset));
+            UnityEditor.Handles.DrawWireCube(parent.TransformPoint(originalLocalPosition + localOffset), Vector3.one*0.005f);
             #endif
         }
         public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {

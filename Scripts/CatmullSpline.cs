@@ -59,7 +59,13 @@ namespace PenetrationTech {
         }
 
         public CatmullSpline() {
-            weights = new List<Vector3>();
+            // TODO: Maybe shouldn't initialize weights at all, all catmull commands will error if there's no weights. This was causing initialization issues when I enabled ExecuteAlways for penetrators and penetrables. This is a possibly acceptable hack because we don't really care if the curve is wrong ONLY in the editor for one frame.
+            weights = new List<Vector3> {
+                Vector3.zero,
+                Vector3.zero,
+                Vector3.zero,
+                Vector3.zero
+            };
             distanceLUT = new List<float>();
             binormalLUT = new List<Vector3>();
             bounds = new List<Bounds>();
