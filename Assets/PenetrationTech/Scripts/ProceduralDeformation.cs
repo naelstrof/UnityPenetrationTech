@@ -191,6 +191,7 @@ namespace PenetrationTech {
                 }
 
                 if (baked) {
+                    penetrable.penetrationNotify -= NotifyPenetration;
                     penetrable.penetrationNotify += NotifyPenetration;
                 } else {
                     penetrable.penetrationNotify -= NotifyPenetration;

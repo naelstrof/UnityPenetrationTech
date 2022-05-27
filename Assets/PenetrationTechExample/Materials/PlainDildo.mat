@@ -93,12 +93,16 @@ Material:
     - _ClipDick: 0
     - _CumActive: 0
     - _CumProgress: 0
+    - _CurveBlend: 0
     - _Cutoff: 0.5
     - _DEFORM_BALLS: 1
     - _DeformBalls: 0
     - _DetailNormalMapScale: 1
     - _DickLength: 0.52327734
+    - _DickWorldLength: 1
+    - _DistanceToHole: 0
     - _DstBlend: 0
+    - _EndClip: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -121,8 +125,10 @@ Material:
     - _PenetratorSquishPullAmount: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SquashStretchCorrection: 1
     - _SquishPullAmount: 0
     - _SrcBlend: 1
+    - _StartClip: 0
     - _Testing: 1
     - _UVSec: 0
     - _ZWrite: 1
@@ -131,10 +137,13 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DeformOrigin: {r: -0.0000006888933, g: 0.02680413, b: 0.000000676036, a: 0}
     - _DickForward: {r: 0, g: 1, b: 0, a: 0}
+    - _DickForwardWorld: {r: 0, g: 0, b: 0, a: 0}
     - _DickOrigin: {r: -0.0000006903836, g: 0.026804144, b: 0.0000006770761, a: 0}
     - _DickRight: {r: -1, g: 0, b: 0, a: 0}
+    - _DickRightWorld: {r: 0, g: 0, b: 0, a: 0}
     - _DickRoot: {r: 0, g: 0, b: 0, a: 0}
     - _DickUp: {r: 0, g: 0, b: 1, a: 0}
+    - _DickUpWorld: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OrifaceOutWorldNormal: {r: 0, g: 1, b: 0, a: 0}
     - _OrifaceOutWorldPosition1: {r: -0.0015929719, g: -0.3211512, b: 0.0000000025250497, a: 0}

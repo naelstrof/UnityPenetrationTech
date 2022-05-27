@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using System;
@@ -51,7 +52,7 @@ namespace PenetrationTech {
     public class Penetrator : CatmullDeformer {
         [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
         private List<Vector3> weights;
-        //[SerializeField]
+        [SerializeField]
         private GirthData girthData;
         [SerializeField]
         private Penetrable targetHole;
@@ -138,17 +139,35 @@ namespace PenetrationTech {
         void OnSetClip(float startDistance, float endDistance) {
             foreach (Renderer renderer in GetTargetRenderers()) {
                 renderer.GetPropertyBlock(propertyBlock);
-                propertyBlock.SetFloat(startClipID, startDistance);
-                propertyBlock.SetFloat(endClipID, endDistance);
+                if (renderer is SkinnedMeshRenderer) {
+                    propertyBlock.SetFloat(startClipID, startDistance);
+                    propertyBlock.SetFloat(endClipID, endDistance);
+                } else {
+                    // TODO: So I try to keep everything in world-space, so even in the shader it ends up being the right scale. For some reason mesh renderers ignore some scale features-- which compound world space transformation problems.
+                    float lossyScale = Vector3.Dot(rootBone.lossyScale,localRootForward);
+                    propertyBlock.SetFloat(startClipID, (startDistance/lossyScale)/lossyScale);
+                    propertyBlock.SetFloat(endClipID, (endDistance/lossyScale)/lossyScale);
+                }
+
                 renderer.SetPropertyBlock(propertyBlock);
             }
         }
 
         protected override void LateUpdate() {
+#if UNITY_EDITOR
             if (targetHole == null) {
+                if (rootBone == null) {
+                    return;
+                }
                 OnSetClip(0f, 0f);
+                path.SetWeightsFromPoints(new Vector3[] {
+                    rootBone.position,
+                    rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
+                });
+                base.LateUpdate();
                 return;
             }
+#endif
 
             CatmullSpline holeSplinePath = targetHole.GetSplinePath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
@@ -263,6 +282,13 @@ namespace PenetrationTech {
             if (!Application.isPlaying) {
                 if (path == null) {
                     path = new CatmullSpline().SetWeightsFromPoints(new Vector3[] {
+                        rootBone.position,
+                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
+                    });
+                }
+
+                if (targetHole == null) {
+                    path.SetWeightsFromPoints(new Vector3[] {
                         rootBone.position,
                         rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
                     });
