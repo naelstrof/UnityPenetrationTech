@@ -248,7 +248,7 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
 
     float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
 
-    if (girthSampleUV.x > 1) {
+    if (girthSampleUV.x >= 1) {
         girthSample = 0;
     }
 
