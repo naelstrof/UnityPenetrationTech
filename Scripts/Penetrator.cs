@@ -56,12 +56,15 @@ namespace PenetrationTech {
         private GirthData girthData;
         [SerializeField]
         private Penetrable targetHole;
+        [SerializeField]
+        private bool autoPenetrate = false;
+        [SerializeReference]
+        public List<PenetratorListener> listeners;
         private float length;
         private bool inserted;
         private float insertionFactor;
-        [SerializeReference]
-        public List<PenetratorListener> listeners;
         private MaterialPropertyBlock propertyBlock;
+        private static Collider[] colliders = new Collider[32];
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetLocalLength() => girthData.GetLocalLength();
@@ -128,9 +131,34 @@ namespace PenetrationTech {
             };
             path = new CatmullSpline().SetWeights(weights);
             girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
+            OnSetClip(0f, 0f);
         }
 
         void Update() {
+            if (autoPenetrate && !inserted) {
+                Vector3 tipPosition;
+                if (path != null && path.GetWeights().Count > 0) {
+                    tipPosition = path.GetPositionFromDistance(GetWorldLength() * virtualSquashAndStretch);
+                } else {
+                    tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
+                }
+                int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders);
+                Penetrable bestMatch = null;
+                float bestDistance = float.MaxValue;
+                // TODO: Match by best result, probably weighted by distance and angle...
+                for (int i = 0; i < hits; i++) {
+                    PenetrableOwner owner = colliders[i].GetComponent<PenetrableOwner>();
+                    if (owner != null) {
+                        float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
+                        if (distance < bestDistance) {
+                            bestMatch = owner.owner;
+                            bestDistance = distance;
+                        }
+                    }
+                }
+                targetHole = bestMatch;
+            }
+
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
             }
