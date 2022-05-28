@@ -50,7 +50,7 @@ namespace PenetrationTech {
     #endif
     [ExecuteAlways]
     public class Penetrator : CatmullDeformer {
-        [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch;
+        [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch = 1f;
         private List<Vector3> weights;
         [SerializeField]
         private GirthData girthData;
@@ -101,8 +101,11 @@ namespace PenetrationTech {
         }
 
         protected override void OnEnable() {
-            foreach (PenetratorListener listener in listeners) {
-                listener.OnEnable(this);
+            // Have to check if listeners is null due to running in editor...
+            if (listeners != null) {
+                foreach (PenetratorListener listener in listeners) {
+                    listener.OnEnable(this);
+                }
             }
 
             propertyBlock = new MaterialPropertyBlock();
@@ -113,6 +116,8 @@ namespace PenetrationTech {
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDisable();
             }
+
+            girthData.Dispose();
 
             propertyBlock = null;
             base.OnDisable();
@@ -129,7 +134,14 @@ namespace PenetrationTech {
                 position+forward
             };
             path = new CatmullSpline().SetWeights(weights);
-            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
+            if (GetTargetRenderers().Count > 0 && rootBone != null) {
+                if (girthData != null) {
+                    girthData.Dispose();
+                }
+                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
+                    localRootUp, localRootRight);
+            }
+
             OnSetClip(0f, 0f);
         }
 
@@ -158,31 +170,24 @@ namespace PenetrationTech {
                 targetHole = bestMatch;
             }
 
-            foreach (PenetratorListener listener in listeners) {
-                listener.Update();
+            if (listeners != null) {
+                foreach (PenetratorListener listener in listeners) {
+                    listener.Update();
+                }
             }
         }
 
         void OnSetClip(float startDistance, float endDistance) {
-            foreach (Renderer renderer in GetTargetRenderers()) {
-                renderer.GetPropertyBlock(propertyBlock);
-                if (renderer is SkinnedMeshRenderer) {
-                    propertyBlock.SetFloat(startClipID, startDistance);
-                    propertyBlock.SetFloat(endClipID, endDistance);
-                } else {
-                    // TODO: So I try to keep everything in world-space, so even in the shader it ends up being the right scale. For some reason mesh renderers ignore some scale features-- which compound world space transformation problems.
-                    // This seemingly only affects the clip??? This cannot be-- need to test other situations.
-                    float lossyScale = Vector3.Dot(rootBone.lossyScale,localRootForward);
-                    propertyBlock.SetFloat(startClipID, (startDistance/lossyScale)/lossyScale);
-                    propertyBlock.SetFloat(endClipID, (endDistance/lossyScale)/lossyScale);
-                }
-
-                renderer.SetPropertyBlock(propertyBlock);
+            foreach (RendererSubMeshMask rendererMask in GetTargetRenderers()) {
+                rendererMask.renderer.GetPropertyBlock(propertyBlock);
+                propertyBlock.SetFloat(startClipID, startDistance);
+                propertyBlock.SetFloat(endClipID, endDistance);
+                rendererMask.renderer.SetPropertyBlock(propertyBlock);
             }
         }
 
         protected override void LateUpdate() {
-#if UNITY_EDITOR
+            //TODO: this probably should be cleaned up. The penetrator needs to know what it needs to do when it has no target. Like it still needs to jiggle, curve, and not clip. (Probably this can all happen right when it detaches.)
             if (targetHole == null) {
                 if (rootBone == null) {
                     return;
@@ -196,7 +201,6 @@ namespace PenetrationTech {
                 base.LateUpdate();
                 return;
             }
-#endif
 
             CatmullSpline holeSplinePath = targetHole.GetSplinePath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
@@ -217,12 +221,12 @@ namespace PenetrationTech {
                 }
             }
 
-            foreach (Renderer renderer in GetTargetRenderers()) {
-                renderer.GetPropertyBlock(propertyBlock);
+            foreach (RendererSubMeshMask rendererMask in GetTargetRenderers()) {
+                rendererMask.renderer.GetPropertyBlock(propertyBlock);
                 propertyBlock.SetFloat(squashStretchCorrectionID, virtualSquashAndStretch);
                 propertyBlock.SetFloat(dickWorldLengthID, GetWorldLength());
                 propertyBlock.SetFloat(distanceToHoleID, path.GetDistanceFromSubT(0, 1, 1f));
-                renderer.SetPropertyBlock(propertyBlock);
+                rendererMask.renderer.SetPropertyBlock(propertyBlock);
             }
             base.LateUpdate();
         }
@@ -291,6 +295,14 @@ namespace PenetrationTech {
                 return;
             }
             
+            if (GetTargetRenderers() != null && GetTargetRenderers().Count > 0 && GetTargetRenderers()[0] != null && rootBone != null) {
+                if (girthData != null) {
+                    girthData.Dispose();
+                }
+                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
+                    localRootUp, localRootRight);
+            }
+            
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDisable();
@@ -308,6 +320,7 @@ namespace PenetrationTech {
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
 #if UNITY_EDITOR
+            
             if (GetTargetRenderers() == null || GetTargetRenderers().Count == 0 || GetTargetRenderers()[0] == null || rootBone == null) {
                 return;
             }

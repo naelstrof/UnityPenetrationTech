@@ -108,10 +108,11 @@ float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t
             + (-6.0 * t * t + 6.0 * t) * end
             + (3.0 * t * t - 2.0 * t) * tanPoint2;
 }
-void ToCatmullRomSpace_float(float3 dickRootPosition, float3 position, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 normal, float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
+void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 position, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 normal, float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
     // We want to work in world space, as everything we're working with is there. Here we convert everything into world space.
     float3 worldPosition = mul(objectToWorld,float4(position.xyz,1)).xyz;
-    float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
+    //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
+    //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
 
     //float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
     //float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
@@ -224,7 +225,7 @@ struct PenetratorData {
 
 StructuredBuffer<PenetratorData> _PenetratorData;
 
-void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex) {
+void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex, float smoothness) {
     // Just skip everything if blend is 0, we might not even have curves to sample.
     if (data.blend == 0) {
         return;
@@ -246,7 +247,7 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     float dist = TimeToDistance(curveIndex, holeT)+data.worldDistance;
     float2 girthSampleUV = float2(saturate(dist/data.worldDickLength), (-holeAngle+data.angle)/6.28318530718);
 
-    float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,0)).r*data.girthScaleFactor;
+    float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,dist*smoothness)).r*data.girthScaleFactor;
 
     if (girthSampleUV.x >= 1) {
         girthSample = 0;
@@ -257,11 +258,11 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     worldPosition += normalize(diff)*(girthSample)*(1-compressionFactor);
 }
 
-void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float compressibleDistance, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
+void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float compressibleDistance, float smoothness, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
     float3 worldPosition = mul(objectToWorld, float4(position.xyz,1)).xyz;
-    GetDeformationFromPenetrator(worldPosition, uv2.x, compressibleDistance, _DickGirthMapX, _PenetratorData[0], 0);
-    GetDeformationFromPenetrator(worldPosition, uv2.y, compressibleDistance, _DickGirthMapY, _PenetratorData[1], 1);
-    GetDeformationFromPenetrator(worldPosition, uv2.z, compressibleDistance, _DickGirthMapZ, _PenetratorData[2], 2);
-    GetDeformationFromPenetrator(worldPosition, uv2.w, compressibleDistance, _DickGirthMapW, _PenetratorData[3], 3);
+    GetDeformationFromPenetrator(worldPosition, uv2.x, compressibleDistance, _DickGirthMapX, _PenetratorData[0], 0, smoothness);
+    GetDeformationFromPenetrator(worldPosition, uv2.y, compressibleDistance, _DickGirthMapY, _PenetratorData[1], 1, smoothness);
+    GetDeformationFromPenetrator(worldPosition, uv2.z, compressibleDistance, _DickGirthMapZ, _PenetratorData[2], 2, smoothness);
+    GetDeformationFromPenetrator(worldPosition, uv2.w, compressibleDistance, _DickGirthMapW, _PenetratorData[3], 3, smoothness);
     deformedPosition = mul(worldToObject, float4(worldPosition.xyz,1)).xyz;
 }
