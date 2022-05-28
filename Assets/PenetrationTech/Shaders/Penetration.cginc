@@ -232,7 +232,10 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     }
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
-    float subT = GetCurveSegment(curveIndex, holeT, curveSegmentIndex);
+    // TODO: This could possibly be a bug! though it seems to work fine at all scales
+    // Trigger earlier than baked, only slightly. Otherwise things trigger "perceptively" too late. (in reality they're perfect, but it just doesn't look right).
+    float anticipation = 0.012;
+    float subT = GetCurveSegment(curveIndex, holeT-anticipation, curveSegmentIndex);
 
     float3 catPosition = SampleCurveSegmentPosition(curveIndex,curveSegmentIndex, subT);
 
@@ -247,7 +250,7 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     float dist = TimeToDistance(curveIndex, holeT)+data.worldDistance;
     float2 girthSampleUV = float2(saturate(dist/data.worldDickLength), (-holeAngle+data.angle)/6.28318530718);
 
-    float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,dist*smoothness)).r*data.girthScaleFactor;
+    float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,diffDistance*smoothness*smoothness)).r*data.girthScaleFactor;
 
     if (girthSampleUV.x >= 1) {
         girthSample = 0;
