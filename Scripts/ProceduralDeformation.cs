@@ -26,8 +26,7 @@ namespace PenetrationTech {
                     return;
                 }
                 for (int j = 0; j < renderTargetList.arraySize; j++) {
-                    SerializedProperty targetProp = renderTargetList.GetArrayElementAtIndex(j);
-                    SerializedProperty skinnedMeshRendererProp = targetProp.FindPropertyRelative("renderer");
+                    SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
                     SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
                     if (skinnedMeshRenderer == null) {
                         continue;
@@ -51,7 +50,7 @@ namespace PenetrationTech {
                                 throw new UnityException(
                                     "Please make sure the Penetrables array doesn't have any nulls...");
                             }
-                            Vector3 worldPosition = skinnedMeshRenderer.rootBone.TransformPoint(newMesh.bindposes[0].MultiplyPoint(vertices[i]));
+                            Vector3 worldPosition = skinnedMeshRenderer.localToWorldMatrix.MultiplyPoint(vertices[i]);
                             CatmullSpline penPath = p.GetSplinePath();
                             float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
                             //float nearestDistance = penPath.GetDistanceFromTime(nearestT);
@@ -80,13 +79,8 @@ namespace PenetrationTech {
     public class ProceduralDeformation : MonoBehaviour {
         [SerializeField]
         private List<Penetrable> penetrableTargets;
-        [System.Serializable]
-        public class RenderTarget {
-            [SerializeField]
-            public SkinnedMeshRenderer renderer;
-        }
         [SerializeField]
-        private List<RenderTarget> renderTargets;
+        private List<Renderer> renderTargets;
         private ComputeBuffer penetratorBuffer;
         private ComputeBuffer splineBuffer;
         private NativeArray<PenetratorData> data;
@@ -149,9 +143,13 @@ namespace PenetrationTech {
             splineData = new NativeArray<CatmullDeformer.CatmullSplineData>(4, Allocator.Persistent);
 
             propertyBlock = new MaterialPropertyBlock();
+            if (penetrableTargets == null) {
+                return;
+            }
+
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
-                    continue;
+ t                   continue;
                 }
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
@@ -178,19 +176,19 @@ namespace PenetrationTech {
             }
             penetratorBuffer.SetData(data);
             splineBuffer.SetData(splineData);
-            foreach(RenderTarget target in renderTargets) {
-                target.renderer.GetPropertyBlock(propertyBlock);
+            foreach(Renderer target in renderTargets) {
+                target.GetPropertyBlock(propertyBlock);
                 propertyBlock.SetBuffer(splineDataArrayID, splineBuffer);
                 propertyBlock.SetBuffer(penetratorDataArrayID,penetratorBuffer);
-                target.renderer.SetPropertyBlock(propertyBlock);
+                target.SetPropertyBlock(propertyBlock);
             }
         }
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
             splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
-            foreach(RenderTarget target in renderTargets) {
-                target.renderer.GetPropertyBlock(propertyBlock);
+            foreach(Renderer target in renderTargets) {
+                target.GetPropertyBlock(propertyBlock);
                 switch(index) {
                     case 0: propertyBlock.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
                     case 1: propertyBlock.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
@@ -198,11 +196,15 @@ namespace PenetrationTech {
                     case 3: propertyBlock.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
                 }
 
-                target.renderer.SetPropertyBlock(propertyBlock);
+                target.SetPropertyBlock(propertyBlock);
             }
         }
 
         private void OnValidate() {
+            if (penetrableTargets == null) {
+                return;
+            }
+
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
                     continue;
