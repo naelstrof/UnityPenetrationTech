@@ -17,19 +17,20 @@ namespace PenetrationTech {
         [SerializeField]
         protected Transform tipTarget;
         [SerializeField]
-        private List<Renderer> targetRenderers;
+        private List<RendererSubMeshMask> targetRenderers;
         private static readonly int catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
         private static readonly int dickForwardID = Shader.PropertyToID("_DickForwardWorld");
         private static readonly int dickRightID = Shader.PropertyToID("_DickRightWorld");
         private static readonly int dickUpID = Shader.PropertyToID("_DickUpWorld");
+        private static readonly int dickRootID = Shader.PropertyToID("_DickRootWorld");
         private static readonly int curveBlendID = Shader.PropertyToID("_CurveBlend");
         private ComputeBuffer catmullBuffer;
         private NativeArray<CatmullSplineData> data;
         private MaterialPropertyBlock propertyBlock;
 
-        protected List<Renderer> GetTargetRenderers() {
+        protected List<RendererSubMeshMask> GetTargetRenderers() {
             if (targetRenderers == null) {
-                targetRenderers = new List<Renderer>();
+                targetRenderers = new List<RendererSubMeshMask>();
             }
             return targetRenderers;
         }
@@ -84,14 +85,15 @@ namespace PenetrationTech {
         protected virtual void LateUpdate() {
             data[0] = new CatmullSplineData(path);
             catmullBuffer.SetData(data, 0, 0, 1);
-            foreach(Renderer renderer in targetRenderers) {
-                renderer.GetPropertyBlock(propertyBlock);
+            foreach(RendererSubMeshMask rsm in targetRenderers) {
+                rsm.renderer.GetPropertyBlock(propertyBlock);
                 propertyBlock.SetFloat(curveBlendID, 1f);
                 propertyBlock.SetVector(dickForwardID, rootBone.TransformDirection(localRootForward));
                 propertyBlock.SetVector(dickRightID, rootBone.TransformDirection(localRootRight));
                 propertyBlock.SetVector(dickUpID, rootBone.TransformDirection(localRootUp));
+                propertyBlock.SetVector(dickRootID, rootBone.position);
                 propertyBlock.SetBuffer(catmullSplinesID, catmullBuffer);
-                renderer.SetPropertyBlock(propertyBlock);
+                rsm.renderer.SetPropertyBlock(propertyBlock);
             }
         }
     }
