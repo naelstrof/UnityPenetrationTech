@@ -149,7 +149,7 @@ namespace PenetrationTech {
 
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
- t                   continue;
+                    continue;
                 }
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;

@@ -33,6 +33,21 @@ namespace PenetrationTech {
             UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
             #endif
         }
+
+        public override void AssertValid() {
+            base.AssertValid();
+            if (targets == null || targets.Length == 0) {
+                throw new PenetrableListenerValidationException(
+                    $"Need at least one target renderer for listener {this}.");
+            }
+
+            foreach (var target in targets) {
+                if (target.skinnedMeshRenderer == null) {
+                    throw new PenetrableListenerValidationException($"SkinnedMeshRenderer on listener {this} is null.");
+                }
+            }
+        }
+
         public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, PenData.Girth | PenData.Offset);
         }

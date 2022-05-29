@@ -9,32 +9,31 @@ namespace PenetrationTech {
     public class BoneTransformListener : PenetrableListener {
         [SerializeField]
         Transform targetBone;
-        Vector3 originalLocalPosition = Vector3.positiveInfinity;
+        Vector3 originalLocalPosition;
         Vector3 localOffset;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
-            if (targetBone != null && float.IsPositiveInfinity(originalLocalPosition.x)) {
-                originalLocalPosition = targetBone.localPosition;
-            }
+            originalLocalPosition = targetBone.localPosition;
         }
         public override void OnDisable() {
             base.OnDisable();
-            if (targetBone != null && !float.IsPositiveInfinity(originalLocalPosition.x)) {
-                targetBone.localPosition = originalLocalPosition;
-            }
+            targetBone.localPosition = originalLocalPosition;
         }
         protected override void OnPenetrationOffsetChange(Vector3 worldOffset) {
             base.OnPenetrationOffsetChange(worldOffset);
-            if (targetBone != null) {
-                localOffset = targetBone.parent.InverseTransformVector(worldOffset);
-                targetBone.localPosition = originalLocalPosition + localOffset; 
+            localOffset = targetBone.parent.InverseTransformVector(worldOffset);
+            targetBone.localPosition = originalLocalPosition + localOffset; 
+        }
+
+        public override void AssertValid() {
+            base.AssertValid();
+            if (targetBone == null) {
+                throw new PenetrableListenerValidationException($"Target bone on listener {this} is null.");
             }
         }
+
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
-            if (targetBone == null) {
-                return;
-            }
             #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.white;
             var parent = targetBone.parent;

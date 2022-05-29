@@ -23,6 +23,11 @@ namespace PenetrationTech {
             }
         }
         public override void OnInspectorGUI() {
+            string lastError = ((Penetrable)target).GetLastError();
+            if (!string.IsNullOrEmpty(lastError)) {
+                EditorGUILayout.HelpBox(lastError, MessageType.Error);
+            }
+
             DrawDefaultInspector();
             
             if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
@@ -62,12 +67,19 @@ namespace PenetrationTech {
         public List<PenetrableListener> listeners;
 
         private GameObject colliderEntrance;
-        private GameObject colliderExit;
         private bool refreshListeners;
+        private bool valid;
+        private string lastError;
+        public string GetLastError() {
+            return lastError;
+        }
+        private class PenetrableValidationException : SystemException {
+            public PenetrableValidationException(string msg) : base(msg) { }
+        }
 
         private void UpdateWorldPoints() {
-            if (worldPoints == null) {
-                worldPoints = new List<Vector3>();
+            if (!valid) {
+                return;
             }
             worldPoints.Clear();
             foreach(Transform point in points) {
@@ -80,7 +92,7 @@ namespace PenetrationTech {
             CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
         }
 
-        private void SetUpCollider(ref GameObject obj, Transform point, bool backwards) {
+        private void SetUpCollider(ref GameObject obj, Transform point) {
             obj = new GameObject($"{name} collider", new Type[] { typeof(SphereCollider), typeof(PenetrableOwner) });
             obj.layer = PenetrationTechTools.GetPenetrableLayer();
             obj.hideFlags = HideFlags.HideAndDontSave;
@@ -89,60 +101,102 @@ namespace PenetrationTech {
             obj.GetComponent<SphereCollider>().isTrigger = true;
             obj.GetComponent<SphereCollider>().radius = 0.2f;
             obj.GetComponent<PenetrableOwner>().owner = this;
-            obj.GetComponent<PenetrableOwner>().backwards = backwards;
         }
 
 
         protected override void OnEnable() {
+            if (!valid) {
+                return;
+            }
             worldPoints = new List<Vector3>();
             foreach(PenetrableListener listener in listeners) {
                 listener.OnEnable(this);
             }
-
-            if (colliderEntrance == null && points.Length > 0) {
-                SetUpCollider(ref colliderEntrance, points[0], false);
-            }
-            if (colliderExit == null && points.Length > 1) {
-                SetUpCollider(ref colliderExit, points[points.Length-1], true);
+            if (colliderEntrance == null) {
+                SetUpCollider(ref colliderEntrance, points[0]);
             }
         }
         void OnDisable() {
+            if (colliderEntrance != null) {
+                if (Application.isPlaying) {
+                    GameObject.Destroy(colliderEntrance);
+                } else {
+                    GameObject.DestroyImmediate(colliderEntrance);
+                }
+            }
+
+            if (!valid) {
+                return;
+            }
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDisable();
             }
 
-            if (Application.isPlaying) {
-                GameObject.Destroy(colliderEntrance);
-                GameObject.Destroy(colliderExit);
-            }
-            else {
-                GameObject.DestroyImmediate(colliderEntrance);
-                GameObject.DestroyImmediate(colliderExit);
-            }
         }
         void Update() {
+            if (!valid) {
+                return;
+            }
             foreach(PenetrableListener listener in listeners) {
                 listener.Update();
             }
         }
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
+            if (!valid) {
+                return;
+            }
             foreach(PenetrableListener listener in listeners) {
-                if (listener == null) {
-                    continue;
-                }
                 listener.OnDrawGizmosSelected(this);
             }
         }
+
+        void AssertValid(bool condition, string message) {
+            valid &= condition;
+            if (!condition) {
+                throw new PenetrableValidationException(message);
+            }
+        }
+
+        void CheckValid() {
+            lastError = "";
+            valid = true;
+            try {
+                AssertValid(points != null && points.Length > 1, "Please specify at least two points to form a curve.");
+                bool hasNullListener = false;
+                foreach (PenetrableListener listener in listeners) {
+                    if (listener == null || !listener.GetType().IsSubclassOf(typeof(PenetrableListener))) {
+                        hasNullListener = true;
+                    }
+                }
+
+                AssertValid(hasNullListener == false,
+                    "There's a null or empty listener in the listener list, this is not allowed.");
+                foreach (var listener in listeners) {
+                    listener.AssertValid();
+                }
+            } catch (PenetrableValidationException error) {
+                valid = false;
+                lastError = $"{error.Message}\n\n{error.StackTrace}";
+            } catch (PenetrableListener.PenetrableListenerValidationException error) {
+                valid = false;
+                lastError = $"{error.Message}\n\n{error.StackTrace}";
+            }
+        }
+
         void OnValidate() {
+            listeners ??= new List<PenetrableListener>();
+            CheckValid();
+            if (!valid) {
+                return;
+            }
             if (colliderEntrance != null && points.Length > 0 && colliderEntrance.transform.parent != points[0]) {
                 colliderEntrance.transform.parent = points[0];
                 colliderEntrance.transform.localPosition = Vector3.zero;
             }
-            if (colliderExit != null && points.Length > 1 && colliderExit.transform.parent != points[points.Length-1]) {
-                colliderExit.transform.parent = points[points.Length-1];
-                colliderExit.transform.localPosition = Vector3.zero;
-            }
+            worldPoints ??= new List<Vector3>();
+            UpdateWorldPoints();
+            path ??= new CatmullSpline().SetWeightsFromPoints(worldPoints);
 
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
             foreach (PenetrableListener listener in listeners) {
@@ -159,6 +213,9 @@ namespace PenetrationTech {
             }
         }
         public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot, SetClipDistanceAction clipAction) {
+            if (!valid) {
+                return;
+            }
             UpdateWorldPoints();
             path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
@@ -167,9 +224,10 @@ namespace PenetrationTech {
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
         }
         public CatmullSpline GetSplinePath() {
-            if (path == null) {
-                path = new CatmullSpline();
+            if (!valid) {
+                return path;
             }
+
             UpdateWorldPoints();
             path.SetWeightsFromPoints(worldPoints);
             return path;

@@ -21,6 +21,15 @@ namespace PenetrationTech {
             }
         }
         public override void OnInspectorGUI() {
+            string lastError = ((Penetrator)target).GetLastError();
+            if (!string.IsNullOrEmpty(lastError)) {
+                EditorGUILayout.HelpBox(lastError, MessageType.Error);
+            } else {
+                EditorGUILayout.HelpBox("Make sure the blue dotted line is pointed along the penetrator by adjusting the Local Root forward/up/right.\n" +
+                                                "If the model is inside-out, one of the vectors is backwards.\n" +
+                                                "If you don't see the blue dotted line, ensure Gizmos are enabled.", MessageType.Info);
+            }
+
             DrawDefaultInspector();
             
             if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
@@ -50,24 +59,26 @@ namespace PenetrationTech {
     #endif
     [ExecuteAlways]
     public class Penetrator : CatmullDeformer {
-        [SerializeField] [Range(0f, 2f)] private float virtualSquashAndStretch = 1f;
-        private List<Vector3> weights;
+        [SerializeField] [Range(0f, 2f)] [Tooltip("Squash or stretch the visuals of the penetrator, this can be triggered through listeners, script, or animation to simulate knot forces.")]
+        private float virtualSquashAndStretch = 1f;
+        [SerializeField] [Tooltip("A transform for the curve to pass through when it's not busy penetrating, useful to tie the penetrator to some physics! Completely optional.")]
+        protected Transform tipTarget;
         [SerializeField]
         private GirthData girthData;
-        [SerializeField]
+        [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
         private Penetrable targetHole;
-        [SerializeField]
+        [SerializeField] [Tooltip("Automate discovery of penetrables, and automatically penetrate with them if some basic conditions are met (roughly the right angle, and distance)")]
         private bool autoPenetrate = false;
-        [SerializeReference]
+        [SerializeReference] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
-        private float length;
+        
+        private List<Vector3> weights;
         private bool inserted;
         private float insertionFactor;
         private MaterialPropertyBlock propertyBlock;
         private static Collider[] colliders = new Collider[32];
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
-        public float GetLocalLength() => girthData.GetLocalLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
         public float GetKnotForce(float worldDistanceAlongDick) => girthData.GetKnotForce(worldDistanceAlongDick);
         public float squashAndStretch {
@@ -81,6 +92,11 @@ namespace PenetrationTech {
         private static readonly int squashStretchCorrectionID = Shader.PropertyToID("_SquashStretchCorrection");
         private static readonly int distanceToHoleID = Shader.PropertyToID("_DistanceToHole");
         private static readonly int dickWorldLengthID = Shader.PropertyToID("_DickWorldLength");
+        private bool valid = false;
+        private string lastError;
+        public string GetLastError() {
+            return lastError;
+        }
         public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
@@ -101,30 +117,36 @@ namespace PenetrationTech {
         }
 
         protected override void OnEnable() {
-            // Have to check if listeners is null due to running in editor...
-            if (listeners != null) {
-                foreach (PenetratorListener listener in listeners) {
-                    listener.OnEnable(this);
-                }
+            base.OnEnable();
+            propertyBlock = new MaterialPropertyBlock();
+            if (!valid) {
+                return;
             }
 
-            propertyBlock = new MaterialPropertyBlock();
-            base.OnEnable();
+            // Have to check if listeners is null due to running in editor...
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnEnable(this);
+            }
         }
 
         protected override void OnDisable() {
+            base.OnDisable();
+            if (!valid) {
+                return;
+            }
+            girthData.Dispose();
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDisable();
             }
 
-            girthData.Dispose();
-
-            propertyBlock = null;
-            base.OnDisable();
         }
 
 
         void Start() {
+            if (!valid) {
+                return;
+            }
+
             var position = transform.position;
             var forward = transform.forward;
             weights = new List<Vector3> {
@@ -134,18 +156,16 @@ namespace PenetrationTech {
                 position+forward
             };
             path = new CatmullSpline().SetWeights(weights);
-            if (GetTargetRenderers().Count > 0 && rootBone != null) {
-                if (girthData != null) {
-                    girthData.Dispose();
-                }
-                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
                     localRootUp, localRootRight);
-            }
-
             OnSetClip(0f, 0f);
         }
 
         void Update() {
+            if (!valid) {
+                return;
+            }
+
             if (autoPenetrate && !inserted) {
                 Vector3 tipPosition;
                 if (path != null && path.GetWeights().Count > 0) {
@@ -154,7 +174,7 @@ namespace PenetrationTech {
                     tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
                 }
                 int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders);
-                Penetrable bestMatch = null;
+                PenetrableOwner bestMatch = null;
                 float bestDistance = float.MaxValue;
                 // TODO: Match by best result, probably weighted by distance and angle...
                 for (int i = 0; i < hits; i++) {
@@ -162,18 +182,20 @@ namespace PenetrationTech {
                     if (owner != null) {
                         float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
                         if (distance < bestDistance) {
-                            bestMatch = owner.owner;
+                            bestMatch = owner;
                             bestDistance = distance;
                         }
                     }
                 }
-                targetHole = bestMatch;
+                if (bestMatch != null) {
+                    targetHole = bestMatch.owner;
+                } else {
+                    targetHole = null;
+                }
             }
 
-            if (listeners != null) {
-                foreach (PenetratorListener listener in listeners) {
-                    listener.Update();
-                }
+            foreach (PenetratorListener listener in listeners) {
+                listener.Update();
             }
         }
 
@@ -187,11 +209,12 @@ namespace PenetrationTech {
         }
 
         protected override void LateUpdate() {
+            if (!valid) {
+                return;
+            }
+
             //TODO: this probably should be cleaned up. The penetrator needs to know what it needs to do when it has no target. Like it still needs to jiggle, curve, and not clip. (Probably this can all happen right when it detaches.)
             if (targetHole == null) {
-                if (rootBone == null) {
-                    return;
-                }
                 OnSetClip(0f, 0f);
                 path.SetWeightsFromPoints(new Vector3[] {
                     rootBone.position,
@@ -290,19 +313,89 @@ namespace PenetrationTech {
             path.SetWeights(weights);
         }
 
+        private class PenetratorValidationException : SystemException {
+            public PenetratorValidationException(string msg) : base(msg) { }
+        }
+        
+        private void AssertValid(bool condition, string errorMsg) {
+            valid = valid && condition;
+            if (!condition) {
+                throw new PenetratorValidationException(errorMsg);
+            }
+        }
+        private void CheckValid() {
+            valid = true;
+            lastError = "";
+            try {
+                AssertValid(rootBone != null, "Root bone must be specified.");
+
+                AssertValid(
+                    GetTargetRenderers() != null && GetTargetRenderers().Count > 0 &&
+                    GetTargetRenderers()[0].renderer != null,
+                    "Must specify a target renderer.");
+                AssertValid(GetTargetRenderers()[0].mask != 0,
+                    "Must have at least one sub-mesh enabled on the renderer, (the one that contains the penetrator hopefully).");
+                bool isChild = false;
+                foreach (var renderMask in GetTargetRenderers()) {
+                    if (renderMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                        if (rootBone.IsChildOf(skinnedMeshRenderer.rootBone)) {
+                            isChild = true;
+                            break;
+                        }
+                    } else if (renderMask.renderer is MeshRenderer meshRenderer) {
+                        if (rootBone.IsChildOf(meshRenderer.transform) || rootBone == meshRenderer.transform) {
+                            isChild = true;
+                            break;
+                        }
+                    }
+                }
+
+                AssertValid(isChild,
+                    "Root bone must be a child transform of the Renderer. If its a skinned mesh renderer, you'd want to target the Transform at the base of the penetrator.");
+                
+                bool hasNullListener = false;
+                foreach (PenetratorListener listener in listeners) {
+                    if (listener == null || !listener.GetType().IsSubclassOf(typeof(PenetratorListener))) {
+                        hasNullListener = true;
+                    }
+                }
+                AssertValid(hasNullListener == false,
+                    "There's a null or empty listener in the listener list, this is not allowed.");
+                
+                foreach (var listener in listeners) {
+                    listener.AssertValid();
+                }
+            } catch (PenetratorValidationException error) {
+                lastError = $"{error.Message}\n\n{error.StackTrace}";
+                valid = false;
+            } catch (PenetratorListener.PenetratorListenerValidationException error) {
+                lastError = $"{error.Message}\n\n{error.StackTrace}";
+                valid = false;
+            }
+        }
+
         private void OnValidate() {
-            if (listeners == null) {
+            CheckValid();
+            if (listeners == null) { listeners = new List<PenetratorListener>(); }
+
+            weights ??= new List<Vector3>();
+
+            if (path == null) {
+                path = new CatmullSpline().SetWeights(new Vector3[]
+                    { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero });
+            }
+
+            if (girthData != null) {
+                girthData.Dispose();
+            }
+            
+            if (!valid) {
                 return;
             }
-            
-            if (GetTargetRenderers() != null && GetTargetRenderers().Count > 0 && GetTargetRenderers()[0] != null && rootBone != null) {
-                if (girthData != null) {
-                    girthData.Dispose();
-                }
-                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
-                    localRootUp, localRootRight);
-            }
-            
+
+            girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp,
+                localRootRight);
+
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDisable();
@@ -319,44 +412,20 @@ namespace PenetrationTech {
         }
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
-#if UNITY_EDITOR
-            
-            if (GetTargetRenderers() == null || GetTargetRenderers().Count == 0 || GetTargetRenderers()[0] == null || rootBone == null) {
+            if (!valid) {
                 return;
             }
-
-            if (!GirthData.IsValid(girthData)) {
-                girthData = new GirthData(GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
-                    localRootUp, localRootRight);
-            }
-
-            if (!Application.isPlaying) {
-                if (path == null) {
-                    path = new CatmullSpline().SetWeightsFromPoints(new Vector3[] {
-                        rootBone.position,
-                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
-                    });
-                }
-
-                if (targetHole == null) {
-                    path.SetWeightsFromPoints(new Vector3[] {
-                        rootBone.position,
-                        rootBone.position + rootBone.TransformDirection(localRootForward) * GetWorldLength()
-                    });
-                }
-            }
-
+#if UNITY_EDITOR
             for(float t=0;t<GetWorldLength();t+=0.025f) {
                 UnityEditor.Handles.color = Color.white;
                 Vector3 position = path.GetPositionFromDistance(t) + GetWorldOffset(t);
                 float girth = GetWorldGirthRadius(t);
                 UnityEditor.Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
             }
-
-            if (listeners == null) {
-                return;
-            }
-
+            UnityEditor.Handles.color = Color.blue;
+            var rootBonePosition = rootBone.transform.position;
+            UnityEditor.Handles.DrawDottedLine(rootBonePosition,
+                rootBonePosition + rootBone.transform.TransformDirection(localRootForward), 10f);
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);
             }

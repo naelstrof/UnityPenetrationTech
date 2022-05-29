@@ -6,19 +6,20 @@ using UnityEngine.Rendering;
 namespace PenetrationTech {
     [System.Serializable]
     public class GirthData {
-        [Header("This data is generated automatically on Start()")]
+        [Header("This data is generated automatically, and is only viewable for debugging!")]
         [ReadOnly][SerializeField]
         private RenderTexture texture;
-        [ReadOnly][SerializeField]
+        [ReadOnly][SerializeField][Tooltip("How long the penetrator is in local object space")]
         private float maxLocalLength;
-        [ReadOnly][SerializeField]
+        [ReadOnly][SerializeField][Tooltip("The maximum amount of girth radius around the penetrator axis, in local object space")]
         private float maxLocalGirthRadius;
-        [ReadOnly][SerializeField]
+        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated girth radius curve, in local object space")]
         private AnimationCurve localGirthRadiusCurve;
-        [ReadOnly][SerializeField]
+        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated X offset curve, in local object space")]
         private AnimationCurve localXOffsetCurve;
-        [ReadOnly][SerializeField]
+        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated Y offset curve, in local object space")]
         private AnimationCurve localYOffsetCurve;
+        
         private RendererSubMeshMask rendererMask;
         private Transform dickRoot;
         private Vector3 localDickForward;
@@ -199,7 +200,6 @@ namespace PenetrationTech {
 
             if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
                 int rootBoneID = -1;
-                int rootParentBoneID = -1;
                 for (int i = 0; i < skinnedMeshRenderer.bones.Length; i++) {
                     if (skinnedMeshRenderer.bones[i] == root) {
                         rootBoneID = i;
