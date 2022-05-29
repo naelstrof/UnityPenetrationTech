@@ -36,6 +36,7 @@ namespace PenetrationTech {
             }
 #endif
         }
+
         public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             float penetrationDepth = Mathf.Max(0f, penetrator.GetWorldLength() - worldSpaceDistanceToPenisRoot);
             var spline = penetrable.GetSplinePath();

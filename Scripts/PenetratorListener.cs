@@ -14,6 +14,11 @@ namespace PenetrationTech {
 
     [System.Serializable]
     public class PenetratorListener {
+        public class PenetratorListenerValidationException : System.Exception {
+            public PenetratorListenerValidationException(string message) : base(message) {
+            }
+        }
+
         [SerializeField][Range(0f,1f)]
         protected float localDist;
         protected virtual void OnPenetrationDepthChange(float depthDist) { }
@@ -22,6 +27,7 @@ namespace PenetrationTech {
         public virtual void OnEnable(Penetrator newPenetrator) { }
         public virtual void Update() { }
         public virtual void OnDisable() { }
+        public virtual void AssertValid() { }
         public virtual void OnDrawGizmosSelected(Penetrator p) {
 #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.blue;

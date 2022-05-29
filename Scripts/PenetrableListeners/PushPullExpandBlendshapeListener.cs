@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -20,9 +21,7 @@ namespace PenetrationTech {
         private float lastPenetrationDepth;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
-            if (targets == null) {
-                return;
-            }
+            
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.OnEnable();
             }
@@ -31,11 +30,13 @@ namespace PenetrationTech {
             lastPenetrationDepth = 0f;
         }
         protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
+            base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirthRadius/blendShapeGirth)*100f);
             }
         }
         protected override void OnPenetrationDepthChange(float newDepth) {
+            base.OnPenetrationDepthChange(newDepth);
             float diff = newDepth - lastPenetrationDepth;
             pullPushAmount += diff * 10f;
             pullPushAmount = Mathf.Clamp(pullPushAmount, -1f, 1f);
@@ -54,6 +55,7 @@ namespace PenetrationTech {
             return d;
         }
         public override void Update() {
+            base.Update();
             pullPushAmount = Mathf.MoveTowards(pullPushAmount, 0f, Time.deltaTime*1f);
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
                 float pushAmount = Mathf.Clamp01(pullPushAmount);
@@ -62,6 +64,20 @@ namespace PenetrationTech {
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.pullBlendshapeID, pullAmount*100f);
             }
         }
+
+        public override void AssertValid() {
+            base.AssertValid();
+            if (targets == null || targets.Length == 0) {
+                throw new PenetrableListenerValidationException($"Need at least one target set on listener {this}");
+            }
+
+            foreach (var target in targets) {
+                if (target.skinnedMeshRenderer == null) {
+                    throw new PenetrableListenerValidationException($"Can't have a null renderer on listener {this}");
+                }
+            }
+        }
+
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
             #if UNITY_EDITOR

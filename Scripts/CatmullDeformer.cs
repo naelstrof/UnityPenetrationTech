@@ -6,17 +6,15 @@ using UnityEngine;
 namespace PenetrationTech {
 
     public class CatmullDeformer : CatmullDisplay {
+        [SerializeField][Tooltip("The main axis of deformation, this should point length-wise through the object.")]
+        protected Vector3 localRootForward = -Vector3.up;
         [SerializeField]
         protected Vector3 localRootUp = Vector3.forward;
         [SerializeField]
-        protected Vector3 localRootForward = -Vector3.up;
-        [SerializeField]
         protected Vector3 localRootRight = Vector3.right;
-        [SerializeField]
+        [SerializeField][Tooltip("The start of the deformation, should be at the base of the spline.")]
         protected Transform rootBone;
-        [SerializeField]
-        protected Transform tipTarget;
-        [SerializeField]
+        [SerializeField][Tooltip("The renderers to send the deformation data to, they should have a shader that's compatible with it")]
         private List<RendererSubMeshMask> targetRenderers;
         private static readonly int catmullSplinesID = Shader.PropertyToID("_CatmullSplines");
         private static readonly int dickForwardID = Shader.PropertyToID("_DickForwardWorld");

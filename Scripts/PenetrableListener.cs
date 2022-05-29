@@ -15,6 +15,11 @@ namespace PenetrationTech {
 
     [System.Serializable]
     public class PenetrableListener {
+        public class PenetrableListenerValidationException : System.Exception {
+            public PenetrableListenerValidationException(string msg) : base(msg) {
+            }
+        }
+
         [System.Flags]
         protected enum PenData {
             None = 0,
@@ -43,6 +48,8 @@ namespace PenetrationTech {
         protected virtual void OnPenetrationKnotForceChange(float knotForce) { }
         public virtual void OnDrawGizmosSelected(Penetrable p) { }
         public virtual void OnValidate(Penetrable p) { }
+        public virtual void AssertValid() {
+        }
         public virtual void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, PenData.All);
         }
