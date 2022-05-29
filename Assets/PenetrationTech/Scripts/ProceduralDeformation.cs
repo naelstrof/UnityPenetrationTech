@@ -69,9 +69,9 @@ namespace PenetrationTech {
                     AssetDatabase.CreateAsset(newMesh, meshPath);
                     skinnedMeshRenderer.sharedMesh = newMesh;
                 }
+                serializedObject.ApplyModifiedProperties();
+                EditorUtility.ClearProgressBar();
             }
-            serializedObject.ApplyModifiedProperties();
-            EditorUtility.ClearProgressBar();
         }
     }
 #endif

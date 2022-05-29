@@ -105,6 +105,9 @@ namespace PenetrationTech {
 
 
         protected override void OnEnable() {
+            if (Application.isPlaying) {
+                valid = true;
+            }
             if (!valid) {
                 return;
             }
