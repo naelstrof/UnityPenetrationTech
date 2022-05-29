@@ -9,18 +9,25 @@ namespace PenetrationTech {
     public class BoneTransformListener : PenetrableListener {
         [SerializeField]
         Transform targetBone;
-        Vector3 originalLocalPosition;
+        Vector3 originalLocalPosition = Vector3.positiveInfinity;
         Vector3 localOffset;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
-            originalLocalPosition = targetBone.localPosition;
+            if (float.IsPositiveInfinity(originalLocalPosition.x)) {
+                originalLocalPosition = targetBone.localPosition;
+            }
         }
         public override void OnDisable() {
             base.OnDisable();
-            targetBone.localPosition = originalLocalPosition;
+            if (!float.IsPositiveInfinity(originalLocalPosition.x)) {
+                targetBone.localPosition = originalLocalPosition;
+            }
         }
         protected override void OnPenetrationOffsetChange(Vector3 worldOffset) {
             base.OnPenetrationOffsetChange(worldOffset);
+            if (float.IsPositiveInfinity(originalLocalPosition.x)) {
+                return;
+            }
             localOffset = targetBone.parent.InverseTransformVector(worldOffset);
             targetBone.localPosition = originalLocalPosition + localOffset; 
         }

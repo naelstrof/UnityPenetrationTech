@@ -7,8 +7,6 @@ namespace PenetrationTech {
     [System.Serializable]
     public class GirthData {
         [Header("This data is generated automatically, and is only viewable for debugging!")]
-        [ReadOnly][SerializeField]
-        private RenderTexture texture;
         [ReadOnly][SerializeField][Tooltip("How long the penetrator is in local object space")]
         private float maxLocalLength;
         [ReadOnly][SerializeField][Tooltip("The maximum amount of girth radius around the penetrator axis, in local object space")]
@@ -38,7 +36,7 @@ namespace PenetrationTech {
         private Matrix4x4 worldToObject => rendererMask.renderer.worldToLocalMatrix;
 
         public static bool IsValid(GirthData data) {
-            return data != null && data.texture != null && data.rendererMask != null && data.localGirthRadiusCurve != null &&
+            return data != null && data.rendererMask != null && data.localGirthRadiusCurve != null &&
                    data.localGirthRadiusCurve.keys.Length != 0;
         }
 
@@ -102,6 +100,7 @@ namespace PenetrationTech {
             RenderTexture.active = temp;
             cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
             cpuTex.Apply();
+            RenderTexture.active = null;
             RenderTexture.ReleaseTemporary(temp);
 
             localXOffsetCurve = new AnimationCurve();
@@ -154,6 +153,7 @@ namespace PenetrationTech {
             RenderTexture.active = temp;
             cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
             cpuTex.Apply();
+            RenderTexture.active = null;
             RenderTexture.ReleaseTemporary(temp);
             // Then after we got it on the CPU, we use it to generate some curves that we can visualize in the editor (and easily sample).
             localGirthRadiusCurve = new AnimationCurve();
@@ -190,14 +190,9 @@ namespace PenetrationTech {
                 rotation = Quaternion.LookRotation(-mZ, -mY);
             }
         }
-        public GirthData(RendererSubMeshMask rendererWithMask, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
+        public GirthData(RenderTexture targetTexture, RendererSubMeshMask rendererWithMask, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
             rendererMask = rendererWithMask;
             dickRoot = root;
-            texture = new RenderTexture(256,256, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-            texture.useMipMap = true;
-            texture.autoGenerateMips = false;
-            texture.wrapMode = TextureWrapMode.Repeat;
-
             if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
                 int rootBoneID = -1;
                 for (int i = 0; i < skinnedMeshRenderer.bones.Length; i++) {
@@ -283,7 +278,7 @@ namespace PenetrationTech {
 
             // Then use the GPU to rasterize
             CommandBuffer buffer = new CommandBuffer();
-            buffer.SetRenderTarget(texture);
+            buffer.SetRenderTarget(targetTexture);
             buffer.ClearRenderTarget(false, true, Color.clear);
             for (int i = 0; i < mesh.subMeshCount; i++) {
                 if (!rendererMask.ShouldDrawSubmesh(i)) {
@@ -293,12 +288,11 @@ namespace PenetrationTech {
                 //buffer.DrawRenderer(rendererMask.renderer, mat, i, 0);
                 buffer.DrawMesh(mesh, Matrix4x4.identity, mat, i, 0);
             }
-
             Graphics.ExecuteCommandBuffer(buffer);
 
             // We need to do one more blits to ensure the full image gets filled.
             CommandBuffer additiveBuffer = new CommandBuffer();
-            additiveBuffer.SetRenderTarget(texture);
+            additiveBuffer.SetRenderTarget(targetTexture);
             for (int i = 0; i < mesh.subMeshCount; i++) {
                 if (!rendererMask.ShouldDrawSubmesh(i)) {
                     continue;
@@ -309,20 +303,9 @@ namespace PenetrationTech {
             mat.SetFloat("_AngleOffset", -Mathf.PI/2f);
             Graphics.ExecuteCommandBuffer(additiveBuffer);
 
-            texture.GenerateMips();
-            PopulateGirthCurve(texture);
-            PopulateOffsetCurves(texture);
+            targetTexture.GenerateMips();
+            PopulateGirthCurve(targetTexture);
+            PopulateOffsetCurves(targetTexture);
         }
-
-        public void Dispose() {
-            if (texture != null) {
-                texture.Release();
-            }
-        }
-
-        ~GirthData() {
-            Dispose();
-        }
-        public RenderTexture GetGirthMap() => texture;
     }
 }
