@@ -37,3 +37,7 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# Blender
+*.blend[0-9]
+*.blend[0-9].meta

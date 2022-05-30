@@ -1,26 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace PenetrationTech {
     [System.Serializable]
     [PenetrableListener(typeof(BoneTransformListener), "Simple Bone Offset Correction Listener")]
     public class BoneTransformListener : PenetrableListener {
-        [SerializeField]
-        Transform targetBone;
+        [FormerlySerializedAs("targetBone")] [SerializeField]
+        Transform offsetCorrectionBone;
         Vector3 originalLocalPosition = Vector3.positiveInfinity;
         Vector3 localOffset;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
             if (float.IsPositiveInfinity(originalLocalPosition.x)) {
-                originalLocalPosition = targetBone.localPosition;
+                originalLocalPosition = offsetCorrectionBone.localPosition;
             }
         }
         public override void OnDisable() {
             base.OnDisable();
             if (!float.IsPositiveInfinity(originalLocalPosition.x)) {
-                targetBone.localPosition = originalLocalPosition;
+                offsetCorrectionBone.localPosition = originalLocalPosition;
             }
         }
         protected override void OnPenetrationOffsetChange(Vector3 worldOffset) {
@@ -28,14 +29,14 @@ namespace PenetrationTech {
             if (float.IsPositiveInfinity(originalLocalPosition.x)) {
                 return;
             }
-            localOffset = targetBone.parent.InverseTransformVector(worldOffset);
-            targetBone.localPosition = originalLocalPosition + localOffset; 
+            localOffset = offsetCorrectionBone.parent.InverseTransformVector(worldOffset);
+            offsetCorrectionBone.localPosition = originalLocalPosition + localOffset; 
         }
 
         public override void AssertValid() {
             base.AssertValid();
-            if (targetBone == null) {
-                throw new PenetrableListenerValidationException($"Target bone on listener {this} is null.");
+            if (offsetCorrectionBone == null) {
+                throw new PenetrableListenerValidationException($"Offset correction bone on listener {this} is null.");
             }
         }
 
@@ -43,7 +44,7 @@ namespace PenetrationTech {
             base.OnDrawGizmosSelected(p);
             #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.white;
-            var parent = targetBone.parent;
+            var parent = offsetCorrectionBone.parent;
             UnityEditor.Handles.DrawLine(parent.TransformPoint(originalLocalPosition), parent.TransformPoint(originalLocalPosition + localOffset));
             UnityEditor.Handles.DrawWireCube(parent.TransformPoint(originalLocalPosition + localOffset), Vector3.one*0.005f);
             #endif

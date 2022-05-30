@@ -14,7 +14,13 @@ namespace PenetrationTech {
         private void DrawDropdownForProperties(Rect position, SkinnedMeshRenderer renderer, SerializedProperty blendNameProp, SerializedProperty blendIDProp) {
             string blendName = blendNameProp.stringValue;
             if (string.IsNullOrEmpty(blendName)) {
-                blendName = "None";
+                if (renderer != null && renderer.sharedMesh != null) {
+                    blendNameProp.stringValue = renderer.sharedMesh.GetBlendShapeName(0);
+                    blendNameProp.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                    blendName = blendNameProp.stringValue;
+                } else {
+                    blendName = "None";
+                }
             } else {
                 if (renderer != null && renderer.sharedMesh != null) {
                     if (renderer.sharedMesh.GetBlendShapeIndex(blendName) == -1) {

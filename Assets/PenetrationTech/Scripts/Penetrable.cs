@@ -44,7 +44,6 @@ namespace PenetrationTech {
                             p.listeners = new List<PenetrableListener>();
                         }
                         p.listeners.Add((PenetrableListener)Activator.CreateInstance(attribute.type));
-                        p.listeners[p.listeners.Count - 1].OnEnable(p);
                         serializedObject.ApplyModifiedProperties();
                         EditorUtility.SetDirty(p);
                     }
@@ -146,9 +145,12 @@ namespace PenetrationTech {
         }
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
+            CheckValid();
             if (!valid) {
                 return;
             }
+            UpdateWorldPoints();
+            path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);
             }
@@ -166,6 +168,14 @@ namespace PenetrationTech {
             valid = true;
             try {
                 AssertValid(points != null && points.Length > 1, "Please specify at least two points to form a curve.");
+                bool hasNullTransform = false;
+                foreach (Transform t in points) {
+                    if (t == null) {
+                        hasNullTransform = true;
+                        break;
+                    }
+                }
+                AssertValid(!hasNullTransform, "One of the path transforms is null.");
                 bool hasNullListener = false;
                 foreach (PenetrableListener listener in listeners) {
                     if (listener == null || !listener.GetType().IsSubclassOf(typeof(PenetrableListener))) {
@@ -198,8 +208,9 @@ namespace PenetrationTech {
                 colliderEntrance.transform.localPosition = Vector3.zero;
             }
             worldPoints ??= new List<Vector3>();
+            path ??= new CatmullSpline();
             UpdateWorldPoints();
-            path ??= new CatmullSpline().SetWeightsFromPoints(worldPoints);
+            path.SetWeightsFromPoints(worldPoints);
 
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
             foreach (PenetrableListener listener in listeners) {

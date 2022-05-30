@@ -4,45 +4,22 @@
 
 A gpu-based deformation system for mapping penetrators along orifice paths.
 
-![egg demo](demo.gif)
-
 # Features
 
-* Bezier curve based orifice definitions.
-  * Arbitrary soft turns and bends!
-  * Allows for all-the-way-through deformations.
-  * Orifaces can be two-way, or one-way with over-penetration protection.
-* Cross-sectional girth and offset analysis.
-  * Analytical push/tug forces that really make things **pop**.
-  * Approximates offsets needed to ensure things line up, even on wiggly/crooked shapes.
-* Supports physics simulations!
-  * Ragdolls react to kinematic penetrations, and attempt to position themselves in a sane way.
-* Many simultaneous penetrations!
-  * Uses a deterministic circle packing algorithm to fit many penetrators into the same orifice.
-* Arbitrary blendshape deformation support.
-  * Make penetrators wiggle, pulse, squish, stretch, and bulge: things will react to it!
-* Uses an Amplify Shader Editor node in order to do all of the deformation calculations.
-  * Write your own shaders that support it!
-* Advanced clipping features.
-  * Penetrators get pinched and turned invisible within opaque orifices.
-* Supports LODGroups!
-  * Meshes can be built out of many pieces, with many lod groups-- yet everything still works properly!
-* Depth events for both orifice and penetrators. On tug and push.
-  * Trigger sounds, particles, animations, or whatever else. Give both orifices and penetrators unique personalities.
-
-# Limitations
-
-* Since orifices can only be defined with a single bezier curve, proper xy-offsets get very difficult to calculate. Try to keep penetrators completely along one axis, otherwise they might clip strangely.
-* Penetrators use UV2.w, UV3, and UV4 to bake blendshapes for the shader to read. This limits three things:
-  * Penetrators shouldn't have blendshape normals (They can be disabled in the import settings).
-  * Penetrators MUST have these three blendshapes available, even if they're unused: `DickSquish`, `DickPull`, `DickCum`.
-  * Penetrators are extremely sensitive to having correct normals and tangents (for in-shader tangent space calculations). Playing with the Normals and Tangent import settings is almost required because there's many configurations that gets this incorrect.
-* This system is *immensely* complicated, I needed it to cover a huge number of use cases. It's NOT easy to use. Feel free to contact me for help!
-
-# Tutorial
-
-A tutorial won't be featured here due to the sensitive nature of the content. One will be posted to my gumroad shortly. (and a link will appear here when it does)
-This example project could be enough for some to get started, though!
+* Advanced Catmull-rom skinning system.
+  - Arbitrary soft turns and bends!
+  - Allows for all-the-way-through deformations.
+  - GPU powered skinning, its very fast!
+* GPU cross-sectional girth and offset analysis.
+  - Abuses GPU rasterization to analyze the shape of penetrators. Its very fast!
+  - Analytical push/tug forces, computed from the derivative of the girth map.
+  - Approximates offsets needed to ensure things line up.
+* Simple cginc for easy custom shader creation.
+  - Also includes Amplify Shader Editor function nodes for easy drag-and-drop support.
+  - Can be used in Shader Graph as well, though this is not recommended as Shader Graph is currently buggy.
+* Penetration event listeners, for both orifices and penetrators.
+  - Easily create custom listeners to detect particular things.
+  - Play custom sound effects, trigger animations, apply forces, etc.
 
 # Installation
 
@@ -57,3 +34,106 @@ Or if that doesn't work, add it to the manifest.json like so.
   }
 }
 ```
+
+# Quick-Start guide (Penetrable)
+
+---
+
+This guide is for someone who has a model, and some blender experience.
+Lets say we have a model we want to penetrate, like a donut!
+
+![Donut Model In Blender](tutorialimages/donutBlender.png)
+
+While this could possibly deform well with procedural deformations, it's more common to manually author the deformations. There's two kind of deformations that PenetrationTech requires: Offset, and girth.
+
+1. Girth deformations can be supported with a blendshape!
+ For this donut, we only have to worry about a single cross-section of a deformation,
+ for more complicated set ups you might need a chain of blendshapes.
+ 
+[//]: <> (Add video via github api: donutGirthBlendshape.mp4)
+2. Offset deformations must be supported with a bone, this is to correct for off-center or bumpy penetrators.
+ Don't worry about the orientation of the bone, just make sure its somewhat in the center.
+ 
+[//]: <> (Add video via github api: donutArmatureOffset.mp4)
+3. Done! That's all the model requirements, export it to Unity as an FBX (or save as a .blend).
+
+Now we can use the model within Unity.
+
+4. Add the *Penetrable* Monobehaviour to an object.
+5. Add Empty transforms to represent the path the penetrator will follow, these can be parented to deform with the mesh.
+ For this donut, we want to avoid using the *Offset Correction bone*, or a child of it, to prevent feed-back loops.
+
+![Donut Path](tutorialimages/donutpath.png)
+6. Add listeners, depending on the kind of mesh, in order to have the mesh react.
+ For the donut, we will use a *Simple Blendshape Listener*, which will trigger the blendshape we set up.
+
+![Donut Listeners](tutorialimages/donutAddListener.png)
+7. Correct errors that appear at the top of the inspector, each listener has its own requirements to run properly.
+ In this case, *Simple Blendshape Listener* needs a target mesh, a blendshape,
+ and an *Offset Correction bone* to deal with off-center penetrations.
+
+![Donut Listener Exception](tutorialimages/donutListenerException.png)
+
+8. Now we need to manually trigger our blendshape to set up the girth variable of the *Simple Blendshape Listener*.
+ 
+[//]: <> (Add video via github api: simpleBlendshapeSetup.mp4)
+
+9. Now you can test the model using another penetrator in the scene by enabling *Auto penetrate* on the penetrator.
+
+[//]: <> (Add video via github api: success.mp4)
+
+# Model guide (Penetrator)
+
+---
+
+This guide is for someone who has a model that represents a penetrator. Lets say we have a banana!
+
+![Banana Model In Blender](tutorialimages/bananaBlender.png)
+
+There's two requirements for penetrators: It must have a transform at the center of its base (either a bone or the origin), and it must be straight.
+Our banana in this case doesn't meet either requirement, so lets fix that!
+
+1. Straighten the penetrator, no curves allowed! This is because girth analysis happens along one axis.
+Don't worry about how funny it looks, we can re-introduce the curve later within Unity.
+Ensure that this shape is the "basis shape", as blendshapes aren't supported in the girth analysis (yet).
+ 
+[//]: <> (Add video via github api: bananaStraighten.mp4)
+
+2. Ensure that the bone, or origin, is at the center of the base of the penetrator. 
+For the banana, we just need to use the `Set Origin to 3D Cursor` command since the banana isn't on an armature.
+It's helpful to have the penetrator go along a cardinal axis, though this isn't required.
+3. Done! That's all that needs to be done for a penetrator to support the tech properly.
+
+Now we can use the model within Unity.
+
+4. Add a *Penetrator* Monobehaviour to the gameobject, then start fixing the errors at the top of the inspector.
+
+![Banana exceptions](tutorialimages/bananaExceptions.png)
+
+5. Once all the errors are fixed, the renderer is now receiving deformation data. But there's no material to receive it!
+Lets quickly create one, just make sure it uses a shader that supports the deformation data, like `PenetrationTech/Penetrator`.
+
+![Banana material settings](tutorialimages/bananaMaterial.png)
+
+6. Applying that to our model, we'll see that its broken/invisible!
+
+This is due to our axis being set up incorrectly, and is easy to fix.
+Simply change the forward axis (the blue dotted line) in the same direction of the penetrator,
+then flip the Right or Up axis if it ends up inside-out.
+
+[//]: <> (Add video via github api: bananaInsideOut.mp4)
+
+7. Now that the banana is correctly rendering, and the girth display (white circles) are displaying correctly
+we can reintroduce the curve with the *Tip Target* option like so.
+ 
+[//]: <> (Add video via github api: bananaRecurve.mp4)
+
+8. Finally enable Auto-Penetrate, or specify a penetrable, and it should start working!
+
+[//]: <> (Add video via github api: success.mp4)
+
+## Need help?
+
+---
+
+Many things were not covered here, if you need help with this technology please contact me! I'd love to help.
