@@ -126,7 +126,7 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 position, float3 wo
     float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));
 
     // Convert the distance into an overall t sample value
-    float t = DistanceToTime(0,dist);
+    float t = saturate(DistanceToTime(0,dist));
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
     float subT = GetCurveSegment(0, t, curveSegmentIndex);

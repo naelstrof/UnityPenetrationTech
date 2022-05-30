@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,7 @@ namespace PenetrationTech {
         }
         public override void OnValidate(Penetrable p) {
             base.OnValidate(p);
+            targets ??= Array.Empty<SkinnedMeshBlendshapePushPullExpandSet>();
             pullT = Mathf.Min(pullT, 0f);
             pushT = Mathf.Max(pushT, 0f);
         }

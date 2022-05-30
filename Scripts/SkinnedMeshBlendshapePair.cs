@@ -19,9 +19,16 @@ namespace PenetrationTech {
             position.x += width*0.75f + 10f;
             position.width = width*0.25f - 10f;
             SkinnedMeshRenderer renderer = (SkinnedMeshRenderer)rendererProperty.objectReferenceValue;
-            string blendName = property.FindPropertyRelative("blendshapeName").stringValue;
-            if (string.IsNullOrEmpty(blendName)) {
-                blendName = "None";
+            SerializedProperty blendNameProp = property.FindPropertyRelative("blendshapeName");
+            string blendName = blendNameProp.stringValue;
+            if (string.IsNullOrEmpty(blendNameProp.stringValue)) {
+                if (renderer != null && renderer.sharedMesh != null) {
+                    blendNameProp.stringValue = renderer.sharedMesh.GetBlendShapeName(0);
+                    blendNameProp.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                    blendName = blendNameProp.stringValue;
+                } else {
+                    blendName = "None";
+                }
             } else {
                 if (renderer != null && renderer.sharedMesh != null) {
                     if (renderer.sharedMesh.GetBlendShapeIndex(blendName) == -1) {
