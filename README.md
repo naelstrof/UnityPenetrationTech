@@ -20,6 +20,8 @@ A gpu-based deformation system for mapping penetrators along orifice paths.
 * Penetration event listeners, for both orifices and penetrators.
   - Easily create custom listeners to detect particular things.
   - Play custom sound effects, trigger animations, apply forces, etc.
+* Works entirely within the editor
+  - Work with and adjust animations while previewing exactly how the penetrators and penetrables will react.
 
 # Installation
 
