@@ -13,7 +13,11 @@ struct CatmullSplineData {
 // FIXME: I'm not actually sure this can even compile on mobile platforms. We need to double check.
 // Thoeretically there's no reason to use dynamic buffers like this (we should have static spline counts anyway).
 // But this was the most convienient way I could think of for the programming side of things.
+#ifdef SHADER_API_D3D11
 StructuredBuffer<CatmullSplineData> _CatmullSplines;
+#else
+CatmullSplineData _CatmullSplines[4];
+#endif
 
 float3 GetBinormalFromT(int curveIndex, float t) {
     int count = BINORMAL_COUNT;
@@ -218,7 +222,11 @@ struct PenetratorData {
     int holeSubCurveCount;
 };
 
+#ifdef SHADER_API_D3D11
 StructuredBuffer<PenetratorData> _PenetratorData;
+#else
+PenetratorData _PenetratorData[4];
+#endif
 
 void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float compressibleDistance, sampler2D girthMap, PenetratorData data, int curveIndex, float smoothness) {
     // Just skip everything if blend is 0, we might not even have curves to sample.
