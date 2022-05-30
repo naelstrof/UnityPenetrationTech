@@ -50,11 +50,15 @@ While this could possibly deform well with procedural deformations, it's more co
  For this donut, we only have to worry about a single cross-section of a deformation,
  for more complicated set ups you might need a chain of blendshapes.
  
-[//]: <> (Add video via github api: donutGirthBlendshape.mp4)
+
+https://user-images.githubusercontent.com/1131571/170908291-dc14856f-fcc2-4b3c-afc4-7c629dffb044.mp4
+
+
 2. Offset deformations must be supported with a bone, this is to correct for off-center or bumpy penetrators.
  Don't worry about the orientation of the bone, just make sure its somewhat in the center.
- 
-[//]: <> (Add video via github api: donutArmatureOffset.mp4)
+
+https://user-images.githubusercontent.com/1131571/170908346-6d7fa57d-bf6e-4c63-ac50-668e9729c847.mp4
+
 3. Done! That's all the model requirements, export it to Unity as an FBX (or save as a .blend).
 
 Now we can use the model within Unity.
@@ -63,7 +67,7 @@ Now we can use the model within Unity.
 5. Add Empty transforms to represent the path the penetrator will follow, these can be parented to deform with the mesh.
  For this donut, we want to avoid using the *Offset Correction bone*, or a child of it, to prevent feed-back loops.
 
-![Donut Path](tutorialimages/donutpath.png)
+![Donut Path](tutorialimages/donutpath.png) 
 6. Add listeners, depending on the kind of mesh, in order to have the mesh react.
  For the donut, we will use a *Simple Blendshape Listener*, which will trigger the blendshape we set up.
 
@@ -75,12 +79,14 @@ Now we can use the model within Unity.
 ![Donut Listener Exception](tutorialimages/donutListenerException.png)
 
 8. Now we need to manually trigger our blendshape to set up the girth variable of the *Simple Blendshape Listener*.
- 
-[//]: <> (Add video via github api: simpleBlendshapeSetup.mp4)
+
+https://user-images.githubusercontent.com/1131571/170908381-ae278b43-7663-4a0a-8da8-72cf7ac61345.mp4
 
 9. Now you can test the model using another penetrator in the scene by enabling *Auto penetrate* on the penetrator.
 
-[//]: <> (Add video via github api: success.mp4)
+
+https://user-images.githubusercontent.com/1131571/170908409-59c472bf-8078-4207-b6a6-4c3df92b1cd7.mp4
+
 
 # Model guide (Penetrator)
 
@@ -96,8 +102,8 @@ Our banana in this case doesn't meet either requirement, so lets fix that!
 1. Straighten the penetrator, no curves allowed! This is because girth analysis happens along one axis.
 Don't worry about how funny it looks, we can re-introduce the curve later within Unity.
 Ensure that this shape is the "basis shape", as blendshapes aren't supported in the girth analysis (yet).
- 
-[//]: <> (Add video via github api: bananaStraighten.mp4)
+
+https://user-images.githubusercontent.com/1131571/170908526-43bb1a89-e95d-4ba4-9892-de99a49ce632.mp4
 
 2. Ensure that the bone, or origin, is at the center of the base of the penetrator. 
 For the banana, we just need to use the `Set Origin to 3D Cursor` command since the banana isn't on an armature.
@@ -121,16 +127,16 @@ This is due to our axis being set up incorrectly, and is easy to fix.
 Simply change the forward axis (the blue dotted line) in the same direction of the penetrator,
 then flip the Right or Up axis if it ends up inside-out.
 
-[//]: <> (Add video via github api: bananaInsideOut.mp4)
+https://user-images.githubusercontent.com/1131571/170908495-ba665dd2-fc0c-4f0a-bc07-ed74909a3d18.mp4
 
 7. Now that the banana is correctly rendering, and the girth display (white circles) are displaying correctly
 we can reintroduce the curve with the *Tip Target* option like so.
  
-[//]: <> (Add video via github api: bananaRecurve.mp4)
+https://user-images.githubusercontent.com/1131571/170908464-03938228-d324-4479-abd4-f541d7ac3ef5.mp4
 
 8. Finally enable Auto-Penetrate, or specify a penetrable, and it should start working!
 
-[//]: <> (Add video via github api: success.mp4)
+https://user-images.githubusercontent.com/1131571/170908409-59c472bf-8078-4207-b6a6-4c3df92b1cd7.mp4
 
 ## Need help?
 
