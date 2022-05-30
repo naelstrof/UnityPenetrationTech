@@ -108,19 +108,14 @@ float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t
             + (-6.0 * t * t + 6.0 * t) * end
             + (3.0 * t * t - 2.0 * t) * tanPoint2;
 }
-void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 position, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 normal, float4 tangent, float4x4 worldToObject, float4x4 objectToWorld, out float3 positionOUT, out float3 normalOUT, out float4 tangentOUT) {
+void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 worldNormal, float4 worldTangent, out float3 worldPositionOUT, out float3 worldNormalOUT, out float4 worldTangentOUT) {
     // We want to work in world space, as everything we're working with is there. Here we convert everything into world space.
-    float3 worldPosition = mul(objectToWorld,float4(position.xyz,1)).xyz;
     //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
     //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
 
     //float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
     //float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
     //float3 worldDickUp = normalize(mul(objectToWorld,float4(dickUp.xyz,0)).xyz);
-
-    // Ensure these are world space directions by normalizing and using 0 in the w component.
-    float3 worldNormal = normalize(mul(objectToWorld,float4(normal.xyz,0)).xyz);
-    float3 worldTangent = normalize(mul(objectToWorld,float4(tangent.xyz,0)).xyz);
     
     // Dot product gives us how far along an axis a position is. This is the dick length distance from the dick root to the particular position.
     float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));
@@ -182,13 +177,13 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 position, float3 wo
     float3 localFrameNormal = mul(worldToDickBasisTransform, worldFrameNormal.xyz).xyz;
     float3 worldFrameNormalRotated = mul(dickToCatmullBasisTransform, localFrameNormal.xyz);
     worldFrameNormalRotated = RotateAroundAxisPenetration(worldFrameNormalRotated, catForward, angle);
-    normalOUT = normalize(mul(worldToObject, float4(worldFrameNormalRotated,0)).xyz);
+    worldNormalOUT = normalize(worldFrameNormalRotated);
 
     float3 worldFrameTangent = worldTangent;
     float3 localFrameTangent = mul(worldToDickBasisTransform, worldFrameTangent.xyz).xyz;
     float3 worldFrameTangentRotated = mul(dickToCatmullBasisTransform, localFrameTangent.xyz).xyz;
     worldFrameTangentRotated = RotateAroundAxisPenetration(worldFrameTangentRotated, catForward, angle);
-    tangentOUT = float4(normalize(mul(worldToObject, float4(worldFrameTangentRotated,0)).xyz).xyz, tangent.w);
+    worldTangentOUT = float4(normalize(worldFrameTangentRotated).xyz, worldTangent.w);
 
     // Frame refers to the particular slice of the model we're working on, 0,0,0 being the core of the cylinder.
     float3 worldFrame = (worldPosition - (worldDickRootPos+worldDickForward*dist));
@@ -203,7 +198,7 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 position, float3 wo
     float3 catmullSpacePosition = catPosition+worldFrameRotated;
 
     // Bring it back into object space, now that we're done working on it.
-    positionOUT = mul(worldToObject,float4(catmullSpacePosition,1)).xyz;
+    worldPositionOUT = catmullSpacePosition;
 }
 
 // Penetratable stuff down below
@@ -261,11 +256,10 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
     worldPosition += normalize(diff)*(girthSample)*(1-compressionFactor);
 }
 
-void GetDeformationFromPenetrators_float(float3 position, float4 uv2, float compressibleDistance, float smoothness, float4x4 worldToObject, float4x4 objectToWorld, out float3 deformedPosition) {
-    float3 worldPosition = mul(objectToWorld, float4(position.xyz,1)).xyz;
+void GetDeformationFromPenetrators_float(float3 worldPosition, float4 uv2, float compressibleDistance, float smoothness, out float3 deformedPosition) {
     GetDeformationFromPenetrator(worldPosition, uv2.x, compressibleDistance, _DickGirthMapX, _PenetratorData[0], 0, smoothness);
     GetDeformationFromPenetrator(worldPosition, uv2.y, compressibleDistance, _DickGirthMapY, _PenetratorData[1], 1, smoothness);
     GetDeformationFromPenetrator(worldPosition, uv2.z, compressibleDistance, _DickGirthMapZ, _PenetratorData[2], 2, smoothness);
     GetDeformationFromPenetrator(worldPosition, uv2.w, compressibleDistance, _DickGirthMapW, _PenetratorData[3], 3, smoothness);
-    deformedPosition = mul(worldToObject, float4(worldPosition.xyz,1)).xyz;
+    deformedPosition = worldPosition;
 }

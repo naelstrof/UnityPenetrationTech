@@ -1,23 +1,16 @@
 // Made with Amplify Shader Editor
 // Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "PenetrationTech/Penetrator"
+Shader "PenetrationTech/URP/ProceduralPenetrable"
 {
 	Properties
 	{
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		[HideInInspector]_DickRootWorld("DickRootWorld", Vector) = (0,0,0,0)
-		[HideInInspector]_DickForwardWorld("DickForwardWorld", Vector) = (0,0,0,0)
-		[HideInInspector]_DickRightWorld("DickRightWorld", Vector) = (0,0,0,0)
-		[HideInInspector]_DickUpWorld("DickUpWorld", Vector) = (0,0,0,0)
-		[HideInInspector]_StartClip("_StartClip", Float) = 0
-		[HideInInspector]_EndClip("_EndClip", Float) = 0
-		[HideInInspector]_SquashStretchCorrection("_SquashStretchCorrection", Float) = 1
-		[HideInInspector]_DistanceToHole("_DistanceToHole", Float) = 0
-		[HideInInspector]_DickWorldLength("_DickWorldLength", Float) = 1
 		[ASEBegin]_BaseColorMap("BaseColorMap", 2D) = "white" {}
 		_NormalMap("NormalMap", 2D) = "bump" {}
-		[ASEEnd]_MaskMap("MaskMap", 2D) = "black" {}
+		_MaskMap("MaskMap", 2D) = "black" {}
+		_CompressibleDistance("CompressibleDistance", Range( 0 , 1)) = 0.3
+		[ASEEnd]_Smoothness("Smoothness", Range( 0 , 10)) = 1
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 
 		//_TransmissionShadow( "Transmission Shadow", Range( 0, 1 ) ) = 0.5
@@ -45,7 +38,7 @@ Shader "PenetrationTech/Penetrator"
 		Cull Back
 		AlphaToMask Off
 		HLSLINCLUDE
-		#pragma target 3.0
+		#pragma target 2.0
 
 		#pragma prefer_hlslcc gles
 		#pragma exclude_renderers d3d11_9x 
@@ -176,7 +169,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -216,8 +208,6 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
-			#define ASE_NEEDS_VERT_TANGENT
 
 
 			struct VertexInput
@@ -227,7 +217,7 @@ Shader "PenetrationTech/Penetrator"
 				float4 ase_tangent : TANGENT;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord : TEXCOORD0;
-				
+				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -246,7 +236,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 screenPos : TEXCOORD6;
 				#endif
 				float4 ase_texcoord7 : TEXCOORD7;
-				float4 ase_texcoord8 : TEXCOORD8;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -255,15 +244,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -289,22 +271,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _MaskMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -312,43 +279,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
-				o.ase_texcoord8 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord7.zw = 0;
@@ -357,14 +302,13 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
-				v.ase_normal = normalOUT56_g2;
-				v.ase_tangent = tangentOUT56_g2;
+				v.ase_normal = v.ase_normal;
 
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				float3 positionVS = TransformWorldToView( positionWS );
@@ -414,7 +358,8 @@ Shader "PenetrationTech/Penetrator"
 				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
-				
+				float4 ase_texcoord2 : TEXCOORD2;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -434,7 +379,8 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
-				
+				o.texcoord = v.texcoord;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				return o;
 			}
 
@@ -476,7 +422,8 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
-				
+				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -546,11 +493,6 @@ Shader "PenetrationTech/Penetrator"
 				float2 uv_MaskMap = IN.ase_texcoord7.xy * _MaskMap_ST.xy + _MaskMap_ST.zw;
 				float4 tex2DNode33 = tex2D( _MaskMap, uv_MaskMap );
 				
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord8.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
-				
 				float3 Albedo = tex2DNode31.rgb;
 				float3 Normal = UnpackNormalScale( tex2D( _NormalMap, uv_NormalMap ), 1.0f );
 				float3 Emission = 0;
@@ -558,7 +500,7 @@ Shader "PenetrationTech/Penetrator"
 				float Metallic = tex2DNode33.r;
 				float Smoothness = tex2DNode33.a;
 				float Occlusion = 1;
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 				float3 BakedGI = 0;
@@ -731,7 +673,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -748,14 +689,13 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
 
 
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -770,7 +710,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 shadowCoord : TEXCOORD1;
 				#endif
 				float4 ase_texcoord2 : TEXCOORD2;
-				float4 ase_texcoord3 : TEXCOORD3;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -779,15 +718,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -811,22 +743,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _BaseColorMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			float3 _LightDirection;
 
 			VertexOutput VertexFunction( VertexInput v )
@@ -836,43 +753,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( o );
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
-				o.ase_texcoord3 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord2.zw = 0;
@@ -881,14 +776,14 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.ase_normal = normalOUT56_g2;
+				v.ase_normal = v.ase_normal;
 
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
@@ -918,7 +813,7 @@ Shader "PenetrationTech/Penetrator"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -937,7 +832,7 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				o.ase_tangent = v.ase_tangent;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -977,7 +872,7 @@ Shader "PenetrationTech/Penetrator"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -1026,12 +921,8 @@ Shader "PenetrationTech/Penetrator"
 
 				float2 uv_BaseColorMap = IN.ase_texcoord2.xy * _BaseColorMap_ST.xy + _BaseColorMap_ST.zw;
 				float4 tex2DNode31 = tex2D( _BaseColorMap, uv_BaseColorMap );
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord3.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
 				
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -1077,7 +968,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -1094,14 +984,13 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
 
 
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1116,7 +1005,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 shadowCoord : TEXCOORD1;
 				#endif
 				float4 ase_texcoord2 : TEXCOORD2;
-				float4 ase_texcoord3 : TEXCOORD3;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -1125,15 +1013,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -1157,22 +1038,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _BaseColorMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -1180,43 +1046,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
-				o.ase_texcoord3 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord2.zw = 0;
@@ -1225,14 +1069,14 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.ase_normal = normalOUT56_g2;
+				v.ase_normal = v.ase_normal;
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				float4 positionCS = TransformWorldToHClip( positionWS );
 
@@ -1255,7 +1099,7 @@ Shader "PenetrationTech/Penetrator"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -1274,7 +1118,7 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				o.ase_tangent = v.ase_tangent;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -1314,7 +1158,7 @@ Shader "PenetrationTech/Penetrator"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -1362,12 +1206,8 @@ Shader "PenetrationTech/Penetrator"
 
 				float2 uv_BaseColorMap = IN.ase_texcoord2.xy * _BaseColorMap_ST.xy + _BaseColorMap_ST.zw;
 				float4 tex2DNode31 = tex2D( _BaseColorMap, uv_BaseColorMap );
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord3.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
 				
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 				#ifdef ASE_DEPTH_WRITE_ON
 				float DepthValue = 0;
@@ -1406,7 +1246,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -1423,7 +1262,6 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
 
 
 			#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
@@ -1434,7 +1272,6 @@ Shader "PenetrationTech/Penetrator"
 				float3 ase_normal : NORMAL;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
-				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1449,7 +1286,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 shadowCoord : TEXCOORD1;
 				#endif
 				float4 ase_texcoord2 : TEXCOORD2;
-				float4 ase_texcoord3 : TEXCOORD3;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -1458,15 +1294,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -1490,22 +1319,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _BaseColorMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -1513,43 +1327,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.texcoord2;
+				texCoord3_g2.xy = v.texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
-				o.ase_texcoord3 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord2.zw = 0;
@@ -1559,14 +1351,14 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.ase_normal = normalOUT56_g2;
+				v.ase_normal = v.ase_normal;
 
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
@@ -1590,7 +1382,6 @@ Shader "PenetrationTech/Penetrator"
 				float3 ase_normal : NORMAL;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
-				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -1611,7 +1402,6 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_normal = v.ase_normal;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
-				o.ase_tangent = v.ase_tangent;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -1653,7 +1443,6 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
-				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -1693,15 +1482,10 @@ Shader "PenetrationTech/Penetrator"
 				float2 uv_BaseColorMap = IN.ase_texcoord2.xy * _BaseColorMap_ST.xy + _BaseColorMap_ST.zw;
 				float4 tex2DNode31 = tex2D( _BaseColorMap, uv_BaseColorMap );
 				
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord3.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
-				
 				
 				float3 Albedo = tex2DNode31.rgb;
 				float3 Emission = 0;
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 
 				#ifdef _ALPHATEST_ON
@@ -1738,7 +1522,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -1756,7 +1539,6 @@ Shader "PenetrationTech/Penetrator"
 			
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
 
 
 			#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
@@ -1765,7 +1547,7 @@ Shader "PenetrationTech/Penetrator"
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1780,7 +1562,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 shadowCoord : TEXCOORD1;
 				#endif
 				float4 ase_texcoord2 : TEXCOORD2;
-				float4 ase_texcoord3 : TEXCOORD3;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -1789,15 +1570,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -1821,22 +1595,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _BaseColorMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -1844,43 +1603,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID( v, o );
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( o );
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
-				o.ase_texcoord3 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord2.zw = 0;
@@ -1890,14 +1627,14 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.ase_normal = normalOUT56_g2;
+				v.ase_normal = v.ase_normal;
 
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				float4 positionCS = TransformWorldToHClip( positionWS );
@@ -1922,7 +1659,7 @@ Shader "PenetrationTech/Penetrator"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -1941,7 +1678,7 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				o.ase_tangent = v.ase_tangent;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -1981,7 +1718,7 @@ Shader "PenetrationTech/Penetrator"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -2021,14 +1758,9 @@ Shader "PenetrationTech/Penetrator"
 				float2 uv_BaseColorMap = IN.ase_texcoord2.xy * _BaseColorMap_ST.xy + _BaseColorMap_ST.zw;
 				float4 tex2DNode31 = tex2D( _BaseColorMap, uv_BaseColorMap );
 				
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord3.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
-				
 				
 				float3 Albedo = tex2DNode31.rgb;
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 
 				half4 color = half4( Albedo, Alpha );
@@ -2062,7 +1794,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -2079,14 +1810,13 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
 
 
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2102,7 +1832,6 @@ Shader "PenetrationTech/Penetrator"
 				#endif
 				float3 worldNormal : TEXCOORD2;
 				float4 ase_texcoord3 : TEXCOORD3;
-				float4 ase_texcoord4 : TEXCOORD4;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -2111,15 +1840,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -2143,22 +1865,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _BaseColorMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -2166,43 +1873,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord3.xy = v.ase_texcoord.xy;
-				o.ase_texcoord4 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord3.zw = 0;
@@ -2211,14 +1896,14 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.ase_normal = normalOUT56_g2;
+				v.ase_normal = v.ase_normal;
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				float3 normalWS = TransformObjectToWorldNormal( v.ase_normal );
 				float4 positionCS = TransformWorldToHClip( positionWS );
@@ -2244,7 +1929,7 @@ Shader "PenetrationTech/Penetrator"
 			{
 				float4 vertex : INTERNALTESSPOS;
 				float3 ase_normal : NORMAL;
-				float4 ase_tangent : TANGENT;
+				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -2263,7 +1948,7 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				o.vertex = v.vertex;
 				o.ase_normal = v.ase_normal;
-				o.ase_tangent = v.ase_tangent;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -2303,7 +1988,7 @@ Shader "PenetrationTech/Penetrator"
 				VertexInput o = (VertexInput) 0;
 				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
 				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
-				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -2351,12 +2036,8 @@ Shader "PenetrationTech/Penetrator"
 
 				float2 uv_BaseColorMap = IN.ase_texcoord3.xy * _BaseColorMap_ST.xy + _BaseColorMap_ST.zw;
 				float4 tex2DNode31 = tex2D( _BaseColorMap, uv_BaseColorMap );
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord4.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
 				
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 				#ifdef ASE_DEPTH_WRITE_ON
 				float DepthValue = 0;
@@ -2401,7 +2082,6 @@ Shader "PenetrationTech/Penetrator"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 999999
 
@@ -2439,8 +2119,6 @@ Shader "PenetrationTech/Penetrator"
 
 			#include "Assets/PenetrationTech/Shaders/Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
-			#define ASE_NEEDS_VERT_NORMAL
-			#define ASE_NEEDS_VERT_TANGENT
 
 
 			struct VertexInput
@@ -2450,7 +2128,7 @@ Shader "PenetrationTech/Penetrator"
 				float4 ase_tangent : TANGENT;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord : TEXCOORD0;
-				
+				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -2469,7 +2147,6 @@ Shader "PenetrationTech/Penetrator"
 				float4 screenPos : TEXCOORD6;
 				#endif
 				float4 ase_texcoord7 : TEXCOORD7;
-				float4 ase_texcoord8 : TEXCOORD8;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -2478,15 +2155,8 @@ Shader "PenetrationTech/Penetrator"
 			float4 _BaseColorMap_ST;
 			float4 _NormalMap_ST;
 			float4 _MaskMap_ST;
-			float3 _DickRootWorld;
-			float3 _DickRightWorld;
-			float3 _DickUpWorld;
-			float3 _DickForwardWorld;
-			float _SquashStretchCorrection;
-			float _DistanceToHole;
-			float _DickWorldLength;
-			float _StartClip;
-			float _EndClip;
+			float _CompressibleDistance;
+			float _Smoothness;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
 			#endif
@@ -2512,22 +2182,7 @@ Shader "PenetrationTech/Penetrator"
 			sampler2D _MaskMap;
 
 
-			float3x3 ChangeOfBasis9_g2( float3 right, float3 up, float3 forward )
-			{
-				float3x3 basisTransform = 0;
-				    basisTransform[0][0] = right.x;
-				    basisTransform[0][1] = right.y;
-				    basisTransform[0][2] = right.z;
-				    basisTransform[1][0] = up.x;
-				    basisTransform[1][1] = up.y;
-				    basisTransform[1][2] = up.z;
-				    basisTransform[2][0] = forward.x;
-				    basisTransform[2][1] = forward.y;
-				    basisTransform[2][2] = forward.z;
-				return basisTransform;
-			}
 			
-
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -2535,43 +2190,21 @@ Shader "PenetrationTech/Penetrator"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float localToCatmullRomSpace_float56_g2 = ( 0.0 );
-				float3 worldDickRootPos56_g2 = _DickRootWorld;
-				float3 right9_g2 = _DickRightWorld;
-				float3 up9_g2 = _DickUpWorld;
-				float3 forward9_g2 = _DickForwardWorld;
-				float3x3 localChangeOfBasis9_g2 = ChangeOfBasis9_g2( right9_g2 , up9_g2 , forward9_g2 );
-				float4 appendResult67_g2 = (float4(v.vertex.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float3 temp_output_12_0_g2 = mul( localChangeOfBasis9_g2, ( temp_output_68_0_g2 - _DickRootWorld ) );
-				float3 break15_g2 = temp_output_12_0_g2;
-				float temp_output_18_0_g2 = ( break15_g2.z * _SquashStretchCorrection );
-				float3 appendResult26_g2 = (float3(break15_g2.x , break15_g2.y , temp_output_18_0_g2));
-				float3 appendResult25_g2 = (float3(( break15_g2.x / _SquashStretchCorrection ) , ( break15_g2.y / _SquashStretchCorrection ) , temp_output_18_0_g2));
-				float temp_output_17_0_g2 = ( _DistanceToHole * 0.5 );
-				float smoothstepResult23_g2 = smoothstep( 0.0 , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float smoothstepResult22_g2 = smoothstep( _DistanceToHole , temp_output_17_0_g2 , temp_output_18_0_g2);
-				float3 lerpResult31_g2 = lerp( appendResult26_g2 , appendResult25_g2 , min( smoothstepResult23_g2 , smoothstepResult22_g2 ));
-				float3 lerpResult32_g2 = lerp( lerpResult31_g2 , ( temp_output_12_0_g2 + ( ( _DistanceToHole - ( _DickWorldLength * ( _DistanceToHole / ( _SquashStretchCorrection * _DickWorldLength ) ) ) ) * float3(0,0,1) ) ) , step( _DistanceToHole , temp_output_18_0_g2 ));
-				float4 appendResult39_g2 = (float4(( _DickRootWorld + mul( transpose( localChangeOfBasis9_g2 ), lerpResult32_g2 ) ) , 1.0));
-				float4 transform43_g2 = mul(GetWorldToObjectMatrix(),appendResult39_g2);
-				float4 newPosition44_g2 = transform43_g2;
-				float3 position56_g2 = newPosition44_g2.xyz;
-				float3 worldDickForward56_g2 = _DickForwardWorld;
-				float3 worldDickUp56_g2 = _DickUpWorld;
-				float3 worldDickRight56_g2 = _DickRightWorld;
-				float3 normal56_g2 = v.ase_normal;
-				float4 tangent56_g2 = v.ase_tangent;
-				float4x4 worldToObject56_g2 = GetWorldToObjectMatrix();
-				float4x4 objectToWorld56_g2 = GetObjectToWorldMatrix();
-				float3 positionOUT56_g2 = float3( 0,0,0 );
-				float3 normalOUT56_g2 = float3( 0,0,0 );
-				float4 tangentOUT56_g2 = float4( 0,0,0,0 );
-				ToCatmullRomSpace_float( worldDickRootPos56_g2 , position56_g2 , worldDickForward56_g2 , worldDickUp56_g2 , worldDickRight56_g2 , normal56_g2 , tangent56_g2 , worldToObject56_g2 , objectToWorld56_g2 , positionOUT56_g2 , normalOUT56_g2 , tangentOUT56_g2 );
+				float localGetDeformationFromPenetrators_float8_g2 = ( 0.0 );
+				float4 appendResult17_g2 = (float4(v.vertex.xyz , 1.0));
+				float4 transform16_g2 = mul(GetObjectToWorldMatrix(),appendResult17_g2);
+				float3 worldPosition8_g2 = (transform16_g2).xyz;
+				float4 texCoord3_g2 = v.ase_texcoord2;
+				texCoord3_g2.xy = v.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 uv28_g2 = texCoord3_g2;
+				float compressibleDistance8_g2 = _CompressibleDistance;
+				float smoothness8_g2 = _Smoothness;
+				float3 deformedPosition8_g2 = float3( 0,0,0 );
+				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
+				float4 transform19_g2 = mul(GetWorldToObjectMatrix(),appendResult21_g2);
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
-				o.ase_texcoord8 = v.vertex;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord7.zw = 0;
@@ -2580,14 +2213,13 @@ Shader "PenetrationTech/Penetrator"
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
-				float3 vertexValue = positionOUT56_g2;
+				float3 vertexValue = (transform19_g2).xyz;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					v.vertex.xyz = vertexValue;
 				#else
 					v.vertex.xyz += vertexValue;
 				#endif
-				v.ase_normal = normalOUT56_g2;
-				v.ase_tangent = v.ase_tangent;
+				v.ase_normal = v.ase_normal;
 
 				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 				float3 positionVS = TransformWorldToView( positionWS );
@@ -2637,7 +2269,8 @@ Shader "PenetrationTech/Penetrator"
 				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
-				
+				float4 ase_texcoord2 : TEXCOORD2;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -2657,7 +2290,8 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
-				
+				o.texcoord = v.texcoord;
+				o.ase_texcoord2 = v.ase_texcoord2;
 				return o;
 			}
 
@@ -2699,7 +2333,8 @@ Shader "PenetrationTech/Penetrator"
 				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
-				
+				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
+				o.ase_texcoord2 = patch[0].ase_texcoord2 * bary.x + patch[1].ase_texcoord2 * bary.y + patch[2].ase_texcoord2 * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -2768,11 +2403,6 @@ Shader "PenetrationTech/Penetrator"
 				float2 uv_MaskMap = IN.ase_texcoord7.xy * _MaskMap_ST.xy + _MaskMap_ST.zw;
 				float4 tex2DNode33 = tex2D( _MaskMap, uv_MaskMap );
 				
-				float4 appendResult67_g2 = (float4(IN.ase_texcoord8.xyz , 1.0));
-				float4 transform66_g2 = mul(GetObjectToWorldMatrix(),appendResult67_g2);
-				float3 temp_output_68_0_g2 = (transform66_g2).xyz;
-				float dotResult42_g2 = dot( _DickForwardWorld , ( temp_output_68_0_g2 - _DickRootWorld ) );
-				
 				float3 Albedo = tex2DNode31.rgb;
 				float3 Normal = UnpackNormalScale( tex2D( _NormalMap, uv_NormalMap ), 1.0f );
 				float3 Emission = 0;
@@ -2780,7 +2410,7 @@ Shader "PenetrationTech/Penetrator"
 				float Metallic = tex2DNode33.r;
 				float Smoothness = tex2DNode33.a;
 				float Occlusion = 1;
-				float Alpha = ( tex2DNode31.a * ( 1.0 - ( step( _StartClip , dotResult42_g2 ) * step( dotResult42_g2 , _EndClip ) ) ) );
+				float Alpha = tex2DNode31.a;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 				float3 BakedGI = 0;
@@ -2935,31 +2565,28 @@ Shader "PenetrationTech/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-0;494;1973;706;66.72662;-28.57599;1.00412;True;False
-Node;AmplifyShaderEditor.FunctionNode;180;464.6337,540.24;Inherit;False;PenetratorDeformation;0;;2;034c1604581464e459076bc562dc2e05;0;3;64;FLOAT3;0,0,0;False;69;FLOAT3;0,0,0;False;71;FLOAT4;0,0,0,0;False;4;FLOAT3;61;FLOAT3;62;FLOAT4;63;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;31;363.79,-160.3321;Inherit;True;Property;_BaseColorMap;BaseColorMap;10;0;Create;True;0;0;0;False;0;False;-1;None;ba1c697bb13b883479ca46af735ec2ec;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;96;815.5367,211.8278;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;33;364.707,230.9245;Inherit;True;Property;_MaskMap;MaskMap;12;0;Create;True;0;0;0;False;0;False;-1;None;cfe17d7bf1efb734e83e78502ca74a2a;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SamplerNode;32;364.7767,31.53294;Inherit;True;Property;_NormalMap;NormalMap;11;0;Create;True;0;0;0;False;0;False;-1;None;28a2cbd622a998a48b7d504222765053;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;97;883.1761,425.97;Inherit;False;Constant;_Float0;Float 0;10;0;Create;True;0;0;0;False;0;False;0.5;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;74;1104.363,222.1226;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;GBuffer;0;7;GBuffer;1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalGBuffer;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;68;1263.363,243.1226;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;PenetrationTech/Penetrator;c8c6e48b19d04b64a88f03e093fd2a1b;True;Forward;0;1;Forward;19;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;2;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;38;Workflow;1;Surface;0;  Refraction Model;0;  Blend;0;Two Sided;1;Fragment Normal Space,InvertActionOnDeselection;0;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;_FinalColorxAlpha;0;Meta Pass;1;Override Baked GI;0;Extra Pre Pass;0;DOTS Instancing;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Write Depth;0;  Early Z;0;Vertex Position,InvertActionOnDeselection;0;0;8;False;True;True;True;True;True;True;True;False;;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;67;1104.363,222.1226;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;0;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;73;533.908,-34.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=DepthNormals;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;69;533.908,-34.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;70;533.908,-34.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;72;533.908,-34.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=Universal2D;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;71;533.908,-34.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;15;New Amplify Shader;c8c6e48b19d04b64a88f03e093fd2a1b;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-WireConnection;96;0;31;4
-WireConnection;96;1;180;0
-WireConnection;68;0;31;0
-WireConnection;68;1;32;0
-WireConnection;68;3;33;1
-WireConnection;68;4;33;4
-WireConnection;68;6;96;0
-WireConnection;68;7;97;0
-WireConnection;68;8;180;61
-WireConnection;68;10;180;62
-WireConnection;68;18;180;63
+127;454;1772;935;990.509;259.1285;1;True;False
+Node;AmplifyShaderEditor.RangedFloatNode;82;-355.1239,278.81;Inherit;False;Property;_CompressibleDistance;CompressibleDistance;3;0;Create;True;0;0;0;False;0;False;0.3;0.3;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;83;-349.0253,439.3113;Inherit;False;Property;_Smoothness;Smoothness;4;0;Create;True;0;0;0;False;0;False;1;1;0;10;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;31;-141.4001,-628.6942;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;e604d44ad233cc04885cf4d8d69671c6;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;32;-140.4134,-436.8296;Inherit;True;Property;_NormalMap;NormalMap;1;0;Create;True;0;0;0;False;0;False;-1;None;4b6937e068dc59545bb1225b88f63b5f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;33;-140.4832,-237.4381;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;0c0b372920fd1d24ab789377696bf628;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.FunctionNode;84;61.94604,247.5217;Inherit;False;PenetrableDeformation;-1;;2;014b2db8766710a4c8429222ab5b0977;0;4;10;FLOAT3;0,0,0;False;11;FLOAT4;0,0,0,0;False;12;FLOAT;0;False;13;FLOAT;0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;85;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;0;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;86;692.908,-13.58231;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;PenetrationTech/URP/ProceduralPenetrable;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;18;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;False;0;Hidden/InternalErrorShader;0;0;Standard;38;Workflow;1;Surface;0;  Refraction Model;0;  Blend;0;Two Sided;1;Fragment Normal Space,InvertActionOnDeselection;0;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;_FinalColorxAlpha;0;Meta Pass;1;Override Baked GI;0;Extra Pre Pass;0;DOTS Instancing;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Write Depth;0;  Early Z;0;Vertex Position,InvertActionOnDeselection;0;0;8;False;True;True;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;87;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;88;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;89;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;90;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=Universal2D;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;91;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=DepthNormals;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;92;692.908,-13.58231;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;True;17;d3d9;d3d11;glcore;gles;gles3;metal;vulkan;xbox360;xboxone;xboxseries;ps4;playstation;psp2;n3ds;wiiu;switch;nomrt;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalGBuffer;False;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
+WireConnection;84;12;82;0
+WireConnection;84;13;83;0
+WireConnection;86;0;31;0
+WireConnection;86;1;32;0
+WireConnection;86;3;33;1
+WireConnection;86;4;33;4
+WireConnection;86;6;31;4
+WireConnection;86;8;84;0
 ASEEND*/
-//CHKSM=5C489DE5CEB90E461B5E8F1CBE439BF753D1615B
+//CHKSM=07BF240CCBDA6C0734999685CE64AB4075058B07
