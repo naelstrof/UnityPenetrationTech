@@ -49,10 +49,8 @@ While this could possibly deform well with procedural deformations, it's more co
 1. Girth deformations can be supported with a blendshape!
  For this donut, we only have to worry about a single cross-section of a deformation,
  for more complicated set ups you might need a chain of blendshapes.
- 
 
 https://user-images.githubusercontent.com/1131571/170908291-dc14856f-fcc2-4b3c-afc4-7c629dffb044.mp4
-
 
 2. Offset deformations must be supported with a bone, this is to correct for off-center or bumpy penetrators.
  Don't worry about the orientation of the bone, just make sure its somewhat in the center.
@@ -68,10 +66,12 @@ Now we can use the model within Unity.
  For this donut, we want to avoid using the *Offset Correction bone*, or a child of it, to prevent feed-back loops.
 
 ![Donut Path](tutorialimages/donutpath.png) 
+
 6. Add listeners, depending on the kind of mesh, in order to have the mesh react.
  For the donut, we will use a *Simple Blendshape Listener*, which will trigger the blendshape we set up.
 
 ![Donut Listeners](tutorialimages/donutAddListener.png)
+
 7. Correct errors that appear at the top of the inspector, each listener has its own requirements to run properly.
  In this case, *Simple Blendshape Listener* needs a target mesh, a blendshape,
  and an *Offset Correction bone* to deal with off-center penetrations.
