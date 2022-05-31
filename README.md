@@ -4,6 +4,8 @@
 
 A gpu-based deformation system for mapping penetrators along orifice paths.
 
+For a write-up on this technology, and some more detailed examples-- see [here](https://koboldkare.com/penetrationtech.php)
+
 # Features
 
 * Advanced Catmull-rom skinning system.
