@@ -174,12 +174,11 @@ namespace PenetrationTech {
                 float t = (((float)i)/(float)resolution);
                 Vector3 point = GetPositionFromT(t);
                 Vector3 tangent = GetVelocityFromT(t).normalized;
-                //Vector3 binormal = Vector3.Cross(GetTangentFromT(t),Vector3.up).normalized;
                 Vector3 binormal = Vector3.Cross(lastTangent, tangent);
                 if (binormal.magnitude == 0f) {
                     binormal = lastBinormal;
                 } else {
-                    float theta = Vector3.Angle(lastTangent, tangent); // Mathf.Acos(Vector3.Dot(lastTangent,tangent))
+                    float theta = Vector3.Angle(lastTangent, tangent); // equivalent to Mathf.Acos(Vector3.Dot(lastTangent,tangent))
                     binormal = Quaternion.AngleAxis(theta,binormal.normalized)*lastBinormal;
                 }
                 lastTangent = tangent;
