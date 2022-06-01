@@ -32,6 +32,14 @@ namespace PenetrationTech {
             }
             return targetRenderers;
         }
+        public virtual void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
+            if (targetRenderers == null) {
+                targetRenderers = new List<RendererSubMeshMask>(renderers);
+            } else {
+                targetRenderers.Clear();
+                targetRenderers.AddRange(renderers);
+            }
+        }
 
         //TODO: Currently this is only used to send CatmullSplines to the GPU. It's used in other places (currently the ProceduralDeformation class), and should be considered for refactoring.
         public unsafe struct CatmullSplineData {
