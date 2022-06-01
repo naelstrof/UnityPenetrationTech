@@ -190,7 +190,7 @@ namespace PenetrationTech {
                 rotation = Quaternion.LookRotation(-mZ, -mY);
             }
         }
-        public GirthData(RenderTexture targetTexture, RendererSubMeshMask rendererWithMask, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
+        public GirthData(RenderTexture targetTexture, RendererSubMeshMask rendererWithMask, Shader girthUnwrapShader, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
             rendererMask = rendererWithMask;
             dickRoot = root;
             if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
@@ -228,7 +228,7 @@ namespace PenetrationTech {
                 throw new UnityException("Girth data can only be generated on SkinnedMeshRenderers and MeshRenderers.");
             }
 
-            Material mat = new Material(Shader.Find("PenetrationTech/GirthUnwrapRaw"));
+            Material mat = new Material(girthUnwrapShader);
             
             mat.SetVector("_DickOrigin", localDickRoot);
             mat.SetVector("_DickForward", localDickForward);

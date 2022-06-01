@@ -64,6 +64,9 @@ namespace PenetrationTech {
         private float virtualSquashAndStretch = 1f;
         [SerializeField] [Tooltip("A transform for the curve to pass through when it's not busy penetrating, useful to tie the penetrator to some physics! Completely optional.")]
         protected Transform tipTarget;
+
+        [SerializeField] [Tooltip("If you need to mask parts of the model out, customizing this shader will allow you to mask the girthmap generation (so things like heads or feet don't show up in it).")]
+        private Shader girthUnwrapShader;
         [SerializeField]
         private GirthData girthData;
         [SerializeField][ReadOnly]
@@ -131,39 +134,28 @@ namespace PenetrationTech {
             return Quaternion.AngleAxis(angle*Mathf.Rad2Deg,path.GetVelocityFromT(t).normalized) * path.GetReferenceFrameFromT(t).MultiplyVector(offset);
         }
 
-        protected override void OnEnable() {
-            base.OnEnable();
-            propertyBlock = new MaterialPropertyBlock();
+        private void Initialize() {
             if (Application.isPlaying) {
                 valid = true;
+                lastError = "";
+                CheckValid();
             }
+
             if (!valid) {
                 return;
             }
-
-            // Have to check if listeners is null due to running in editor...
+            
             foreach (PenetratorListener listener in listeners) {
                 listener.OnEnable(this);
             }
+            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
+                    localRootUp, localRootRight);
+            OnSetClip(0f, 0f);
         }
 
-        protected override void OnDisable() {
-            base.OnDisable();
-            if (!valid) {
-                return;
-            }
-            foreach (PenetratorListener listener in listeners) {
-                listener.OnDisable();
-            }
-
-        }
-
-
-        void Start() {
-            if (!valid) {
-                return;
-            }
-
+        protected override void OnEnable() {
+            base.OnEnable();
+            propertyBlock = new MaterialPropertyBlock();
             var position = transform.position;
             var forward = transform.forward;
             weightsA = new List<Vector3> {
@@ -175,9 +167,33 @@ namespace PenetrationTech {
             weightsB = new List<Vector3>();
             outputWeights = new List<Vector3>();
             path = new CatmullSpline().SetWeights(weightsA);
-            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward,
-                    localRootUp, localRootRight);
-            OnSetClip(0f, 0f);
+        }
+        
+        public override void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
+            base.SetTargetRenderers(renderers);
+            Initialize();
+            if (!string.IsNullOrEmpty(GetLastError())) {
+                throw new UnityException(lastError);
+            }
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            if (!valid) {
+                return;
+            }
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnDisable();
+            }
+        }
+
+
+        void Start() {
+            if (!valid) {
+                return;
+            }
+
+            Initialize();
         }
 
         void Update() {
@@ -428,6 +444,10 @@ namespace PenetrationTech {
         }
 
         private void OnValidate() {
+            if (girthUnwrapShader == null) {
+                girthUnwrapShader = Shader.Find("PenetrationTech/GirthUnwrapRaw");
+            }
+
             CheckValid();
             if (listeners == null) { listeners = new List<PenetratorListener>(); }
 
@@ -448,7 +468,7 @@ namespace PenetrationTech {
                 return;
             }
 
-            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], rootBone, Vector3.zero, localRootForward, localRootUp,
+            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward, localRootUp,
                 localRootRight);
 
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.

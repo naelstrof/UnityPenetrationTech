@@ -119,7 +119,8 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, floa
     float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));
 
     // Convert the distance into an overall t sample value
-    float t = saturate(DistanceToTime(0,dist));
+    float t = DistanceToTime(0,dist);
+    float isPenetrator = saturate(sign(t));
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
     float subT = GetCurveSegment(0, t, curveSegmentIndex);
@@ -175,13 +176,13 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, floa
     float3 localFrameNormal = mul(worldToDickBasisTransform, worldFrameNormal.xyz).xyz;
     float3 worldFrameNormalRotated = mul(dickToCatmullBasisTransform, localFrameNormal.xyz);
     worldFrameNormalRotated = RotateAroundAxisPenetration(worldFrameNormalRotated, catForward, angle);
-    worldNormalOUT = normalize(worldFrameNormalRotated);
+    worldNormalOUT = lerp(worldNormal, normalize(worldFrameNormalRotated), isPenetrator);
 
     float3 worldFrameTangent = worldTangent;
     float3 localFrameTangent = mul(worldToDickBasisTransform, worldFrameTangent.xyz).xyz;
     float3 worldFrameTangentRotated = mul(dickToCatmullBasisTransform, localFrameTangent.xyz).xyz;
     worldFrameTangentRotated = RotateAroundAxisPenetration(worldFrameTangentRotated, catForward, angle);
-    worldTangentOUT = float4(normalize(worldFrameTangentRotated).xyz, worldTangent.w);
+    worldTangentOUT = lerp(worldTangent, float4(normalize(worldFrameTangentRotated).xyz, worldTangent.w), isPenetrator);
 
     // Frame refers to the particular slice of the model we're working on, 0,0,0 being the core of the cylinder.
     float3 worldFrame = (worldPosition - (worldDickRootPos+worldDickForward*dist));
@@ -196,7 +197,7 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, floa
     float3 catmullSpacePosition = catPosition+worldFrameRotated;
 
     // Bring it back into object space, now that we're done working on it.
-    worldPositionOUT = catmullSpacePosition;
+    worldPositionOUT = lerp(worldPosition, catmullSpacePosition, isPenetrator);
 }
 
 // Penetratable stuff down below
