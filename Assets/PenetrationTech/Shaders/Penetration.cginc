@@ -113,13 +113,7 @@ float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t
             + (3.0 * t * t - 2.0 * t) * tanPoint2;
 }
 void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 worldNormal, float4 worldTangent, out float3 worldPositionOUT, out float3 worldNormalOUT, out float4 worldTangentOUT) {
-    // We want to work in world space, as everything we're working with is there. Here we convert everything into world space.
-    //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
-    //float3 worldDickRootPos = mul(objectToWorld,float4(dickRootPosition.xyz,1)).xyz;
-
-    //float3 worldDickForward = normalize(mul(objectToWorld,float4(dickForward.xyz,0)).xyz);
-    //float3 worldDickRight = normalize(mul(objectToWorld,float4(dickRight.xyz,0)).xyz);
-    //float3 worldDickUp = normalize(mul(objectToWorld,float4(dickUp.xyz,0)).xyz);
+    // We want to work in world space, as everything we're working with is there.
     
     // Dot product gives us how far along an axis a position is. This is the dick length distance from the dick root to the particular position.
     float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));

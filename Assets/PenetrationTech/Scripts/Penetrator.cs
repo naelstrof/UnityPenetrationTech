@@ -1,9 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
-using System;
 using System.Reflection;
 using UnityEditor;
 #endif
@@ -366,7 +366,7 @@ namespace PenetrationTech {
             output.Add(outTangent);
             output.Add(outPosition+outTangent*GetWorldLength());
         }
-        private class PenetratorValidationException : SystemException {
+        private class PenetratorValidationException : System.SystemException {
             public PenetratorValidationException(string msg) : base(msg) { }
         }
         

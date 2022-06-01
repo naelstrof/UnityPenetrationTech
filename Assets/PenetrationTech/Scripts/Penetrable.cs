@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 using Vector3 = UnityEngine.Vector3;
 
 #if UNITY_EDITOR
-using System;
 using UnityEditor;
 using System.Reflection;
 #endif
@@ -72,7 +72,7 @@ namespace PenetrationTech {
         public string GetLastError() {
             return lastError;
         }
-        private class PenetrableValidationException : SystemException {
+        private class PenetrableValidationException : System.SystemException {
             public PenetrableValidationException(string msg) : base(msg) { }
         }
 
@@ -92,7 +92,7 @@ namespace PenetrationTech {
         }
 
         private void SetUpCollider(ref GameObject obj, Transform point) {
-            obj = new GameObject($"{name} collider", new Type[] { typeof(SphereCollider), typeof(PenetrableOwner) });
+            obj = new GameObject($"{name} collider", new System.Type[] { typeof(SphereCollider), typeof(PenetrableOwner) });
             obj.layer = PenetrationTechTools.GetPenetrableLayer();
             obj.hideFlags = HideFlags.HideAndDontSave;
             obj.transform.parent = point;
