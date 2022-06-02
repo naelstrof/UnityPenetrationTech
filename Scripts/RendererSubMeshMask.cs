@@ -47,7 +47,7 @@ namespace PenetrationTech {
 #endif
 
     [System.Serializable]
-    public class RendererSubMeshMask {
+    public class RendererSubMeshMask : ISerializationCallbackReceiver {
         [SerializeField]
         public Renderer renderer;
         [SerializeField]
@@ -72,6 +72,15 @@ namespace PenetrationTech {
 
         public static bool GetMask(int m, int index) {
             return (m & (1 << index)) != 0;
+        }
+
+        public void OnBeforeSerialize() {
+        }
+
+        public void OnAfterDeserialize() {
+            if (mask == 0) {
+                mask = ~(0);
+            }
         }
     }
 }

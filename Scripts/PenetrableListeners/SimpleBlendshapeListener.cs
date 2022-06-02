@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace PenetrationTech {
@@ -9,8 +10,13 @@ namespace PenetrationTech {
     public class SimpleBlendshapeListener : BoneTransformListener {
         [SerializeField]
         SkinnedMeshBlendshapePair[] targets;
-        [SerializeField]
-        float blendShapeGirth;
+
+        [SerializeField][Tooltip("How open the hole is by default. Important for donuts or mouths where they can stay open without a penetration.")]
+        private float baseGirthRadius;
+        [FormerlySerializedAs("blendShapeGirth")][SerializeField][Tooltip("How open the hole is when the blendshape is fully triggered.")]
+        float blendShapeGirthRadius;
+        [SerializeField][Tooltip("Allows the blendshape to be triggered past 100%.")]
+        private bool overdrive = true;
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
             foreach(SkinnedMeshBlendshapePair target in targets) {
@@ -20,7 +26,8 @@ namespace PenetrationTech {
         protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
             base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePair target in targets) {
-                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, (newGirthRadius*2f/blendShapeGirth)*100f);
+                float triggerAmount = (newGirthRadius-baseGirthRadius) * 2f / blendShapeGirthRadius;
+                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, overdrive ? triggerAmount * 100f : Mathf.Clamp01(triggerAmount)*100f);
             }
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
@@ -30,7 +37,9 @@ namespace PenetrationTech {
             Vector3 position = path.GetPositionFromT(t);
             Vector3 normal = path.GetVelocityFromT(t).normalized;
             UnityEditor.Handles.color = Color.blue;
-            UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
+            UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirthRadius);
+            UnityEditor.Handles.color = Color.grey;
+            UnityEditor.Handles.DrawWireDisc(position, normal, baseGirthRadius);
             #endif
         }
 
