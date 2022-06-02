@@ -418,6 +418,20 @@ namespace PenetrationTech {
                         }
                     }
                 }
+                foreach(var renderMask in GetTargetRenderers()) {
+                    if (renderMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                        var sharedMesh = skinnedMeshRenderer.sharedMesh;
+                        AssertValid(sharedMesh != null && sharedMesh.isReadable,
+                            $"The mesh {sharedMesh}, is either null or not readable. Please enable Read/Write Enabled in the import settings.");
+                    } else if (renderMask.renderer is MeshRenderer meshRenderer) {
+                        var sharedMesh = meshRenderer.GetComponent<MeshFilter>().sharedMesh;
+                        AssertValid(sharedMesh != null && sharedMesh.isReadable,
+                            $"The mesh {sharedMesh} is either null or not readable. Please enable Read/Write Enabled in the import settings.");
+                    } else {
+                        throw new PenetratorValidationException(
+                            $"Only SkinnedMeshRenderer and MeshRenderers are supported for Penetrators. {renderMask.renderer.GetType().ToString()} is not supported.");
+                    }
+                }
 
                 AssertValid(isChild,
                     "Root bone must be a child transform of the Renderer. If its a skinned mesh renderer, you'd want to target the Transform at the base of the penetrator.");
@@ -441,6 +455,11 @@ namespace PenetrationTech {
                 lastError = $"{error.Message}\n\n{error.StackTrace}";
                 valid = false;
             }
+        }
+        public void Penetrate(Penetrable penetrable) {
+            targetHole = penetrable;
+            insertionFactor = 1f;
+            inserted = true;
         }
 
         private void OnValidate() {

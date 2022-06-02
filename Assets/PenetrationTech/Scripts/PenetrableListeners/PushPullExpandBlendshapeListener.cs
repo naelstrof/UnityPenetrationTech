@@ -12,12 +12,19 @@ namespace PenetrationTech {
     public class PushPullExpandBlendshapeListener : BoneTransformListener {
         [SerializeField]
         private SkinnedMeshBlendshapePushPullExpandSet[] targets;
-        [SerializeField]
-        private float blendShapeGirth;
-        [SerializeField]
+
+        [SerializeField][Tooltip("How open the hole is with the blendshape set to 0.")]
+        private float baseGirthRadius = 0f;
+        [FormerlySerializedAs("blendShapeGirth")] [SerializeField][Tooltip("How open the hole is with the blendshape fully triggered")]
+        private float blendShapeGirthRadius = 0.02f;
+        [SerializeField][Tooltip("The distance that the hole travels along the curve when the Pull blendshape is fully triggered.")]
         private float pullT;
-        [SerializeField]
+        [SerializeField][Tooltip("The distance that the hole travels along the curve when the Push blendshape is fully triggered.")]
         private float pushT;
+        
+        [SerializeField][Tooltip("Allows the expand blendshape to be triggered past 100%.")]
+        private bool overdrive;
+        
         private float pullPushAmount;
         private float lastPenetrationDepth;
         public override void OnEnable(Penetrable p) {
@@ -33,7 +40,8 @@ namespace PenetrationTech {
         protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
             base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
-                target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, (newGirthRadius/blendShapeGirth)*100f);
+                float triggerAmount = (newGirthRadius-baseGirthRadius) * 2f / blendShapeGirthRadius;
+                target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, overdrive ? triggerAmount * 100f : Mathf.Clamp01(triggerAmount)*100f);
             }
         }
         protected override void OnPenetrationDepthChange(float newDepth) {
@@ -87,15 +95,18 @@ namespace PenetrationTech {
             Vector3 position = path.GetPositionFromT(t);
             Vector3 normal = path.GetVelocityFromT(t).normalized;
             UnityEditor.Handles.color = Color.blue;
-            UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirth);
+            UnityEditor.Handles.DrawWireDisc(position, normal, blendShapeGirthRadius);
 
             Vector3 tugPosition = position + normal * pullT * path.arcLength;
             UnityEditor.Handles.color = Color.cyan;
-            UnityEditor.Handles.DrawWireDisc(tugPosition, normal, blendShapeGirth);
+            UnityEditor.Handles.DrawWireDisc(tugPosition, normal, blendShapeGirthRadius);
 
             Vector3 pushPosition = position + normal * pushT * path.arcLength;
             UnityEditor.Handles.color = Color.magenta;
-            UnityEditor.Handles.DrawWireDisc(pushPosition, normal, blendShapeGirth);
+            UnityEditor.Handles.DrawWireDisc(pushPosition, normal, blendShapeGirthRadius);
+            
+            UnityEditor.Handles.color = Color.grey;
+            UnityEditor.Handles.DrawWireDisc(position, normal, baseGirthRadius);
             #endif
         }
         public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
