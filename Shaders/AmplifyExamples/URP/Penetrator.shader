@@ -217,7 +217,7 @@ Shader "PenetrationTech/URP/Penetrator"
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
 			#define ASE_NEEDS_VERT_TANGENT
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			struct VertexInput
@@ -762,7 +762,7 @@ Shader "PenetrationTech/URP/Penetrator"
 
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			struct VertexInput
@@ -1117,7 +1117,7 @@ Shader "PenetrationTech/URP/Penetrator"
 
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			struct VertexInput
@@ -1455,7 +1455,7 @@ Shader "PenetrationTech/URP/Penetrator"
 
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
@@ -1797,7 +1797,7 @@ Shader "PenetrationTech/URP/Penetrator"
 			
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
@@ -2129,7 +2129,7 @@ Shader "PenetrationTech/URP/Penetrator"
 
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			struct VertexInput
@@ -2499,7 +2499,7 @@ Shader "PenetrationTech/URP/Penetrator"
 			#define ASE_NEEDS_VERT_POSITION
 			#define ASE_NEEDS_VERT_NORMAL
 			#define ASE_NEEDS_VERT_TANGENT
-			#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+			#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 
 
 			struct VertexInput
@@ -3003,7 +3003,7 @@ Shader "PenetrationTech/URP/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-724;583;1772;930;159.6077;-75.76969;1.00412;True;False
+601;201;1772;924;159.6077;-78.78205;1.00412;True;False
 Node;AmplifyShaderEditor.SamplerNode;31;363.79,-160.3321;Inherit;True;Property;_BaseColorMap;BaseColorMap;10;0;Create;True;0;0;0;False;0;False;-1;None;ba1c697bb13b883479ca46af735ec2ec;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;188;457.6049,542.2483;Inherit;False;PenetratorDeformation;0;;10;034c1604581464e459076bc562dc2e05;0;3;64;FLOAT3;0,0,0;False;69;FLOAT3;0,0,0;False;71;FLOAT4;0,0,0,0;False;4;FLOAT3;61;FLOAT3;62;FLOAT4;63;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;96;815.5367,211.8278;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
@@ -3030,4 +3030,4 @@ WireConnection;68;8;188;61
 WireConnection;68;10;188;62
 WireConnection;68;18;188;63
 ASEEND*/
-//CHKSM=F3FCDC11A362DA4AD858A65E66ABABF1E0D19DF2
+//CHKSM=572634F8273917540781DEC111F1B0C661D9051E

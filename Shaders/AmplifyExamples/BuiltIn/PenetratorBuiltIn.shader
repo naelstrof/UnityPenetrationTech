@@ -28,7 +28,7 @@ Shader "PenetrationTech/BuiltIn/Penetrator"
 		CGPROGRAM
 		#include "UnityShaderVariables.cginc"
 		#pragma target 5.0
-		#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
+		#include "Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 		#pragma surface surf Standard keepalpha addshadow fullforwardshadows vertex:vertexDataFunc 
 		struct Input
 		{
@@ -150,7 +150,7 @@ Shader "PenetrationTech/BuiltIn/Penetrator"
 }
 /*ASEBEGIN
 Version=18912
-724;583;1772;930;1369.003;401.3524;1.295334;True;False
+601;201;1772;924;1369.003;397.4664;1.295334;True;False
 Node;AmplifyShaderEditor.SamplerNode;1;-780.2597,-369.7313;Inherit;True;Property;_BaseColorMap;BaseColorMap;11;0;Create;True;0;0;0;False;0;False;-1;None;ba1c697bb13b883479ca46af735ec2ec;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;2;-686.4448,332.8491;Inherit;False;PenetratorDeformation;1;;4;034c1604581464e459076bc562dc2e05;0;3;64;FLOAT3;0,0,0;False;69;FLOAT3;0,0,0;False;71;FLOAT4;0,0,0,0;False;4;FLOAT3;61;FLOAT3;62;FLOAT4;63;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;3;-328.5131,2.428608;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
@@ -167,4 +167,4 @@ WireConnection;0;10;3;0
 WireConnection;0;11;2;61
 WireConnection;0;12;2;62
 ASEEND*/
-//CHKSM=BCF6FC80065EA9E7F34E26C0D1A5A1090D0977EF
+//CHKSM=BB9499715251BB7FEEB40B32D4D6F444FF9B59F6
