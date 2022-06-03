@@ -1,2 +1,2 @@
 deploy:
-	git subtree push --prefix Packages/PenetrationTech origin upm
+	git subtree push --prefix Packages/com.naelstrof.penetrationtech origin upm
