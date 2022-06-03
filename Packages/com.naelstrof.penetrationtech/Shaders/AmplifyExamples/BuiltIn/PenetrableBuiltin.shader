@@ -19,7 +19,7 @@ Shader "PenetrationTech/BuiltIn/ProceduralPenetrable"
 		Cull Back
 		CGPROGRAM
 		#pragma target 5.0
-		#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
+		#include "/Packages/com.naelstrof.penetrationtech/Shaders/Penetration.cginc"
 		#pragma surface surf Standard keepalpha addshadow fullforwardshadows vertex:vertexDataFunc 
 		struct Input
 		{
@@ -76,7 +76,7 @@ Shader "PenetrationTech/BuiltIn/ProceduralPenetrable"
 }
 /*ASEBEGIN
 Version=18912
-167;294;1772;936;1106.449;642.9374;1.473469;True;False
+724;583;1772;930;1106.449;638.517;1.473469;True;False
 Node;AmplifyShaderEditor.RangedFloatNode;82;-355.1239,278.81;Inherit;False;Property;_CompressibleDistance;CompressibleDistance;3;0;Create;True;0;0;0;False;0;False;0.3;0.3;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;83;-349.0253,439.3113;Inherit;False;Property;_Smoothness;Smoothness;4;0;Create;True;0;0;0;False;0;False;1;1;0;10;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;31;-141.4001,-628.6942;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;e604d44ad233cc04885cf4d8d69671c6;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
@@ -92,4 +92,4 @@ WireConnection;93;3;33;1
 WireConnection;93;4;33;4
 WireConnection;93;11;84;0
 ASEEND*/
-//CHKSM=8C85089BC29494B9605D03DE99AFDCA2FDD50D60
+//CHKSM=19E1D7FE999312400B1A5890238C9BAD5FD02BCD
