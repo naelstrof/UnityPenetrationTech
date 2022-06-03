@@ -143,9 +143,6 @@ namespace PenetrationTech {
             splineData = new NativeArray<CatmullDeformer.CatmullSplineData>(4, Allocator.Persistent);
 
             propertyBlock = new MaterialPropertyBlock();
-            if (penetrableTargets == null) {
-                return;
-            }
 
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
@@ -177,6 +174,9 @@ namespace PenetrationTech {
             penetratorBuffer.SetData(data);
             splineBuffer.SetData(splineData);
             foreach(Renderer target in renderTargets) {
+                if (target == null) {
+                    continue;
+                }
                 target.GetPropertyBlock(propertyBlock);
                 propertyBlock.SetBuffer(splineDataArrayID, splineBuffer);
                 propertyBlock.SetBuffer(penetratorDataArrayID,penetratorBuffer);
@@ -201,10 +201,8 @@ namespace PenetrationTech {
         }
 
         private void OnValidate() {
-            if (penetrableTargets == null) {
-                return;
-            }
-
+            penetrableTargets ??= new List<Penetrable>();
+            renderTargets ??= new List<Renderer>();
             foreach (Penetrable penetrable in penetrableTargets) {
                 if (penetrable == null) {
                     continue;

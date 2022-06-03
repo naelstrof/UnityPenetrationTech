@@ -285,9 +285,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -397,8 +396,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -645,7 +644,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -925,9 +926,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -1026,8 +1026,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -1268,7 +1268,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -1529,9 +1531,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -1629,8 +1630,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -1809,7 +1810,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -1922,37 +1925,19 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			}
 			#endif
 			
-			#if defined(WRITE_NORMAL_BUFFER) && defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target2
-			#elif defined(WRITE_NORMAL_BUFFER) || defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target1
-			#else
-			#define SV_TARGET_DECAL SV_Target0
-			#endif
-
 			void Frag( PackedVaryingsMeshToPS packedInput
-						#if defined(SCENESELECTIONPASS) || defined(SCENEPICKINGPASS)
-						, out float4 outColor : SV_Target0
-						#else
+						#ifdef WRITE_NORMAL_BUFFER
+						, out float4 outNormalBuffer : SV_Target0
 							#ifdef WRITE_MSAA_DEPTH
-							// We need the depth color as SV_Target0 for alpha to coverage
-							, out float4 depthColor : SV_Target0
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target1
-								#endif
-							#else
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target0
-								#endif
+							, out float1 depthColor : SV_Target1
 							#endif
-
-							// Decal buffer must be last as it is bind but we can optionally write into it (based on _DISABLE_DECALS)
-							#if defined(WRITE_DECAL_BUFFER) && !defined(_DISABLE_DECALS)
-							, out float4 outDecalBuffer : SV_TARGET_DECAL
-							#endif
+						#elif defined(WRITE_MSAA_DEPTH)
+						, out float4 outNormalBuffer : SV_Target0
+						, out float1 depthColor : SV_Target1
+						#elif defined(SCENESELECTIONPASS)
+						, out float4 outColor : SV_Target0
 						#endif
-
-						#if defined(_DEPTHOFFSET_ON) && !defined(SCENEPICKINGPASS)
+						#ifdef _DEPTHOFFSET_ON
 						, out float outputDepth : SV_Depth
 						#endif
 						
@@ -2014,7 +1999,7 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				depthColor = packedInput.positionCS.z;
 				#endif
 				#elif defined(WRITE_MSAA_DEPTH)
-				//outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
+				outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
 				depthColor = packedInput.positionCS.z;
 				#elif defined(SCENESELECTIONPASS)
 				outColor = float4( _ObjectId, _PassValue, 1.0, 1.0 );
@@ -2034,9 +2019,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -2135,8 +2119,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -2314,7 +2298,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -2426,38 +2412,20 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				return VertexFunction( v );
 			}
 			#endif
-			
-			#if defined(WRITE_NORMAL_BUFFER) && defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target2
-			#elif defined(WRITE_NORMAL_BUFFER) || defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target1
-			#else
-			#define SV_TARGET_DECAL SV_Target0
-			#endif
 
 			void Frag( PackedVaryingsMeshToPS packedInput
-						#if defined(SCENESELECTIONPASS) || defined(SCENEPICKINGPASS)
-						, out float4 outColor : SV_Target0
-						#else
+						#ifdef WRITE_NORMAL_BUFFER
+						, out float4 outNormalBuffer : SV_Target0
 							#ifdef WRITE_MSAA_DEPTH
-							// We need the depth color as SV_Target0 for alpha to coverage
-							, out float4 depthColor : SV_Target0
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target1
-								#endif
-							#else
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target0
-								#endif
+							, out float1 depthColor : SV_Target1
 							#endif
-
-							// Decal buffer must be last as it is bind but we can optionally write into it (based on _DISABLE_DECALS)
-							#if defined(WRITE_DECAL_BUFFER) && !defined(_DISABLE_DECALS)
-							, out float4 outDecalBuffer : SV_TARGET_DECAL
-							#endif
+						#elif defined(WRITE_MSAA_DEPTH)
+						, out float4 outNormalBuffer : SV_Target0
+						, out float1 depthColor : SV_Target1
+						#elif defined(SCENESELECTIONPASS)
+						, out float4 outColor : SV_Target0
 						#endif
-
-						#if defined(_DEPTHOFFSET_ON) && !defined(SCENEPICKINGPASS)
+						#ifdef _DEPTHOFFSET_ON
 						, out float outputDepth : SV_Depth
 						#endif
 						
@@ -2515,7 +2483,7 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				depthColor = packedInput.positionCS.z;
 				#endif
 				#elif defined(WRITE_MSAA_DEPTH)
-				//outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
+				outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
 				depthColor = packedInput.positionCS.z;
 				#elif defined(SCENESELECTIONPASS)
 				outColor = float4( _ObjectId, _PassValue, 1.0, 1.0 );
@@ -2549,9 +2517,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -2653,8 +2620,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -2839,7 +2806,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -2969,36 +2938,28 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#endif
 
 			#if defined(WRITE_NORMAL_BUFFER) && defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target2
+				#define SV_TARGET_DECAL SV_Target2
 			#elif defined(WRITE_NORMAL_BUFFER) || defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_DECAL SV_Target1
+				#define SV_TARGET_DECAL SV_Target2
 			#else
-			#define SV_TARGET_DECAL SV_Target0
+				#define SV_TARGET_DECAL SV_Target0
 			#endif
-
 			void Frag( PackedVaryingsMeshToPS packedInput
-						#if defined(SCENESELECTIONPASS) || defined(SCENEPICKINGPASS)
-						, out float4 outColor : SV_Target0
-						#else
+						#ifdef WRITE_NORMAL_BUFFER
+						, out float4 outNormalBuffer : SV_Target0
 							#ifdef WRITE_MSAA_DEPTH
-							// We need the depth color as SV_Target0 for alpha to coverage
-							, out float4 depthColor : SV_Target0
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target1
-								#endif
-							#else
-								#ifdef WRITE_NORMAL_BUFFER
-								, out float4 outNormalBuffer : SV_Target0
-								#endif
+							, out float1 depthColor : SV_Target1
 							#endif
-
-							// Decal buffer must be last as it is bind but we can optionally write into it (based on _DISABLE_DECALS)
-							#if defined(WRITE_DECAL_BUFFER) && !defined(_DISABLE_DECALS)
-							, out float4 outDecalBuffer : SV_TARGET_DECAL
-							#endif
+						#elif defined(WRITE_MSAA_DEPTH)
+						, out float4 outNormalBuffer : SV_Target0
+						, out float1 depthColor : SV_Target1
+						#elif defined(SCENESELECTIONPASS)
+						, out float4 outColor : SV_Target0
 						#endif
-
-						#if defined(_DEPTHOFFSET_ON) && !defined(SCENEPICKINGPASS)
+						#if defined(WRITE_DECAL_BUFFER) && !defined(_DISABLE_DECALS)
+						, out float4 outDecalBuffer : SV_TARGET_DECAL
+						#endif
+						#ifdef _DEPTHOFFSET_ON
 						, out float outputDepth : SV_Depth
 						#endif
 						
@@ -3065,7 +3026,7 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				depthColor = packedInput.positionCS.z;
 				#endif
 				#elif defined(WRITE_MSAA_DEPTH)
-				//outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
+				outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
 				depthColor = packedInput.positionCS.z;
 				#elif defined(SCENESELECTIONPASS)
 				outColor = float4( _ObjectId, _PassValue, 1.0, 1.0 );
@@ -3107,9 +3068,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -3210,8 +3170,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -3393,7 +3353,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -3586,38 +3548,21 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			}
 			#endif
 
-			#if defined(WRITE_DECAL_BUFFER) && defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_NORMAL SV_Target3
-			#elif defined(WRITE_DECAL_BUFFER) || defined(WRITE_MSAA_DEPTH)
-			#define SV_TARGET_NORMAL SV_Target2
-			#else
-			#define SV_TARGET_NORMAL SV_Target1
-			#endif
-
 			void Frag( PackedVaryingsMeshToPS packedInput
-				#ifdef WRITE_MSAA_DEPTH
-					// We need the depth color as SV_Target0 for alpha to coverage
-					, out float4 depthColor : SV_Target0
-					, out float4 outMotionVector : SV_Target1
-						#ifdef WRITE_DECAL_BUFFER
-						, out float4 outDecalBuffer : SV_Target2
-						#endif
-					#else
-					// When no MSAA, the motion vector is always the first buffer
-					, out float4 outMotionVector : SV_Target0
-						#ifdef WRITE_DECAL_BUFFER
-						, out float4 outDecalBuffer : SV_Target1
-						#endif
+				, out float4 outMotionVector : SV_Target0
+				#ifdef WRITE_NORMAL_BUFFER
+				, out float4 outNormalBuffer : SV_Target1
+					#ifdef WRITE_MSAA_DEPTH
+						, out float1 depthColor : SV_Target2
 					#endif
+				#elif defined(WRITE_MSAA_DEPTH)
+				, out float4 outNormalBuffer : SV_Target1
+				, out float1 depthColor : SV_Target2
+				#endif
 
-					// Decal buffer must be last as it is bind but we can optionally write into it (based on _DISABLE_DECALS)
-					#ifdef WRITE_NORMAL_BUFFER
-					, out float4 outNormalBuffer : SV_TARGET_NORMAL
-					#endif
-
-					#ifdef _DEPTHOFFSET_ON
+				#ifdef _DEPTHOFFSET_ON
 					, out float outputDepth : SV_Depth
-					#endif
+				#endif
 				
 				)
 			{
@@ -3678,7 +3623,7 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				depthColor = packedInput.vmeshPositionCS.z;
 				#endif
 				#elif defined(WRITE_MSAA_DEPTH)
-				//outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
+				outNormalBuffer = float4( 0.0, 0.0, 0.0, 1.0 );
 				depthColor = packedInput.vmeshPositionCS.z;
 				#endif
 
@@ -3718,9 +3663,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			HLSLPROGRAM
 
 			#define _SPECULAR_OCCLUSION_FROM_AO 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define HAVE_MESH_MODIFICATION
-			#define ASE_SRP_VERSION 100600
+			#define ASE_SRP_VERSION 999999
 
 
 			#pragma shader_feature _SURFACE_TYPE_TRANSPARENT
@@ -3836,8 +3780,8 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Lit/LitDecalData.hlsl"
 			#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderGraphFunctions.hlsl"
 
-			#include "../../Penetration.cginc"
 			#define ASE_NEEDS_VERT_POSITION
+			#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 
 
 			#if defined(_DOUBLESIDED_ON) && !defined(ASE_NEED_CULLFACE)
@@ -4080,7 +4024,9 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 				float compressibleDistance8_g2 = _CompressibleDistance;
 				float smoothness8_g2 = _Smoothness;
 				float3 deformedPosition8_g2 = float3( 0,0,0 );
-				GetDeformationFromPenetrators_float( worldPosition8_g2 , uv28_g2 , compressibleDistance8_g2 , smoothness8_g2 , deformedPosition8_g2 );
+				{
+				GetDeformationFromPenetrators_float(worldPosition8_g2,uv28_g2,compressibleDistance8_g2,smoothness8_g2,deformedPosition8_g2);
+				}
 				float4 appendResult21_g2 = (float4(deformedPosition8_g2 , 1.0));
 				float4 localWorldVar19_g2 = appendResult21_g2;
 				(localWorldVar19_g2).xyz = GetCameraRelativePositionWS((localWorldVar19_g2).xyz);
@@ -4540,30 +4486,29 @@ Shader "PenetrationTech/HDRP/ProceduralPenetrable"
 		}
 		
 	}
-	
 	CustomEditor "Rendering.HighDefinition.LightingShaderGraphGUI"
 	
 	
 }
 /*ASEBEGIN
-Version=18935
-123;454;1772;935;922.3687;777.1065;1.6;True;False
+Version=18912
+167;294;1772;936;922.3687;768.3065;1.6;True;False
 Node;AmplifyShaderEditor.RangedFloatNode;83;-349.0253,439.3113;Inherit;False;Property;_Smoothness;Smoothness;4;0;Create;True;0;0;0;False;0;False;1;1;0;10;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;82;-340.1239,335.81;Inherit;False;Property;_CompressibleDistance;CompressibleDistance;3;0;Create;True;0;0;0;False;0;False;0.3;0.3;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;31;-91.90314,-565.3382;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;e604d44ad233cc04885cf4d8d69671c6;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;32;-90.91644,-373.4734;Inherit;True;Property;_NormalMap;NormalMap;1;0;Create;True;0;0;0;False;0;False;-1;None;4b6937e068dc59545bb1225b88f63b5f;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;33;-90.98624,-174.082;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;0c0b372920fd1d24ab789377696bf628;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;84;61.94604,247.5217;Inherit;False;PenetrableDeformation;-1;;2;014b2db8766710a4c8429222ab5b0977;0;4;10;FLOAT3;0,0,0;False;11;FLOAT4;0,0,0,0;False;12;FLOAT;0;False;13;FLOAT;0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;94;692.908,-13.58231;Float;False;True;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;2;PenetrationTech/HDRP/ProceduralPenetrable;53b46d85872c5b24c8f4f0a1c3fe4c87;True;GBuffer;0;0;GBuffer;35;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-14;255;False;-1;255;True;-13;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;True;0;True;-15;False;True;1;LightMode=GBuffer;False;False;0;;0;0;Standard;42;Surface Type;0;0;  Rendering Pass;1;0;  Refraction Model;0;0;    Blending Mode;0;0;    Blend Preserves Specular;1;0;  Receive Fog;1;0;  Back Then Front Rendering;0;0;  Transparent Depth Prepass;0;0;  Transparent Depth Postpass;0;0;  Transparent Writes Motion Vector;0;0;  Distortion;0;0;    Distortion Mode;0;0;    Distortion Depth Test;1;0;  ZWrite;0;0;  Z Test;4;0;Double-Sided;0;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Material Type,InvertActionOnDeselection;0;0;  Energy Conserving Specular;1;0;  Transmission;1;0;Receive Decals;1;0;Receives SSR;1;0;Receive SSR Transparent;0;0;Motion Vectors;1;0;  Add Precomputed Velocity;0;0;Specular AA;0;0;Specular Occlusion Mode;1;0;Override Baked GI;0;0;Depth Offset;0;0;DOTS Instancing;0;0;LOD CrossFade;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,-1;0;  Type;0;0;  Tess;16,False,-1;0;  Min;10,False,-1;0;  Max;25,False,-1;0;  Edge Length;16,False,-1;0;  Max Displacement;25,False,-1;0;Vertex Position;0;637895374122022392;0;11;True;True;True;True;True;True;False;False;False;False;True;False;;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;104;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;Forward;0;10;Forward;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;0;True;-21;0;True;-22;1;0;True;-23;0;True;-24;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-30;False;False;False;True;True;True;True;True;0;True;-46;False;False;False;False;False;True;True;0;True;-5;255;False;-1;255;True;-6;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;0;True;-25;True;0;True;-32;False;True;1;LightMode=Forward;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;103;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;TransparentDepthPostpass;0;9;TransparentDepthPostpass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=TransparentDepthPostpass;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;102;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;TransparentDepthPrepass;0;8;TransparentDepthPrepass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-7;255;False;-1;255;True;-8;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;3;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;False;False;True;1;LightMode=TransparentDepthPrepass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;97;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;SceneSelectionPass;0;3;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;98;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;DepthOnly;0;4;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-7;255;False;-1;255;True;-8;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;99;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;Motion Vectors;0;5;Motion Vectors;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-9;255;False;-1;255;True;-10;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;False;False;True;1;LightMode=MotionVectors;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;95;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;META;0;1;META;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;96;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;98;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;DepthOnly;0;4;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-7;255;False;-1;255;True;-8;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;97;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;SceneSelectionPass;0;3;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;101;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;TransparentBackface;0;7;TransparentBackface;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;0;True;-21;0;True;-22;1;0;True;-23;0;True;-24;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;False;True;True;True;True;True;0;True;-46;False;False;False;False;False;False;False;True;0;True;-25;True;0;True;-33;False;True;1;LightMode=TransparentBackface;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;102;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;TransparentDepthPrepass;0;8;TransparentDepthPrepass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-7;255;False;-1;255;True;-8;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;3;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;False;False;True;1;LightMode=TransparentDepthPrepass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;103;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;TransparentDepthPostpass;0;9;TransparentDepthPostpass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=TransparentDepthPostpass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;104;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;Forward;0;10;Forward;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;1;0;True;-21;0;True;-22;1;0;True;-23;0;True;-24;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-30;False;False;False;True;True;True;True;True;0;True;-46;False;False;False;False;False;True;True;0;True;-5;255;False;-1;255;True;-6;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;0;True;-25;True;0;True;-32;False;True;1;LightMode=Forward;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;94;692.908,-13.58231;Float;False;True;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;4;PenetrationTech/HDRP/ProceduralPenetrable;53b46d85872c5b24c8f4f0a1c3fe4c87;True;GBuffer;0;0;GBuffer;35;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;False;False;False;False;False;False;False;False;True;True;0;True;-14;255;False;-1;255;True;-13;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;False;True;0;True;-15;False;True;1;LightMode=GBuffer;False;False;0;;0;0;Standard;42;Surface Type;0;  Rendering Pass;1;  Refraction Model;0;    Blending Mode;0;    Blend Preserves Specular;1;  Receive Fog;1;  Back Then Front Rendering;0;  Transparent Depth Prepass;0;  Transparent Depth Postpass;0;  Transparent Writes Motion Vector;0;  Distortion;0;    Distortion Mode;0;    Distortion Depth Test;1;  ZWrite;0;  Z Test;4;Double-Sided;0;Alpha Clipping;0;  Use Shadow Threshold;0;Material Type,InvertActionOnDeselection;0;  Energy Conserving Specular;1;  Transmission;1;Receive Decals;1;Receives SSR;1;Receive SSR Transparent;0;Motion Vectors;1;  Add Precomputed Velocity;0;Specular AA;0;Specular Occlusion Mode;1;Override Baked GI;0;Depth Offset;0;DOTS Instancing;0;LOD CrossFade;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Vertex Position;1;0;11;True;True;True;True;True;True;False;False;False;False;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;96;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;True;-27;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;100;692.908,-13.58231;Float;False;False;-1;2;Rendering.HighDefinition.LightingShaderGraphGUI;0;1;New Amplify Shader;53b46d85872c5b24c8f4f0a1c3fe4c87;True;Distortion;0;6;Distortion;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=HDRenderPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;5;True;7;d3d11;metal;vulkan;xboxone;xboxseries;playstation;switch;0;False;True;4;1;False;-1;1;False;-1;4;1;False;-1;1;False;-1;True;1;False;-1;1;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;0;True;-11;255;False;-1;255;True;-12;7;False;-1;3;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;2;False;-1;True;3;False;-1;False;True;1;LightMode=DistortionVectors;False;False;0;;0;0;Standard;0;False;0
 WireConnection;84;12;82;0
 WireConnection;84;13;83;0
@@ -4573,4 +4518,4 @@ WireConnection;94;4;33;1
 WireConnection;94;7;33;4
 WireConnection;94;11;84;0
 ASEEND*/
-//CHKSM=8231EA57E37DB3445E693F2D84C5F67806BC2C94
+//CHKSM=334BC137428ACE1ED0A23BED56BB05A0235AE3AD

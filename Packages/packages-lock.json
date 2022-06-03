@@ -7,6 +7,12 @@
       "dependencies": {},
       "hash": "234da1f89803edcc297d5bc1e9b0cfb4353b9cdb"
     },
+    "com.naelstrof.penetrationtech": {
+      "version": "file:PenetrationTech",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.collab-proxy": {
       "version": "1.11.2",
       "depth": 0,

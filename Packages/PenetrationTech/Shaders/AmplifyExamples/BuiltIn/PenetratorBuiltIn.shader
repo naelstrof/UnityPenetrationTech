@@ -26,9 +26,9 @@ Shader "PenetrationTech/BuiltIn/Penetrator"
 		Tags{ "RenderType" = "TransparentCutout"  "Queue" = "AlphaTest+0" }
 		Cull Back
 		CGPROGRAM
-		#include "../../Penetration.cginc"
 		#include "UnityShaderVariables.cginc"
 		#pragma target 5.0
+		#include "/Packages/PenetrationTech/Shaders/Penetration.cginc"
 		#pragma surface surf Standard keepalpha addshadow fullforwardshadows vertex:vertexDataFunc 
 		struct Input
 		{
@@ -111,10 +111,12 @@ Shader "PenetrationTech/BuiltIn/Penetrator"
 			float3 worldPositionOUT56_g4 = float3( 0,0,0 );
 			float3 worldNormalOUT56_g4 = float3( 0,0,0 );
 			float4 worldTangentOUT56_g4 = float4( 0,0,0,0 );
-			ToCatmullRomSpace_float( worldDickRootPos56_g4 , worldPosition56_g4 , worldDickForward56_g4 , worldDickUp56_g4 , worldDickRight56_g4 , worldNormal56_g4 , worldTangent56_g4 , worldPositionOUT56_g4 , worldNormalOUT56_g4 , worldTangentOUT56_g4 );
+			{
+			ToCatmullRomSpace_float(worldDickRootPos56_g4,worldPosition56_g4,worldDickForward56_g4,worldDickUp56_g4,worldDickRight56_g4,worldNormal56_g4,worldTangent56_g4,worldPositionOUT56_g4,worldNormalOUT56_g4,worldTangentOUT56_g4);
+			}
 			float4 appendResult73_g4 = (float4(worldPositionOUT56_g4 , 1.0));
 			float4 transform72_g4 = mul(unity_WorldToObject,appendResult73_g4);
-			v.vertex.xyz = (transform72_g4).xyz;
+			v.vertex.xyz += (transform72_g4).xyz;
 			v.vertex.w = 1;
 			float4 appendResult75_g4 = (float4(worldNormalOUT56_g4 , 0.0));
 			float3 normalizeResult76_g4 = normalize( (mul( unity_WorldToObject, appendResult75_g4 )).xyz );
@@ -147,15 +149,14 @@ Shader "PenetrationTech/BuiltIn/Penetrator"
 	CustomEditor "ASEMaterialInspector"
 }
 /*ASEBEGIN
-Version=18935
-304;446;1772;935;1369.003;408.4767;1.295334;True;False
+Version=18912
+167;294;1772;936;1369.003;405.2384;1.295334;True;False
 Node;AmplifyShaderEditor.SamplerNode;1;-780.2597,-369.7313;Inherit;True;Property;_BaseColorMap;BaseColorMap;11;0;Create;True;0;0;0;False;0;False;-1;None;ba1c697bb13b883479ca46af735ec2ec;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;2;-686.4448,332.8491;Inherit;False;PenetratorDeformation;1;;4;034c1604581464e459076bc562dc2e05;0;3;64;FLOAT3;0,0,0;False;69;FLOAT3;0,0,0;False;71;FLOAT4;0,0,0,0;False;4;FLOAT3;61;FLOAT3;62;FLOAT4;63;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;3;-328.5131,2.428608;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;4;-779.3427,21.5253;Inherit;True;Property;_MaskMap;MaskMap;13;0;Create;True;0;0;0;False;0;False;-1;None;cfe17d7bf1efb734e83e78502ca74a2a;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;5;-779.273,-177.8663;Inherit;True;Property;_NormalMap;NormalMap;12;0;Create;True;0;0;0;False;0;False;-1;None;28a2cbd622a998a48b7d504222765053;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;6;-260.8737,216.5708;Inherit;False;Constant;_Float0;Float 0;10;0;Create;True;0;0;0;False;0;False;0.5;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;0,0;Float;False;True;-1;7;ASEMaterialInspector;0;0;Standard;PenetrationTech/BuiltIn/Penetrator;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Back;0;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Masked;0.5;True;True;0;False;TransparentCutout;;AlphaTest;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;0;0;False;-1;0;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Absolute;0;;0;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;0;0;0;False;0.1;False;-1;0;False;-1;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;0;0,0;Float;False;True;-1;7;ASEMaterialInspector;0;0;Standard;PenetrationTech/BuiltIn/Penetrator;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Back;0;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Masked;0.5;True;True;0;False;TransparentCutout;;AlphaTest;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;0;0;False;-1;0;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;Relative;0;;0;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;0;0;0;False;0.1;False;-1;0;False;-1;False;16;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 WireConnection;3;0;1;4
 WireConnection;3;1;2;0
 WireConnection;0;0;1;0
@@ -166,4 +167,4 @@ WireConnection;0;10;3;0
 WireConnection;0;11;2;61
 WireConnection;0;12;2;62
 ASEEND*/
-//CHKSM=5A5AF8B0541A16E85298F77BC60022B90AC394B0
+//CHKSM=C85AEF1F1BC44CB6DD1D5A8C89E7A72ABC136E64
