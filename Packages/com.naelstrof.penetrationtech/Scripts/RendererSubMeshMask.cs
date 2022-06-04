@@ -15,7 +15,7 @@ namespace PenetrationTech {
             SerializedProperty rendererProperty = property.FindPropertyRelative("renderer");
             float width = position.width;
             position.width = width*0.75f;
-            EditorGUI.ObjectField(position, rendererProperty, new GUIContent("Skinned Mesh And Blendshape") );
+            EditorGUI.ObjectField(position, rendererProperty, new GUIContent("Skinned Mesh and masks") );
             position.x += width*0.75f + 10f;
             position.width = width*0.25f - 10f;
             Renderer renderer = (Renderer)rendererProperty.objectReferenceValue;
