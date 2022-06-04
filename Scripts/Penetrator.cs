@@ -189,10 +189,6 @@ namespace PenetrationTech {
 
 
         void Start() {
-            if (!valid) {
-                return;
-            }
-
             Initialize();
         }
 
