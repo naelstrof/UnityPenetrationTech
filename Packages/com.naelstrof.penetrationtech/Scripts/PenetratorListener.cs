@@ -26,8 +26,11 @@ namespace PenetrationTech {
         public virtual void OnValidate(Penetrator p) { }
         public virtual void OnEnable(Penetrator newPenetrator) { }
         public virtual void Update() { }
+        public virtual void FixedUpdate() { }
         public virtual void OnDisable() { }
         public virtual void AssertValid() { }
+        public virtual void OnPenetrationStart(Penetrable penetrable) { }
+        public virtual void OnPenetrationEnd(Penetrable penetrable) { }
         public virtual void OnDrawGizmosSelected(Penetrator p) {
 #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.blue;
