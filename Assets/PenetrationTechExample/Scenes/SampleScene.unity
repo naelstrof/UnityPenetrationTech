@@ -556,11 +556,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bd659b1b607bfea40a33eff983168226, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.163
+      value: -0.159
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bd659b1b607bfea40a33eff983168226, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.189
+      value: -0.64
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bd659b1b607bfea40a33eff983168226, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10554,7 +10554,7 @@ MonoBehaviour:
   girthMap: {fileID: 733217419}
   targetHole: {fileID: 1697159048}
   penetrationMarginOfError: 0.999
-  autoPenetrate: 0
+  autoPenetrate: -1
   listeners: []
   references:
     version: 1
