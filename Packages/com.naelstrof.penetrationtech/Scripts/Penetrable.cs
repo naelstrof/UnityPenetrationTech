@@ -104,6 +104,7 @@ namespace PenetrationTech {
 
 
         protected override void OnEnable() {
+            base.OnEnable();
             if (!valid && !Application.isPlaying) {
                 return;
             }
