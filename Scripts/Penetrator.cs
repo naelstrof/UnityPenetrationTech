@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using UnityEngine;
 #if UNITY_EDITOR
 using System.Reflection;
@@ -162,10 +163,13 @@ namespace PenetrationTech {
         }
 
         private void Initialize() {
-            if (!valid && !Application.isPlaying) {
-                return;
+            if (!Application.isPlaying) {
+                CheckValid();
+                if (!valid) {
+                    return;
+                }
             }
-            
+
             girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
                     localRootUp, localRootRight);
             GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent);
