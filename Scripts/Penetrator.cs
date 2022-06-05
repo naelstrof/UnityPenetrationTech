@@ -287,7 +287,7 @@ namespace PenetrationTech {
             }
             
             Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
-            Vector3 tipTangent = -rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f);
+            Vector3 tipTangent = rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f);
             if (tipTarget != null) {
                 var forward = tipTarget.forward;
                 tipPosition = tipTarget.position+forward * (girthData.GetWorldLength() * 0.1f);
