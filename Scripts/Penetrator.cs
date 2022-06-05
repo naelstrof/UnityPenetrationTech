@@ -361,7 +361,7 @@ namespace PenetrationTech {
             
             UpdateInsertionAmount(targetHole, tipPosition);
             
-            if (!inserted && insertionFactor < 0.01f && ((autoPenetrate&AutoPenetrateMode.AutoDecouple)!=0)) {
+            if (targetHole == null || (!inserted && insertionFactor < 0.01f && ((autoPenetrate&AutoPenetrateMode.AutoDecouple)!=0))) {
                 OnSetClip(0f, 0f);
                 weightsA.Clear();
                 ConstructPathForIdle(weightsA, tipPosition, tipTangent);
