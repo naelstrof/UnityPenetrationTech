@@ -77,7 +77,7 @@ namespace PenetrationTech {
         }
 
         private void UpdateWorldPoints() {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             worldPoints.Clear();
@@ -104,10 +104,7 @@ namespace PenetrationTech {
 
 
         protected override void OnEnable() {
-            if (Application.isPlaying) {
-                valid = true;
-            }
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             worldPoints = new List<Vector3>();
@@ -127,7 +124,7 @@ namespace PenetrationTech {
                 }
             }
 
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             foreach(PenetrableListener listener in listeners) {
@@ -136,7 +133,7 @@ namespace PenetrationTech {
 
         }
         void Update() {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             foreach(PenetrableListener listener in listeners) {
@@ -146,7 +143,7 @@ namespace PenetrationTech {
         protected override void OnDrawGizmosSelected() {
             base.OnDrawGizmosSelected();
             CheckValid();
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             UpdateWorldPoints();
@@ -227,7 +224,7 @@ namespace PenetrationTech {
             }
         }
         public void SetPenetrationDepth(Penetrator penetrator, float worldSpaceDistanceToPenisRoot, SetClipDistanceAction clipAction) {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             UpdateWorldPoints();
@@ -238,7 +235,7 @@ namespace PenetrationTech {
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
         }
         public CatmullSpline GetSplinePath() {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return path;
             }
 

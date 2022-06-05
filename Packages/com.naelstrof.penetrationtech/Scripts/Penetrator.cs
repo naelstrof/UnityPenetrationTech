@@ -135,13 +135,7 @@ namespace PenetrationTech {
         }
 
         private void Initialize() {
-            if (Application.isPlaying) {
-                valid = true;
-                lastError = "";
-                CheckValid();
-            }
-
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             
@@ -179,7 +173,7 @@ namespace PenetrationTech {
 
         protected override void OnDisable() {
             base.OnDisable();
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             foreach (PenetratorListener listener in listeners) {
@@ -193,7 +187,7 @@ namespace PenetrationTech {
         }
 
         void Update() {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
 
@@ -204,7 +198,7 @@ namespace PenetrationTech {
                 } else {
                     tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
                 }
-                int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders);
+                int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
                 PenetrableOwner bestMatch = null;
                 float bestDistance = float.MaxValue;
                 // TODO: Match by best result, probably weighted by distance and angle...
@@ -282,7 +276,7 @@ namespace PenetrationTech {
         }
 
         protected override void LateUpdate() {
-            if (!valid) {
+            if (!valid && !Application.isPlaying) {
                 return;
             }
             
