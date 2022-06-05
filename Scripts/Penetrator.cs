@@ -78,6 +78,11 @@ namespace PenetrationTech {
         [SerializeReference] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
 
+
+        public delegate void PenetrationAction(Penetrable penetrable);
+        public PenetrationAction penetrationStart;
+        public PenetrationAction penetrationEnd;
+        private Penetrable targetHoleMemory;
         
         private List<Vector3> weightsA;
         private List<Vector3> weightsB;
@@ -233,6 +238,9 @@ namespace PenetrationTech {
 
         private void UpdateInsertionAmount(Penetrable penetrable, Vector3 tipPosition) {
             if (penetrable == null) {
+                if (inserted) {
+                    penetrationEnd?.Invoke(targetHoleMemory);
+                }
                 inserted = false;
                 insertionFactor = 0f;
                 return;
@@ -247,14 +255,26 @@ namespace PenetrationTech {
                     insertionFactor = 1f;
                 }
 
-                if (insertionFactor <= 0.01f) inserted = false;
+                if (insertionFactor <= 0.01f) {
+                    if (inserted) {
+                        penetrationEnd.Invoke(targetHoleMemory);
+                    }
+                    inserted = false;
+                }
             } else {
                 insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
                 insertionFactor = Mathf.Max(
                     insertionFactor,
                     Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * 0.4f) * 2f)
                 );
-                if (insertionFactor >= 0.99f) inserted = true;
+                if (insertionFactor >= 0.99f) {
+                    if (!inserted) {
+                        penetrationStart.Invoke(targetHole);
+                        targetHoleMemory = targetHole;
+                    }
+
+                    inserted = true;
+                }
             }
         }
 
@@ -447,8 +467,15 @@ namespace PenetrationTech {
             }
         }
         public void Penetrate(Penetrable penetrable) {
+            if (targetHole != null && targetHole != penetrable) {
+                penetrationEnd.Invoke(targetHole);
+            }
+
             targetHole = penetrable;
             insertionFactor = 1f;
+            if (!inserted) {
+                penetrationStart(targetHole);
+            }
             inserted = true;
         }
 
