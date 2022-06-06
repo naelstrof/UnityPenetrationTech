@@ -113,6 +113,7 @@ namespace PenetrationTech {
         public RenderTexture GetGirthMap() {
             if (girthMap == null) {
                 girthMap = new RenderTexture(256, 256, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+                girthMap.filterMode = FilterMode.Point;
                 girthMap.useMipMap = true;
                 girthMap.autoGenerateMips = false;
                 girthMap.wrapMode = TextureWrapMode.Repeat;

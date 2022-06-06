@@ -250,13 +250,13 @@ void GetDeformationFromPenetrator(inout float3 worldPosition, float holeT, float
 
     float girthSample = tex2Dlod(girthMap,float4(frac(girthSampleUV.xy),0,diffDistance*smoothness*smoothness)).r*data.girthScaleFactor;
 
-    if (girthSampleUV.x >= 1) {
+    if (girthSampleUV.x >= 1 || girthSampleUV.x < 0) {
         girthSample = 0;
     }
 
     float compressionFactor = saturate((diffDistance-girthSample)/compressibleDistance);
     
-    worldPosition += normalize(diff)*(girthSample)*(1-compressionFactor);
+    worldPosition += diffNorm*(girthSample)*(1-compressionFactor);
 }
 
 void GetDeformationFromPenetrators_float(float3 worldPosition, float4 uv2, float compressibleDistance, float smoothness, out float3 deformedPosition) {
