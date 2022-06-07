@@ -138,12 +138,11 @@ namespace PenetrationTech {
                 float distFromRoot = ((float)x/(float)cpuTex.width)*maxLocalLength;
                 Vector2 positionAverage = positionSum/(float)(cpuTex.height/2);
                 positionAverage *= 2;
-                if (x == 31) {
-                    positionAverage *= 0f;
-                }
                 localXOffsetCurve.AddKey(distFromRoot, positionAverage.x);
                 localYOffsetCurve.AddKey(distFromRoot, positionAverage.y);
             }
+            localXOffsetCurve.AddKey(maxLocalLength, 0f);
+            localYOffsetCurve.AddKey(maxLocalLength, 0f);
         }
         private void PopulateGirthCurve(RenderTexture girthMap) {
             // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
@@ -161,15 +160,17 @@ namespace PenetrationTech {
             localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
             for (int x=0;x<32;x++) {
                 float averagePixelColor = 0f;
+                float maxPixelColor = 0f;
                 for (int y=0;y<32;y++) {
-                    averagePixelColor += cpuTex.GetPixel(x,y).r;
+                    float pixelColor = cpuTex.GetPixel(x,y).r;
+                    averagePixelColor += pixelColor;
+                    maxPixelColor = Mathf.Max(pixelColor, maxPixelColor);
                 }
                 averagePixelColor/=32f;
-                if (x==31) {
-                    averagePixelColor*=0f;
-                }
+                averagePixelColor = (averagePixelColor + maxPixelColor) / 2f;
                 localGirthRadiusCurve.AddKey((float)x/32f*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
             }
+            localGirthRadiusCurve.AddKey(maxLocalLength,0f);
         }
         private static void GetBindPoseBonePositionRotation(Matrix4x4 boneMatrix, out Vector3 position, out Quaternion rotation) {
             // Get global matrix for bone
