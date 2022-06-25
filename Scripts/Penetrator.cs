@@ -132,6 +132,16 @@ namespace PenetrationTech {
         public string GetLastError() {
             return lastError;
         }
+
+        public bool TryGetPenetrable(out Penetrable penetrable) {
+            if (!inserted) {
+                penetrable = null;
+                return false;
+            }
+            penetrable = targetHole;
+            return true;
+        }
+
         public float GetPenetratorAngleOffset() {
             Vector3 initialRight = path.GetBinormalFromT(0f);
             Vector3 initialForward = path.GetVelocityFromT(0f).normalized;
