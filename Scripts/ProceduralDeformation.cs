@@ -133,6 +133,17 @@ namespace PenetrationTech {
                 return sizeof(float)*11+sizeof(int)*1;
             }
         }
+
+        public void AddTargetRenderer(Renderer targetRenderer) {
+            if (!renderTargets.Contains(targetRenderer)) {
+                renderTargets.Add(targetRenderer);
+            }
+        }
+
+        public void RemoveTargetRenderer(Renderer targetRenderer) {
+            renderTargets.Remove(targetRenderer);
+        }
+
         void OnEnable() {
             penetratorBuffer = new ComputeBuffer(4,PenetratorData.GetSize());
             data = new NativeArray<PenetratorData>(4, Allocator.Persistent);
