@@ -483,7 +483,7 @@ MonoBehaviour:
       type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
         t: 0
-        targetBone: {fileID: 807804077407153469}
+        offsetCorrectionBone: {fileID: 807804077407153469}
         targets:
         - skinnedMeshRenderer: {fileID: 7452297451520482250}
           expandBlendshapeName: ButtExpand
@@ -499,9 +499,11 @@ MonoBehaviour:
           expandBlendshapeID: 26
           pullBlendshapeID: 27
           pushBlendshapeID: 28
-        blendShapeGirth: 0.045
+        baseGirthRadius: 0
+        blendShapeGirthRadius: 0.045
         pullT: -0.028
         pushT: 0.02
+        overdrive: 1
     00000001:
       type: {class: ClipListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
@@ -2223,7 +2225,7 @@ MonoBehaviour:
       type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
         t: 0
-        targetBone: {fileID: 3952444606842804954}
+        offsetCorrectionBone: {fileID: 3952444606842804954}
         targets:
         - skinnedMeshRenderer: {fileID: 7452297451520482250}
           expandBlendshapeName: VagExpand
@@ -2239,9 +2241,11 @@ MonoBehaviour:
           expandBlendshapeID: 29
           pullBlendshapeID: 30
           pushBlendshapeID: 31
-        blendShapeGirth: 0.045
+        baseGirthRadius: 0.003
+        blendShapeGirthRadius: 0.045
         pullT: -0.04
         pushT: 0.04
+        overdrive: 1
     00000001:
       type: {class: ClipListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:

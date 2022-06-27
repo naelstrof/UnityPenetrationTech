@@ -40,7 +40,7 @@ namespace PenetrationTech {
         protected override void OnPenetrationGirthRadiusChange(float newGirthRadius) {
             base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePushPullExpandSet target in targets) {
-                float triggerAmount = (newGirthRadius-baseGirthRadius) / blendShapeGirthRadius;
+                float triggerAmount = (newGirthRadius-baseGirthRadius) / (blendShapeGirthRadius*offsetCorrectionBone.lossyScale.x);
                 target.skinnedMeshRenderer.SetBlendShapeWeight(target.expandBlendshapeID, overdrive ? triggerAmount * 100f : Mathf.Clamp01(triggerAmount)*100f);
             }
         }
