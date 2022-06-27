@@ -26,12 +26,13 @@ namespace PenetrationTech {
         private NativeArray<CatmullSplineData> data;
         private MaterialPropertyBlock propertyBlock;
 
-        protected List<RendererSubMeshMask> GetTargetRenderers() {
+        public virtual List<RendererSubMeshMask> GetTargetRenderers() {
             if (targetRenderers == null) {
                 targetRenderers = new List<RendererSubMeshMask>();
             }
             return targetRenderers;
         }
+
         public virtual void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
             if (targetRenderers == null) {
                 targetRenderers = new List<RendererSubMeshMask>(renderers);
