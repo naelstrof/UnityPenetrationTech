@@ -15,10 +15,14 @@ namespace PenetrationTech {
     [CustomEditor(typeof(Penetrable))]
     public class PenetrableEditor : Editor {
         static IEnumerable<PenetrableListenerAttribute> GetPenetrableListenerAttributes() {
-            foreach(Type type in Assembly.GetExecutingAssembly().GetTypes()) {
-                var attributes = (PenetrableListenerAttribute[])type.GetCustomAttributes(typeof(PenetrableListenerAttribute), true);
-                if (attributes.Length > 0) {
-                    yield return attributes[0];
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+                foreach (Type type in assembly.GetTypes()) {
+                    var attributes =
+                        (PenetrableListenerAttribute[])type.GetCustomAttributes(typeof(PenetrableListenerAttribute),
+                            true);
+                    if (attributes.Length > 0) {
+                        yield return attributes[0];
+                    }
                 }
             }
         }
