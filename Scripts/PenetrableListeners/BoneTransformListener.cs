@@ -9,7 +9,7 @@ namespace PenetrationTech {
     [PenetrableListener(typeof(BoneTransformListener), "Simple Bone Offset Correction Listener")]
     public class BoneTransformListener : PenetrableListener {
         [FormerlySerializedAs("targetBone")] [SerializeField]
-        Transform offsetCorrectionBone;
+        protected Transform offsetCorrectionBone;
         Vector3 originalLocalPosition = Vector3.positiveInfinity;
         Vector3 localOffset;
         public override void OnEnable(Penetrable p) {
