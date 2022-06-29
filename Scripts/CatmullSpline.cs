@@ -46,6 +46,7 @@ namespace PenetrationTech {
         private List<float> distanceLUT;
         private List<Vector3> binormalLUT;
         private List<Bounds> bounds;
+        private static List<float> quickDistanceLUT = new List<float>();
         public float arcLength {get; private set;}
 
         public List<Vector3> GetWeights() => weights;
@@ -198,22 +199,35 @@ namespace PenetrationTech {
             return this;
         }
 
-        public static void GetWeightsFromPoints(ICollection<Vector3> weightCollection, IList<Vector3> newPoints) {
+        public static void GetWeightsFromPoints(ICollection<Vector3> weightCollection, IList<Vector3> newPoints, float tension=0.5f) {
+            // Using Cardinal Spline tangent generation
+            // Got the most useful description of that here: https://stackoverflow.com/questions/53679551/interpolating-a-cardinal-curve-in-c-sharp
+            
+            // Quickly build a distance LUT for normalization purposes
+            quickDistanceLUT.Clear();
+            float distance = 0f;
+            for (int i = 0; i < newPoints.Count - 1; i++) {
+                quickDistanceLUT.Add(distance);
+                distance += Vector3.Distance(newPoints[i], newPoints[i + 1]);
+            }
+            quickDistanceLUT.Add(distance);
+            
             for (int i=0;i<newPoints.Count-1;i++) {
                 Vector3 p0 = newPoints[i];
                 Vector3 p1 = newPoints[i+1];
 
                 Vector3 m0;
                 if (i==0) {
-                    m0 = (p1 - p0)*0.5f;
+                    m0 = (1f-tension)*(p1 - p0);
                 } else {
-                    m0 = (p1 - newPoints[i-1])*0.5f;
+                    m0 = (1f-tension) * (p1 - newPoints[i-1]) / (quickDistanceLUT[i+1]-quickDistanceLUT[i-1]);
                 }
+                
                 Vector3 m1;
                 if (i < newPoints.Count - 2) {
-                    m1 = (newPoints[(i + 2) % newPoints.Count] - p0)*0.5f;
+                    m1 = (1f-tension) * (newPoints[i + 2] - p0) / (quickDistanceLUT[i+2]-quickDistanceLUT[i]);
                 } else {
-                    m1 = (p1 - p0)*0.5f;
+                    m1 = (1f-tension)*(p1 - p0);
                 }
                 weightCollection.Add(p0);
                 weightCollection.Add(m0);
@@ -230,9 +244,9 @@ namespace PenetrationTech {
             return GetDistanceFromTime(t);
         }
 
-        public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints) {
+        public CatmullSpline SetWeightsFromPoints(IList<Vector3> newPoints, float tension = 0.5f) {
             weights.Clear();
-            GetWeightsFromPoints(weights,newPoints);
+            GetWeightsFromPoints(weights,newPoints, tension);
             GenerateDistanceLUT(32);
             GenerateBinormalLUT(16);
             bounds.Clear();

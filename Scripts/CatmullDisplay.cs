@@ -16,19 +16,20 @@ namespace PenetrationTech {
                 lastPoint = newPoint;
             }
             for (int i=0;i<path.GetWeights().Count;i+=4) {
-                Gizmos.color = new Color(0,1,0,0.5f);
-                Gizmos.DrawSphere(path.GetWeights()[i], 0.05f);
-                Gizmos.DrawSphere(path.GetWeights()[i+3], 0.05f);
+                Gizmos.color = new Color(0,1,0,0.25f);
+                Gizmos.DrawSphere(path.GetWeights()[i], 0.02f);
+                Gizmos.DrawSphere(path.GetWeights()[i+3], 0.02f);
+                
                 //Gizmos.color = Color.blue;
                 //Gizmos.DrawLine(path.GetWeights()[i], path.GetWeights()[i]+path.GetWeights()[i+1]);
-                //Gizmos.DrawWireSphere(path.GetWeights()[i]+path.GetWeights()[i+1], 0.025f);
-                //Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.025f);
+                //Gizmos.DrawWireSphere(path.GetWeights()[i]+path.GetWeights()[i+1], 0.01f);
+                //Gizmos.DrawWireSphere(path.GetWeights()[i+3]+path.GetWeights()[i+2], 0.01f);
                 //Gizmos.DrawLine(path.GetWeights()[i+3], path.GetWeights()[i+3]+path.GetWeights()[i+2]);
             }
-            for (int i=0;i<path.GetBounds().Count;i++) {
+            /*for (int i=0;i<path.GetBounds().Count;i++) {
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireCube(path.GetBounds()[i].center, path.GetBounds()[i].size);
-            }
+            }*/
             /*Matrix4x4 savedMatrix = Gizmos.matrix;
             int frames = 32;
             for (int i=0;i<frames;i++) {

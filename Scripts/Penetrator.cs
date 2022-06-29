@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using System.Reflection;
 using UnityEditor;
@@ -82,8 +83,8 @@ namespace PenetrationTech {
         private GirthData girthData;
         [SerializeField][ReadOnly]
         private RenderTexture girthMap;
-        [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
-        private Penetrable targetHole;
+        [FormerlySerializedAs("targetHole")] [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
+        private Penetrable penetratedHole;
 
         [SerializeField] [Range(0.001f,5f)] [Tooltip("How lenient we are with penetrators being off-target, measured in penetrator-lengths.")]
         private float penetrationMarginOfError = 0.5f;
@@ -91,16 +92,22 @@ namespace PenetrationTech {
         private AutoPenetrateMode autoPenetrate = AutoPenetrateMode.AutoSeek | AutoPenetrateMode.AutoDecouple;
         [SerializeReference] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
+        
 
 
         public delegate void PenetrationAction(Penetrable penetrable);
         public PenetrationAction penetrationStart;
         public PenetrationAction penetrationEnd;
-        private Penetrable targetHoleMemory;
+        
+        private Penetrable targetHoleA;
+        private Penetrable targetHoleB;
+        private float targetHoleLerp;
         
         private List<Vector3> weightsA;
         private List<Vector3> weightsB;
-        private List<Vector3> outputWeights;
+        private List<Vector3> weightsC;
+        private List<Vector3> outputWeightsA;
+        private List<Vector3> outputWeightsB;
         private bool inserted;
         private float insertionFactor;
         private MaterialPropertyBlock propertyBlock;
@@ -142,7 +149,7 @@ namespace PenetrationTech {
                 penetrable = null;
                 return false;
             }
-            penetrable = targetHole;
+            penetrable = penetratedHole;
             return true;
         }
 
@@ -204,7 +211,9 @@ namespace PenetrationTech {
             var forward = transform.forward;
             weightsA = new List<Vector3>();
             weightsB = new List<Vector3>();
-            outputWeights = new List<Vector3>();
+            weightsC = new List<Vector3>();
+            outputWeightsA = new List<Vector3>();
+            outputWeightsB = new List<Vector3>();
             path = new CatmullSpline();
         }
         
@@ -218,6 +227,7 @@ namespace PenetrationTech {
 
         protected override void OnDisable() {
             base.OnDisable();
+            targetHoleLerp = 1f;
             if (!valid && !Application.isPlaying) {
                 return;
             }
@@ -246,35 +256,43 @@ namespace PenetrationTech {
                 return;
             }
 
-            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted) {
-                Vector3 tipPosition;
-                if (path != null && path.GetWeights().Count > 0) {
-                    tipPosition = path.GetPositionFromDistance(GetWorldLength() * virtualSquashAndStretch);
-                } else {
-                    tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
-                }
+            targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*4f);
+            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && targetHoleLerp == 1f) {
+                Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
                 int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
                 PenetrableOwner bestMatch = null;
-                float bestDistance = float.MaxValue;
-                // TODO: Match by best result, probably weighted by distance and angle...
+                float bestValue = float.MaxValue;
                 for (int i = 0; i < hits; i++) {
                     PenetrableOwner owner = colliders[i].GetComponent<PenetrableOwner>();
                     if (owner != null) {
                         float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
-                        if (distance < bestDistance) {
+                        // Being a full 180 degrees around will add a meter to the distance evaluation.
+                        float angle = Vector3.Angle(owner.owner.GetSplinePath().GetVelocityFromT(0f).normalized,
+                            rootBone.TransformDirection(localRootForward))/180f;
+                        float value = angle+distance;
+                        if (value < bestValue) {
                             bestMatch = owner;
-                            bestDistance = distance;
+                            bestValue = value;
                         }
                     }
                 }
                 if (bestMatch != null) {
-                    targetHole = bestMatch.owner;
+                    SetTargetHole(bestMatch.owner);
                 }
             }
 
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
             }
+        }
+
+        public void SetTargetHole(Penetrable target) {
+            if (target == targetHoleA) {
+                return;
+            }
+            targetHoleB = targetHoleA;
+            targetHoleA = target;
+            targetHoleLerp = 1f - targetHoleLerp;
         }
 
         void OnSetClip(float startDistance, float endDistance) {
@@ -288,74 +306,63 @@ namespace PenetrationTech {
 
         private void UpdateInsertionAmount(Penetrable penetrable, Vector3 tipPosition) {
             if (penetrable == null) {
-                if (inserted) {
-                    penetrationEnd?.Invoke(targetHoleMemory);
-                    foreach (var listener in listeners) {
-                        listener.OnPenetrationEnd(targetHoleMemory);
-                    }
-                }
-                inserted = false;
-                insertionFactor = 0f;
+                Penetrate(null);
                 return;
             }
 
             Vector3 holePos = penetrable.GetSplinePath().GetPositionFromT(0f);
-            float fakeDistance = Vector3.Distance(holePos, rootBone.position);
             if (inserted) {
-                if (fakeDistance > girthData.GetWorldLength()*1.25f && (autoPenetrate&AutoPenetrateMode.AutoDecouple) != 0) {
-                    insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
-                    insertionFactor = Mathf.Max(
-                        insertionFactor,
-                        Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * penetrationMarginOfError) * 2f)
-                    );
-                } else {
-                    insertionFactor = 1f;
-                }
-
-                if (insertionFactor <= 0.01f) {
-                    if (inserted) {
-                        foreach (var listener in listeners) {
-                            listener.OnPenetrationEnd(targetHoleMemory);
-                        }
-                        penetrationEnd?.Invoke(targetHoleMemory);
-                    }
-                    inserted = false;
-                }
-            } else {
-                insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
-                insertionFactor = Mathf.Max(
-                    insertionFactor,
-                    Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * penetrationMarginOfError) * 2f)
-                );
-                if (insertionFactor >= 0.99f) {
-                    if (!inserted) {
-                        penetrationStart?.Invoke(targetHole);
-                        targetHoleMemory = targetHole;
-                        foreach (var listener in listeners) {
-                            listener.OnPenetrationStart(targetHole);
-                        }
-                    }
-
-                    inserted = true;
-                }
+                return;
+            }
+            insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
+            insertionFactor = Mathf.Max(
+                insertionFactor,
+                Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * penetrationMarginOfError) * 2f) * targetHoleLerp
+            );
+            if (insertionFactor >= 0.99f) {
+                Penetrate(penetrable);
             }
         }
 
-        // TODO: This doesn't properly stitch curves of different weight counts well, though this currently doesn't matter for our use-case.
-        private void StitchWeights(IList<Vector3> a, IList<Vector3> b, IList<Vector3> output, float t) {
+        private bool StitchWeights(List<Vector3> a, List<Vector3> b, List<Vector3> output, float t) {
             output.Clear();
+            if (t == 0f || b.Count == 0) {
+                output.AddRange(a);
+                return false;
+            }
+
+            if (Math.Abs(t - 1f) < 0.001f || a.Count == 0) {
+                output.AddRange(b);
+                return false;
+            }
+
             for (int i = 0; i < Mathf.Min(a.Count, b.Count); i++) {
                 output.Add(Vector3.Lerp(a[i], b[i], t));
             }
+
+            int stitchLocation = output.Count;
+            
             for (int i = output.Count; i < a.Count; i++) {
                 output.Add(a[i]);
             }
-
-            if (t != 0f) {
-                for (int i = output.Count; i < b.Count; i++) {
-                    output.Add(b[i]);
-                }
+            for (int i = output.Count; i < b.Count; i++) {
+                output.Add(b[i]);
             }
+
+            // Generate a quick spline segment to connect the two seamlessly.
+            if (stitchLocation != output.Count) {
+                Vector3 p0 = output[stitchLocation - 1];
+                Vector3 p1 = output[stitchLocation];
+                Vector3 m0 = output[stitchLocation - 2];
+                Vector3 m1 = output[stitchLocation + 1];
+                output.Insert(stitchLocation, p1);
+                output.Insert(stitchLocation, m1);
+                output.Insert(stitchLocation, m0);
+                output.Insert(stitchLocation, p0);
+                return true;
+            }
+
+            return false;
         }
 
         private void GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent) {
@@ -375,38 +382,27 @@ namespace PenetrationTech {
 
             GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent);
             
-            UpdateInsertionAmount(targetHole, tipPosition);
+            UpdateInsertionAmount(targetHoleA, tipPosition);
             
-            if (targetHole == null || (!inserted && insertionFactor < 0.01f && ((autoPenetrate&AutoPenetrateMode.AutoDecouple)!=0))) {
-                OnSetClip(0f, 0f);
-                weightsA.Clear();
-                ConstructPathForIdle(weightsA, tipPosition, tipTangent);
-                path.SetWeights(weightsA);
-                base.LateUpdate();
-                return;
-            }
-            
-            CatmullSpline holeSplinePath = targetHole.GetSplinePath();
-            Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
-            Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
+            ConstructPathToPenetrable(weightsB, targetHoleA);
+            ConstructPathToPenetrable(weightsC, targetHoleB);
+            StitchWeights(weightsC, weightsB, outputWeightsA, targetHoleLerp);
             
             ConstructPathForIdle(weightsA, tipPosition, tipTangent);
-            ConstructPathToPenetrable(weightsB, targetHole);
-            StitchWeights(weightsA, weightsB, outputWeights, insertionFactor);
-            path.SetWeights(outputWeights);
+            bool addedSegment = StitchWeights(weightsA, outputWeightsA, outputWeightsB, insertionFactor);
             
-            float realDistanceToHole = path.GetDistanceFromSubT(0, 1, 1f);
+            path.SetWeights(outputWeightsB);
             
-            if (inserted || ((autoPenetrate&AutoPenetrateMode.AutoDecouple)==0)) {
+            float realDistanceToHole = path.GetDistanceFromSubT(0, addedSegment ? 2 : 1, 1f) + GetWorldLength()*(1f-targetHoleLerp);
+            if (penetratedHole != null) {
                 OnSetClip(1f, 1f);
-                targetHole.SetPenetrationDepth(this, realDistanceToHole/virtualSquashAndStretch, OnSetClip);
+                penetratedHole.SetPenetrationDepth(this, realDistanceToHole/virtualSquashAndStretch, OnSetClip);
                 foreach (PenetratorListener listener in listeners) {
-                    listener.NotifyPenetrationUpdate(this, targetHole, realDistanceToHole/virtualSquashAndStretch);
+                    listener.NotifyPenetrationUpdate(this, penetratedHole, realDistanceToHole/virtualSquashAndStretch);
                 }
-            } else {
-                foreach (PenetratorListener listener in listeners) {
-                    listener.NotifyPenetrationUpdate(this, targetHole, GetWorldLength()+1f);
-                }
+            }
+            if (inserted && realDistanceToHole > GetWorldLength()*Mathf.Max(virtualSquashAndStretch,1f)) {
+                Penetrate(null);
             }
 
             foreach (RendererSubMeshMask rendererMask in GetTargetRenderers()) {
@@ -436,10 +432,13 @@ namespace PenetrationTech {
 
         private void ConstructPathToPenetrable(ICollection<Vector3> output, Penetrable penetrable) {
             output.Clear();
-            CatmullSpline holeSplinePath = targetHole.GetSplinePath();
+            if (penetrable == null) {
+                return;
+            }
+            CatmullSpline holeSplinePath = penetrable.GetSplinePath();
+            
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
             Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
-            float worldLength = girthData.GetWorldLength();
 
             var rootBonePosition = rootBone.position;
             float fakeDistance = Vector3.Distance(rootBonePosition, holePos);
@@ -451,7 +450,7 @@ namespace PenetrationTech {
             output.Add(insertionTangent);
             output.Add(insertionPoint);
             
-            targetHole.GetWeights(output);
+            penetratedHole.GetWeights(output);
             Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
             Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
             output.Add(outPosition);
@@ -474,7 +473,8 @@ namespace PenetrationTech {
             listeners ??= new List<PenetratorListener>();
             weightsA ??= new List<Vector3>();
             weightsB ??= new List<Vector3>();
-            outputWeights ??= new List<Vector3>();
+            outputWeightsA ??= new List<Vector3>();
+            outputWeightsB ??= new List<Vector3>();
             path ??= new CatmullSpline();
             if (path.GetWeights().Count == 0) {
                 path.SetWeights( new Vector3[] { Vector3.zero, Vector3.up, Vector3.up, Vector3.zero });
@@ -544,19 +544,28 @@ namespace PenetrationTech {
             }
         }
         public void Penetrate(Penetrable penetrable) {
-            if (targetHole != null && targetHole != penetrable) {
-                penetrationEnd?.Invoke(targetHole);
+            if (penetratedHole != null && penetratedHole != penetrable) {
+                penetrationEnd?.Invoke(penetratedHole);
                 foreach (var listener in listeners) {
-                    listener.OnPenetrationEnd(targetHole);
+                    listener.OnPenetrationEnd(penetratedHole);
                 }
+                penetratedHole.SetPenetrationDepth(this, GetWorldLength()+0.1f, OnSetClip);
+                inserted = false;
+            }
+            
+            if (penetrable == null) {
+                inserted = false;
+                OnSetClip(0f, 0f);
+                return;
             }
 
-            targetHole = penetrable;
+            SetTargetHole(penetrable);
+            penetratedHole = penetrable;
             insertionFactor = 1f;
             if (!inserted) {
-                penetrationStart?.Invoke(targetHole);
+                penetrationStart?.Invoke(penetratedHole);
                 foreach (var listener in listeners) {
-                    listener.OnPenetrationStart(targetHole);
+                    listener.OnPenetrationStart(penetratedHole);
                 }
             }
             inserted = true;
