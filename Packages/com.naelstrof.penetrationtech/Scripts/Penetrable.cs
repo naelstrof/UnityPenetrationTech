@@ -64,6 +64,8 @@ namespace PenetrationTech {
         public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
         private Transform[] points;
+
+        [SerializeField, Range(0f,1f)] private float splineTension = 0.5f;
         private List<Vector3> worldPoints;
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference]
@@ -92,7 +94,7 @@ namespace PenetrationTech {
 
         public void GetWeights(ICollection<Vector3> collection) {
             UpdateWorldPoints();
-            CatmullSpline.GetWeightsFromPoints(collection, worldPoints);
+            CatmullSpline.GetWeightsFromPoints(collection, worldPoints, splineTension);
         }
 
         private void SetUpCollider(ref GameObject obj, Transform point) {
@@ -152,7 +154,7 @@ namespace PenetrationTech {
                 return;
             }
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints);
+            path.SetWeightsFromPoints(worldPoints, splineTension);
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);
             }
@@ -212,7 +214,7 @@ namespace PenetrationTech {
             worldPoints ??= new List<Vector3>();
             path ??= new CatmullSpline();
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints);
+            path.SetWeightsFromPoints(worldPoints, splineTension);
 
             // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
             foreach (PenetrableListener listener in listeners) {
@@ -233,7 +235,7 @@ namespace PenetrationTech {
                 return;
             }
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints);
+            path.SetWeightsFromPoints(worldPoints, splineTension);
             foreach(PenetrableListener listener in listeners) {
                 listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
             }
@@ -245,7 +247,7 @@ namespace PenetrationTech {
             }
 
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints);
+            path.SetWeightsFromPoints(worldPoints, splineTension);
             return path;
         }
     }

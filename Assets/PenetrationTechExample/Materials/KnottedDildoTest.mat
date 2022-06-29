@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: KnottedDildoTest
-  m_Shader: {fileID: -6465566751694194690, guid: da927b3d5b8878e44a704ffb55593a45, type: 3}
+  m_Shader: {fileID: 4800000, guid: e8ffc09d5c96c374bb13dd365fa61d41, type: 3}
   m_ShaderKeywords: _DEFORM_BALLS_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
