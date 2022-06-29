@@ -450,7 +450,7 @@ namespace PenetrationTech {
             output.Add(insertionTangent);
             output.Add(insertionPoint);
             
-            penetratedHole.GetWeights(output);
+            penetrable.GetWeights(output);
             Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
             Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
             output.Add(outPosition);
