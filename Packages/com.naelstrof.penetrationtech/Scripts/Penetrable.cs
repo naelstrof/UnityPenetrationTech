@@ -75,6 +75,7 @@ namespace PenetrationTech {
         private bool refreshListeners;
         private bool valid;
         private string lastError;
+        private bool reinitialize = false;
         public string GetLastError() {
             return lastError;
         }
@@ -140,9 +141,28 @@ namespace PenetrationTech {
 
         }
         void Update() {
+            #if UNITY_EDITOR
+            if (reinitialize && !Application.isPlaying) {
+                CheckValid();
+                if (!valid) {
+                    return;
+                }
+                foreach (PenetrableListener listener in listeners) {
+                    listener.OnDisable();
+                }
+
+                foreach (PenetrableListener listener in listeners) {
+                    listener.OnEnable(this);
+                }
+
+                reinitialize = false;
+            }
+            #endif
             if (!valid && !Application.isPlaying) {
                 return;
             }
+
+
             foreach(PenetrableListener listener in listeners) {
                 listener.Update();
             }
@@ -170,6 +190,9 @@ namespace PenetrationTech {
         void CheckValid() {
             lastError = "";
             valid = true;
+            listeners ??= new List<PenetrableListener>();
+            worldPoints ??= new List<Vector3>();
+            path ??= new CatmullSpline();
             try {
                 AssertValid(points != null && points.Length > 1, "Please specify at least two points to form a curve.");
                 bool hasNullTransform = false;
@@ -179,6 +202,14 @@ namespace PenetrationTech {
                         break;
                     }
                 }
+                
+                if (colliderEntrance != null && points.Length > 0 && colliderEntrance.transform.parent != points[0]) {
+                    colliderEntrance.transform.parent = points[0];
+                    colliderEntrance.transform.localPosition = Vector3.zero;
+                }
+                UpdateWorldPoints();
+                path.SetWeightsFromPoints(worldPoints, splineTension);
+                
                 AssertValid(!hasNullTransform, "One of the path transforms is null.");
                 bool hasNullListener = false;
                 foreach (PenetrableListener listener in listeners) {
@@ -199,34 +230,13 @@ namespace PenetrationTech {
                 valid = false;
                 lastError = $"{error.Message}\n\n{error.StackTrace}";
             }
+            
         }
 
         void OnValidate() {
-            listeners ??= new List<PenetrableListener>();
-            CheckValid();
-            if (!valid) {
-                return;
-            }
-            if (colliderEntrance != null && points.Length > 0 && colliderEntrance.transform.parent != points[0]) {
-                colliderEntrance.transform.parent = points[0];
-                colliderEntrance.transform.localPosition = Vector3.zero;
-            }
-            worldPoints ??= new List<Vector3>();
-            path ??= new CatmullSpline();
-            UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints, splineTension);
-
-            // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
-            foreach (PenetrableListener listener in listeners) {
-                listener.OnDisable();
-            }
-            foreach (PenetrableListener listener in listeners) {
-                listener.OnEnable(this);
-            }
+            valid = false;
+            reinitialize = true;
             foreach(PenetrableListener listener in listeners) {
-                if (listener == null) {
-                    continue;
-                }
                 listener.OnValidate(this);
             }
         }

@@ -13,13 +13,21 @@ namespace PenetrationTech {
         private float girthScaleMultiplier = 30f;
         private Penetrable penetrable;
         private Penetrator penetrator;
-        private Vector3 startScale;
+        private Vector3 startScale = new Vector3(float.NaN, float.NaN, float.NaN);
 
         public override void OnEnable(Penetrable p) {
             base.OnEnable(p);
             penetrable = p;
             startScale = targetTransform.localScale;
         }
+
+        public override void OnDisable() {
+            base.OnDisable();
+            if (!float.IsNaN(startScale.x)) {
+                targetTransform.localScale = startScale;
+            }
+        }
+
         protected override void OnPenetrationDepthChange(float newDepth) {
             base.OnPenetrationDepthChange(newDepth);
             if (newDepth == 0f) {

@@ -79,10 +79,7 @@ namespace PenetrationTech {
 
         [SerializeField] [Tooltip("If you need to mask parts of the model out, customizing this shader will allow you to mask the girthmap generation (so things like heads or feet don't show up in it).")]
         private Shader girthUnwrapShader;
-        [SerializeField]
         private GirthData girthData;
-        [SerializeField][ReadOnly]
-        private RenderTexture girthMap;
         [FormerlySerializedAs("targetHole")] [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
         private Penetrable penetratedHole;
 
@@ -122,15 +119,7 @@ namespace PenetrationTech {
         }
 
         public RenderTexture GetGirthMap() {
-            if (girthMap == null) {
-                girthMap = new RenderTexture(256, 256, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-                //girthMap.filterMode = FilterMode.Point;
-                girthMap.useMipMap = true;
-                girthMap.autoGenerateMips = false;
-                girthMap.wrapModeU = TextureWrapMode.Clamp;
-                girthMap.wrapModeV = TextureWrapMode.Repeat;
-            }
-            return girthMap;
+            return girthData.GetGirthMap();
         }
 
         private static readonly int startClipID = Shader.PropertyToID("_StartClip");
@@ -140,6 +129,7 @@ namespace PenetrationTech {
         private static readonly int dickWorldLengthID = Shader.PropertyToID("_DickWorldLength");
         private bool valid = false;
         private string lastError;
+        private bool reinitialize = false;
         public string GetLastError() {
             return lastError;
         }
@@ -185,25 +175,6 @@ namespace PenetrationTech {
             return rootBone.TransformDirection(localRootUp);
         }
 
-        private void Initialize() {
-            if (!Application.isPlaying) {
-                CheckValid();
-                if (!valid) {
-                    return;
-                }
-            }
-
-            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
-                    localRootUp, localRootRight);
-            GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent);
-            ConstructPathForIdle(weightsA, tipPosition, tipTangent);
-            path.SetWeights(weightsA);
-            foreach (PenetratorListener listener in listeners) {
-                listener.OnEnable(this);
-            }
-            OnSetClip(0f, 0f);
-        }
-
         protected override void OnEnable() {
             base.OnEnable();
             propertyBlock = new MaterialPropertyBlock();
@@ -215,6 +186,25 @@ namespace PenetrationTech {
             outputWeightsA = new List<Vector3>();
             outputWeightsB = new List<Vector3>();
             path = new CatmullSpline();
+            Initialize();
+        }
+
+        private void Initialize() {
+            if (!Application.isPlaying) {
+                CheckValid();
+                if (!valid) {
+                    return;
+                }
+            }
+            girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
+                    localRootUp, localRootRight);
+            GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent);
+            ConstructPathForIdle(weightsA, tipPosition, tipTangent);
+            path.SetWeights(weightsA);
+            foreach (PenetratorListener listener in listeners) {
+                listener.OnEnable(this);
+            }
+            OnSetClip(0f, 0f);
         }
         
         public override void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
@@ -246,12 +236,23 @@ namespace PenetrationTech {
             }
         }
 
-
-        void Start() {
-            Initialize();
-        }
-
         void Update() {
+            #if UNITY_EDITOR
+            if (reinitialize && !Application.isPlaying) {
+                CheckValid();
+                if (!valid) {
+                    return;
+                }
+                foreach (var listener in listeners) {
+                    listener.OnDisable();
+                }
+                foreach (var listener in listeners) {
+                    listener.OnEnable(this);
+                }
+                reinitialize = false;
+            }
+            #endif
+            
             if (!valid && !Application.isPlaying) {
                 return;
             }
@@ -366,12 +367,16 @@ namespace PenetrationTech {
         }
 
         private void GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent) {
-            tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * girthData.GetWorldLength();
-            tipTangent = rootBone.TransformDirection(localRootForward) * (girthData.GetWorldLength() * 0.66f);
+            float worldLength = girthData.GetWorldLength();
+            tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * worldLength;
+            tipTangent = rootBone.TransformDirection(localRootForward) * (worldLength * 0.66f);
             if (tipTarget != null) {
                 var forward = tipTarget.forward;
-                tipPosition = tipTarget.position+forward * (girthData.GetWorldLength() * 0.1f);
-                tipTangent = forward * (girthData.GetWorldLength() * 2f);
+                Vector3 newPosition = tipTarget.position + forward * (worldLength * 0.1f);
+                Vector3 diff = newPosition - tipPosition;
+                float dist = diff.magnitude;
+                tipPosition = tipPosition + diff.normalized * Mathf.Min(dist, worldLength * 0.1f);
+                tipTangent = forward * (worldLength * 2f);
             }
         }
 
@@ -480,6 +485,11 @@ namespace PenetrationTech {
                 path.SetWeights( new Vector3[] { Vector3.zero, Vector3.up, Vector3.up, Vector3.zero });
             }
 
+            if (girthData == null || !GirthData.IsValid(girthData)) {
+                girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
+                        localRootUp, localRootRight);
+            }
+
             valid = true;
             lastError = "";
             try {
@@ -556,6 +566,7 @@ namespace PenetrationTech {
             if (penetrable == null) {
                 inserted = false;
                 OnSetClip(0f, 0f);
+                penetratedHole = null;
                 return;
             }
 
@@ -572,29 +583,16 @@ namespace PenetrationTech {
         }
 
         private void OnValidate() {
-            CheckValid();
-            if (!valid) {
-                return;
-            }
-            girthData = new GirthData(GetGirthMap(), GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward, localRootUp,
-                localRootRight);
-
-            // If a user added a new listener, since we're actively running in the scene we need to make sure that they're enabled.
-            foreach (PenetratorListener listener in listeners) {
-                listener.OnDisable();
-            }
-            foreach (PenetratorListener listener in listeners) {
-                listener.OnEnable(this);
-            }
+            reinitialize = true;
             foreach (PenetratorListener listener in listeners) {
                 listener.OnValidate(this);
             }
+            valid = false;
         }
         public CatmullSpline GetSplinePath() {
             return path;
         }
         protected override void OnDrawGizmosSelected() {
-            CheckValid();
             base.OnDrawGizmosSelected();
             if (!valid && !Application.isPlaying) {
                 return;
