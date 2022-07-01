@@ -1,22 +1,115 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Codice.Client.BaseCommands;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace PenetrationTech {
-    [System.Serializable]
     public class GirthData {
-        [Header("This data is generated automatically, and is only viewable for debugging!")]
-        [ReadOnly][SerializeField][Tooltip("How long the penetrator is in local object space")]
-        private float maxLocalLength;
-        [ReadOnly][SerializeField][Tooltip("The maximum amount of girth radius around the penetrator axis, in local object space")]
-        private float maxLocalGirthRadius;
-        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated girth radius curve, in local object space")]
-        private AnimationCurve localGirthRadiusCurve;
-        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated X offset curve, in local object space")]
-        private AnimationCurve localXOffsetCurve;
-        [ReadOnly][SerializeField][Tooltip("A curve to help with sampling and viewing the generated Y offset curve, in local object space")]
-        private AnimationCurve localYOffsetCurve;
+        [System.Serializable]
+        public class GirthFrame {
+            [SerializeField]
+            public float maxLocalLength;
+            [SerializeField]
+            public float maxLocalGirthRadius;
+            [SerializeField]
+            public AnimationCurve localGirthRadiusCurve;
+            [SerializeField]
+            public AnimationCurve localXOffsetCurve;
+            [SerializeField]
+            public AnimationCurve localYOffsetCurve;
+            [SerializeField]
+            public RenderTexture girthMap;
+            public void PopulateOffsetCurves(Vector3 rendererLocalDickForward, Vector3 rendererLocalDickRight, Vector3 rendererLocalDickUp) {
+                // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
+                RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+                Graphics.Blit(girthMap, temp);
+                Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
+                RenderTexture.active = temp;
+                cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
+                cpuTex.Apply();
+                RenderTexture.active = null;
+                RenderTexture.ReleaseTemporary(temp);
+
+                localXOffsetCurve = new AnimationCurve();
+                localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
+                localXOffsetCurve.preWrapMode = WrapMode.ClampForever;
+                localYOffsetCurve = new AnimationCurve();
+                localYOffsetCurve.postWrapMode = WrapMode.ClampForever;
+                localYOffsetCurve.preWrapMode = WrapMode.ClampForever;
+                for (int x = 0;x<cpuTex.width;x++) {
+                    Vector2 positionSum = Vector2.zero;
+                    for (int y = 0;y<cpuTex.height/2;y++) {
+                        float color = cpuTex.GetPixel(x,y).r;
+                        float rad = ((float)y/(float)cpuTex.height)*Mathf.PI*2f;
+                        float distFromCore = color*maxLocalGirthRadius;
+                        float xPosition = Mathf.Sin(rad-Mathf.PI/2f)*distFromCore;
+                        float yPosition = Mathf.Cos(rad-Mathf.PI/2f)*distFromCore;
+                        Vector2 position = new Vector2(xPosition, yPosition);
+
+                        int oppositeY = (y+cpuTex.height/2)%cpuTex.height;
+                        float oppositeColor = cpuTex.GetPixel(x,oppositeY).r;
+                        float oppositeRad = ((float)oppositeY/(float)cpuTex.height)*Mathf.PI*2f;
+                        float oppositeDistFromCore = oppositeColor*maxLocalGirthRadius;
+                        float oppositeXPosition = Mathf.Sin(oppositeRad-Mathf.PI/2f)*oppositeDistFromCore;
+                        float oppositeYPosition = Mathf.Cos(oppositeRad-Mathf.PI/2f)*oppositeDistFromCore;
+                        Vector2 oppositePosition = new Vector2(oppositeXPosition, oppositeYPosition);
+                        positionSum += (position+oppositePosition)*0.5f;
+
+                        Vector3 point = rendererLocalDickForward*((float)x/(float)cpuTex.width)*maxLocalLength;
+                        Vector3 otherPoint = point+rendererLocalDickRight*xPosition + rendererLocalDickUp*yPosition;
+                        //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
+
+                        Vector3 oppositeOtherPoint = point+rendererLocalDickRight*oppositeXPosition + rendererLocalDickUp*oppositeYPosition;
+                        //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(oppositeOtherPoint), Color.blue, 10f);
+                    }
+                    float distFromRoot = ((float)x/(float)cpuTex.width)*maxLocalLength;
+                    Vector2 positionAverage = positionSum/(float)(cpuTex.height/2);
+                    positionAverage *= 2;
+                    localXOffsetCurve.AddKey(distFromRoot, positionAverage.x);
+                    localYOffsetCurve.AddKey(distFromRoot, positionAverage.y);
+                }
+                localXOffsetCurve.AddKey(maxLocalLength, 0f);
+                localYOffsetCurve.AddKey(maxLocalLength, 0f);
+            }
+            public void PopulateGirthCurve() {
+                // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
+                RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+                Graphics.Blit(girthMap, temp);
+                Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
+                RenderTexture.active = temp;
+                cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
+                cpuTex.Apply();
+                RenderTexture.active = null;
+                RenderTexture.ReleaseTemporary(temp);
+                // Then after we got it on the CPU, we use it to generate some curves that we can visualize in the editor (and easily sample).
+                localGirthRadiusCurve = new AnimationCurve();
+                localGirthRadiusCurve.postWrapMode = WrapMode.ClampForever;
+                localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
+                for (int x=0;x<32;x++) {
+                    float averagePixelColor = 0f;
+                    float maxPixelColor = 0f;
+                    for (int y=0;y<32;y++) {
+                        float pixelColor = cpuTex.GetPixel(x,y).r;
+                        averagePixelColor += pixelColor;
+                        maxPixelColor = Mathf.Max(pixelColor, maxPixelColor);
+                    }
+                    averagePixelColor/=32f;
+                    averagePixelColor = (averagePixelColor + maxPixelColor) / 2f;
+                    localGirthRadiusCurve.AddKey((float)x/32f*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
+                }
+                localGirthRadiusCurve.AddKey(maxLocalLength,0f);
+            }
+            ~GirthFrame() {
+                girthMap.Release();
+            }
+        }
+
+        [SerializeField]
+        private GirthFrame baseGirthFrame;
+        [SerializeField]
+        private List<GirthFrame> girthDeltaFrames;
         
         private RendererSubMeshMask rendererMask;
         private Transform dickRoot;
@@ -40,11 +133,19 @@ namespace PenetrationTech {
         private Matrix4x4 worldToObject => rendererMask.renderer.worldToLocalMatrix;
 
         public static bool IsValid(GirthData data) {
-            return data != null && data.rendererMask != null && data.localGirthRadiusCurve != null &&
-                   data.localGirthRadiusCurve.keys.Length != 0;
+            return data != null && data.rendererMask != null && data.girthDeltaFrames != null && data.girthDeltaFrames.Count != 0;
         }
 
-        public float GetLocalLength() => maxLocalLength;
+        public float GetLocalLength() {
+            float baseLength = baseGirthFrame.maxLocalLength;
+            float length = baseLength;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    length += (girthDeltaFrames[i].maxLocalLength-baseLength) * (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                }
+            }
+            return length;
+        }
 
         public float GetKnotForce(float worldDistanceAlongDick) {
             if (worldDistanceAlongDick < 0f || worldDistanceAlongDick > GetWorldLength()) {
@@ -52,7 +153,14 @@ namespace PenetrationTech {
             }
 
             float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector((rendererLocalDickForward)).normalized).magnitude / GetDickRootScaleFactor(rootLocalDickForward);
-            return GetPiecewiseDerivative(localGirthRadiusCurve, localDistanceAlongDick);
+            float baseKnotForce = GetPiecewiseDerivative(baseGirthFrame.localGirthRadiusCurve, localDistanceAlongDick*(baseGirthFrame.maxLocalLength / GetLocalLength()));
+            float knotForce = baseKnotForce;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    knotForce += (GetPiecewiseDerivative(girthDeltaFrames[i].localGirthRadiusCurve, localDistanceAlongDick*(girthDeltaFrames[i].maxLocalLength/GetLocalLength()))-baseKnotForce) * (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                }
+            }
+            return knotForce;
         }
 
         private float GetDickRootScaleFactor(Vector3 axis) {
@@ -65,21 +173,42 @@ namespace PenetrationTech {
         }
 
         public float GetGirthScaleFactor() {
-            Vector3 localGirth = rendererLocalDickUp*maxLocalGirthRadius;
+            float baseGirthRadius = baseGirthFrame.maxLocalGirthRadius;
+            float girthRadius = baseGirthRadius;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    girthRadius += (girthDeltaFrames[i].maxLocalGirthRadius-baseGirthRadius) *
+                             (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                }
+            }
+            Vector3 localGirth = rendererLocalDickUp*girthRadius;
             float scaleFactor = objectToWorld.MultiplyVector(localGirth).magnitude;
             return scaleFactor * GetDickRootScaleFactor(rootLocalDickUp);
         }
         public float GetWorldLength() {
             // This handles skewed forwards, and even non-proportional scales of the dick (making it stubbier or longer)
-            Vector3 length = maxLocalLength * rendererLocalDickForward;
+            Vector3 length = GetLocalLength() * rendererLocalDickForward;
             return objectToWorld.MultiplyVector(length).magnitude * GetDickRootScaleFactor(rootLocalDickForward);
         }
         // Dick space is arbitrary, "Spline space" refers to Z forward, Y Up, and X right space. 
         // This is to make it easier to place onto a spline.
         public Vector3 GetScaledSplineSpaceOffset(float worldDistanceAlongDick) {
             float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector((rendererLocalDickForward)).normalized).magnitude / GetDickRootScaleFactor(rootLocalDickForward);
-            float localXOffsetSample = localXOffsetCurve.Evaluate(localDistanceAlongDick);
-            float localYOffsetSample = localYOffsetCurve.Evaluate(localDistanceAlongDick);
+            float lengthScaleFactor = baseGirthFrame.maxLocalLength / GetLocalLength();
+            float baseLocalXOffsetSample = baseGirthFrame.localXOffsetCurve.Evaluate(localDistanceAlongDick*lengthScaleFactor);
+            float baseLocalYOffsetSample = baseGirthFrame.localYOffsetCurve.Evaluate(localDistanceAlongDick*lengthScaleFactor);
+            float localXOffsetSample = baseLocalXOffsetSample;
+            float localYOffsetSample = baseLocalYOffsetSample;
+            
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    float scaleFactor = girthDeltaFrames[i].maxLocalLength / GetLocalLength();
+                    localXOffsetSample += (girthDeltaFrames[i].localXOffsetCurve.Evaluate(localDistanceAlongDick*scaleFactor)-baseLocalXOffsetSample) *
+                             (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                    localYOffsetSample += (girthDeltaFrames[i].localYOffsetCurve.Evaluate(localDistanceAlongDick*scaleFactor)-baseLocalYOffsetSample) *
+                             (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                }
+            }
 
             Vector3 worldOffset = objectToWorld.MultiplyVector(rendererLocalDickRight*localXOffsetSample+rendererLocalDickUp*localYOffsetSample)*GetDickRootScaleFactor(rootLocalDickRight);
             Matrix4x4 changeOfBasis = Matrix4x4.identity;
@@ -89,95 +218,39 @@ namespace PenetrationTech {
             changeOfBasis[3,3] = 1f;
             return changeOfBasis.MultiplyVector(worldOffset);
         }
+
+        public RenderTexture GetGirthMap() {
+            RenderTexture bestMatch = baseGirthFrame.girthMap;
+            float bestMatchAmount = 50f;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    float amount = skinnedMeshRenderer.GetBlendShapeWeight(i);
+                    if (amount > bestMatchAmount) {
+                        bestMatch = girthDeltaFrames[i].girthMap;
+                        bestMatchAmount = amount;
+                    }
+                }
+            }
+
+            return bestMatch;
+        }
+
         public float GetWorldGirthRadius(float worldDistanceAlongDick) {
             float localDistanceAlongDick = worldToObject.MultiplyVector(worldDistanceAlongDick*objectToWorld.MultiplyVector((rendererLocalDickForward)).normalized).magnitude / GetDickRootScaleFactor(rootLocalDickForward);
             // TODO: There's no real way to actually get the girth correctly, since we cannot interpret skewed scales. This is probably acceptable, though instead of just using localDickUp, maybe it should be a diagonal between up and right.
             // I currently just choose a single axis, though users shouldn't skew scale on the up/right axis anyway.
-            float localGirthSample = localGirthRadiusCurve.Evaluate(localDistanceAlongDick);
+            float baseLocalGirthSample = baseGirthFrame.localGirthRadiusCurve.Evaluate(localDistanceAlongDick*(baseGirthFrame.maxLocalLength / GetLocalLength()));
+            float localGirthSample = baseLocalGirthSample;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    localGirthSample += (girthDeltaFrames[i].localGirthRadiusCurve.Evaluate(localDistanceAlongDick*(girthDeltaFrames[i].maxLocalLength / GetLocalLength()))-baseLocalGirthSample) * (skinnedMeshRenderer.GetBlendShapeWeight(i) / 100f);
+                }
+            }
+
             Vector3 localGirth = rendererLocalDickUp*localGirthSample;
             return objectToWorld.MultiplyVector(localGirth).magnitude * GetDickRootScaleFactor(rootLocalDickUp);
         }
-        private void PopulateOffsetCurves(RenderTexture girthMap) {
-            // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-            RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-            Graphics.Blit(girthMap, temp);
-            Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
-            RenderTexture.active = temp;
-            cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
-            cpuTex.Apply();
-            RenderTexture.active = null;
-            RenderTexture.ReleaseTemporary(temp);
-
-            localXOffsetCurve = new AnimationCurve();
-            localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
-            localXOffsetCurve.preWrapMode = WrapMode.ClampForever;
-            localYOffsetCurve = new AnimationCurve();
-            localYOffsetCurve.postWrapMode = WrapMode.ClampForever;
-            localYOffsetCurve.preWrapMode = WrapMode.ClampForever;
-            for (int x = 0;x<cpuTex.width;x++) {
-                Vector2 positionSum = Vector2.zero;
-                for (int y = 0;y<cpuTex.height/2;y++) {
-                    float color = cpuTex.GetPixel(x,y).r;
-                    float rad = ((float)y/(float)cpuTex.height)*Mathf.PI*2f;
-                    float distFromCore = color*maxLocalGirthRadius;
-                    float xPosition = Mathf.Sin(rad-Mathf.PI/2f)*distFromCore;
-                    float yPosition = Mathf.Cos(rad-Mathf.PI/2f)*distFromCore;
-                    Vector2 position = new Vector2(xPosition, yPosition);
-
-                    int oppositeY = (y+cpuTex.height/2)%cpuTex.height;
-                    float oppositeColor = cpuTex.GetPixel(x,oppositeY).r;
-                    float oppositeRad = ((float)oppositeY/(float)cpuTex.height)*Mathf.PI*2f;
-                    float oppositeDistFromCore = oppositeColor*maxLocalGirthRadius;
-                    float oppositeXPosition = Mathf.Sin(oppositeRad-Mathf.PI/2f)*oppositeDistFromCore;
-                    float oppositeYPosition = Mathf.Cos(oppositeRad-Mathf.PI/2f)*oppositeDistFromCore;
-                    Vector2 oppositePosition = new Vector2(oppositeXPosition, oppositeYPosition);
-                    positionSum += (position+oppositePosition)*0.5f;
-
-                    Vector3 point = rendererLocalDickForward*((float)x/(float)cpuTex.width)*maxLocalLength;
-                    Vector3 otherPoint = point+rendererLocalDickRight*xPosition + rendererLocalDickUp*yPosition;
-                    //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
-
-                    Vector3 oppositeOtherPoint = point+rendererLocalDickRight*oppositeXPosition + rendererLocalDickUp*oppositeYPosition;
-                    //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(oppositeOtherPoint), Color.blue, 10f);
-                }
-                float distFromRoot = ((float)x/(float)cpuTex.width)*maxLocalLength;
-                Vector2 positionAverage = positionSum/(float)(cpuTex.height/2);
-                positionAverage *= 2;
-                localXOffsetCurve.AddKey(distFromRoot, positionAverage.x);
-                localYOffsetCurve.AddKey(distFromRoot, positionAverage.y);
-            }
-            localXOffsetCurve.AddKey(maxLocalLength, 0f);
-            localYOffsetCurve.AddKey(maxLocalLength, 0f);
-        }
-        private void PopulateGirthCurve(RenderTexture girthMap) {
-            // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-            RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-            Graphics.Blit(girthMap, temp);
-            Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
-            RenderTexture.active = temp;
-            cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
-            cpuTex.Apply();
-            RenderTexture.active = null;
-            RenderTexture.ReleaseTemporary(temp);
-            // Then after we got it on the CPU, we use it to generate some curves that we can visualize in the editor (and easily sample).
-            localGirthRadiusCurve = new AnimationCurve();
-            localGirthRadiusCurve.postWrapMode = WrapMode.ClampForever;
-            localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
-            for (int x=0;x<32;x++) {
-                float averagePixelColor = 0f;
-                float maxPixelColor = 0f;
-                for (int y=0;y<32;y++) {
-                    float pixelColor = cpuTex.GetPixel(x,y).r;
-                    averagePixelColor += pixelColor;
-                    maxPixelColor = Mathf.Max(pixelColor, maxPixelColor);
-                }
-                averagePixelColor/=32f;
-                averagePixelColor = (averagePixelColor + maxPixelColor) / 2f;
-                localGirthRadiusCurve.AddKey((float)x/32f*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
-            }
-            localGirthRadiusCurve.AddKey(maxLocalLength,0f);
-        }
-        private static void GetBindPoseBonePositionRotation(Matrix4x4 boneMatrix, out Vector3 position, out Quaternion rotation) {
+        private static void GetBindPoseBoneLocalPositionRotation(Matrix4x4 boneMatrix, out Vector3 position, out Quaternion rotation) {
             // Get global matrix for bone
             Matrix4x4 bindMatrixGlobal = boneMatrix.inverse;
  
@@ -196,7 +269,125 @@ namespace PenetrationTech {
                 rotation = Quaternion.LookRotation(-mZ, -mY);
             }
         }
-        public GirthData(RenderTexture targetTexture, RendererSubMeshMask rendererWithMask, Shader girthUnwrapShader, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
+        private GirthFrame GenerateFrame(Mesh mesh, int blendshapeIndex, Shader girthUnwrapShader) {
+            GirthFrame frame = new GirthFrame();
+            frame.girthMap = new RenderTexture(256, 256, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+            frame.girthMap.useMipMap = true;
+            frame.girthMap.autoGenerateMips = false;
+            frame.girthMap.wrapModeU = TextureWrapMode.Clamp;
+            frame.girthMap.wrapModeV = TextureWrapMode.Repeat;
+            
+            List<Vector3> vertices = new List<Vector3>();
+            mesh.GetVertices(vertices);
+            if (blendshapeIndex != -1) {
+                Vector3[] blendDeltaVertices = new Vector3[vertices.Count];
+                Vector3[] blendDeltaNormals = new Vector3[vertices.Count];
+                Vector3[] blendDeltaTangents = new Vector3[vertices.Count];
+                mesh.GetBlendShapeFrameVertices(blendshapeIndex,0, blendDeltaVertices, blendDeltaNormals, blendDeltaTangents);
+                for (int i = 0; i < vertices.Count; i++) {
+                    vertices[i] += blendDeltaVertices[i];
+                }
+            }
+
+            Mesh blitMesh;
+
+            // If we're a skinned mesh renderer, we mask by bone weights.
+            if (rendererMask.renderer is SkinnedMeshRenderer meshRenderer) {
+                blitMesh = new Mesh();
+                blitMesh.SetVertices(vertices);
+                blitMesh.subMeshCount = mesh.subMeshCount;
+                for (int i = 0; i < mesh.subMeshCount; i++) {
+                    if (rendererMask.ShouldDrawSubmesh(i)) {
+                        blitMesh.SetTriangles(mesh.GetTriangles(i), i);
+                    }
+                }
+
+                var weights = mesh.GetAllBoneWeights();
+                var bonesPerVertex = mesh.GetBonesPerVertex();
+                int vt = 0;
+                int wt = 0;
+                for (int o = 0; o < bonesPerVertex.Length; o++) {
+                    for (int p = 0; p < bonesPerVertex[o]; p++) {
+                        BoneWeight1 weight = weights[wt];
+                        //TODO: This can be made much faster by caching the bone ids that match our search.
+                        Transform boneWeightTarget = meshRenderer.bones[weights[wt].boneIndex];
+                        if (boneWeightTarget.IsChildOf(dickRoot) && weights[wt].weight > 0.1f) {
+                            Vector3 pos = vertices[vt];
+                            float length = Vector3.Dot(rendererLocalDickForward, pos - rendererLocalDickRoot);
+                            float girth = Vector3.Distance(pos,
+                                (rendererLocalDickRoot + rendererLocalDickForward * length));
+                            frame.maxLocalGirthRadius = Mathf.Max(girth, frame.maxLocalGirthRadius);
+                            frame.maxLocalLength = Mathf.Max(length, frame.maxLocalLength);
+                        }
+
+                        wt++;
+                    }
+
+                    vt++;
+                }
+            } else {
+                // Otherwise we can just use every vert.
+                foreach (Vector3 vertexPosition in vertices) {
+                    //Vector3 dickSpacePosition = changeOfBasis.MultiplyPoint(vertexPosition);
+                    float length = Vector3.Dot(rendererLocalDickForward, vertexPosition - rendererLocalDickRoot);
+                    float girth = Vector3.Distance(vertexPosition,
+                        (rendererLocalDickRoot + rendererLocalDickForward * length));
+                    frame.maxLocalGirthRadius = Mathf.Max(girth, frame.maxLocalGirthRadius);
+                    frame.maxLocalLength = Mathf.Max(length, frame.maxLocalLength);
+                }
+
+                blitMesh = mesh;
+            }
+
+            Material mat = new Material(girthUnwrapShader);
+            mat.SetVector("_DickOrigin", rendererLocalDickRoot);
+            mat.SetVector("_DickForward", rendererLocalDickForward);
+            mat.SetVector("_DickUp", rendererLocalDickUp);
+            mat.SetVector("_DickRight", rendererLocalDickRight);
+            mat.SetFloat("_MaxLength", frame.maxLocalLength);
+            mat.SetFloat("_MaxGirth", frame.maxLocalGirthRadius);
+            mat.SetFloat("_AngleOffset", Mathf.PI / 2f);
+
+            // Then use the GPU to rasterize
+            CommandBuffer buffer = new CommandBuffer();
+            buffer.SetRenderTarget(frame.girthMap);
+            buffer.ClearRenderTarget(false, true, Color.clear);
+            for (int j = 0; j < mesh.subMeshCount; j++) {
+                if (!rendererMask.ShouldDrawSubmesh(j)) {
+                    continue;
+                }
+
+                //buffer.DrawRenderer(rendererMask.renderer, mat, j, 0);
+                buffer.DrawMesh(blitMesh, Matrix4x4.identity, mat, j, 0);
+            }
+
+
+            Graphics.ExecuteCommandBuffer(buffer);
+
+            // We need to do one more blits to ensure the full image gets filled.
+            CommandBuffer additiveBuffer = new CommandBuffer();
+            additiveBuffer.SetRenderTarget(frame.girthMap);
+            for (int j = 0; j < mesh.subMeshCount; j++) {
+                if (!rendererMask.ShouldDrawSubmesh(j)) {
+                    continue;
+                }
+
+                //additiveBuffer.DrawRenderer(rendererMask.renderer, mat, j, 0);
+                additiveBuffer.DrawMesh(blitMesh, Matrix4x4.identity, mat, j, 0);
+            }
+
+            mat.SetFloat("_AngleOffset", -Mathf.PI / 2f);
+            Graphics.ExecuteCommandBuffer(additiveBuffer);
+
+            frame.girthMap.GenerateMips();
+            
+            frame.PopulateOffsetCurves(rendererLocalDickForward, rendererLocalDickRight, rendererLocalDickUp);
+            frame.PopulateGirthCurve();
+
+            return frame;
+        }
+
+        public GirthData(RendererSubMeshMask rendererWithMask, Shader girthUnwrapShader, Transform root, Vector3 rootLocalDickRoot, Vector3 rootDickForward, Vector3 rootDickUp, Vector3 rootDickRight) {
             rendererMask = rendererWithMask;
             dickRoot = root;
             this.rootLocalDickRoot = rootLocalDickRoot;
@@ -216,7 +407,7 @@ namespace PenetrationTech {
                 }
 
                 Mesh skinnedMesh = skinnedMeshRenderer.sharedMesh;
-                GetBindPoseBonePositionRotation(skinnedMesh.bindposes[rootBoneID], out Vector3 posePosition, out Quaternion poseRotation);
+                GetBindPoseBoneLocalPositionRotation(skinnedMesh.bindposes[rootBoneID], out Vector3 posePosition, out Quaternion poseRotation);
                 rendererLocalDickForward = (poseRotation * rootDickForward).normalized;
                 rendererLocalDickUp = (poseRotation * rootDickUp).normalized;
                 rendererLocalDickRight = (poseRotation * rootDickRight).normalized;
@@ -238,84 +429,12 @@ namespace PenetrationTech {
                 throw new UnityException("Girth data can only be generated on SkinnedMeshRenderers and MeshRenderers.");
             }
 
-            Material mat = new Material(girthUnwrapShader);
-            
-            mat.SetVector("_DickOrigin", rendererLocalDickRoot);
-            mat.SetVector("_DickForward", rendererLocalDickForward);
-            mat.SetVector("_DickUp", rendererLocalDickUp);
-            mat.SetVector("_DickRight", rendererLocalDickRight);
+            baseGirthFrame = GenerateFrame(mesh, -1, girthUnwrapShader);
             // Do a quick pass to figure out how girthy and lengthy we are
-            maxLocalGirthRadius = 0f;
-            maxLocalLength = 0f;
-            List<Vector3> vertices = new List<Vector3>();
-            mesh.GetVertices(vertices);
-            
-            // If we're a skinned mesh renderer, we mask by bone weights.
-            if (rendererMask.renderer is SkinnedMeshRenderer meshRenderer) {
-                var weights = mesh.GetAllBoneWeights();
-                var bonesPerVertex = mesh.GetBonesPerVertex();
-                int vt = 0;
-                int wt = 0;
-                for (int o = 0; o < bonesPerVertex.Length; o++) {
-                    for (int p = 0; p < bonesPerVertex[o]; p++) {
-                        BoneWeight1 weight = weights[wt];
-                        //TODO: This can be made much faster by caching the bone ids that match our search.
-                        Transform boneWeightTarget = meshRenderer.bones[weights[wt].boneIndex];
-                        if (boneWeightTarget.IsChildOf(root) && weights[wt].weight > 0.1f) {
-                            Vector3 pos = vertices[vt];
-                            float length = Vector3.Dot(rendererLocalDickForward, pos-rendererLocalDickRoot);
-                            float girth = Vector3.Distance(pos,(rendererLocalDickRoot+rendererLocalDickForward*length));
-                            maxLocalGirthRadius = Mathf.Max(girth, maxLocalGirthRadius);
-                            maxLocalLength = Mathf.Max(length, maxLocalLength);
-                        }
-                        wt++;
-                    }
-                    vt++;
-                }
-            } else { // Otherwise we can just use every vert.
-                foreach (Vector3 vertexPosition in vertices) {
-                    //Vector3 dickSpacePosition = changeOfBasis.MultiplyPoint(vertexPosition);
-                    float length = Vector3.Dot(rendererLocalDickForward, vertexPosition - rendererLocalDickRoot);
-                    float girth = Vector3.Distance(vertexPosition, (rendererLocalDickRoot + rendererLocalDickForward * length));
-                    maxLocalGirthRadius = Mathf.Max(girth, maxLocalGirthRadius);
-                    maxLocalLength = Mathf.Max(length, maxLocalLength);
-                }
+            girthDeltaFrames = new List<GirthFrame>();
+            for (int i = 0; i < mesh.blendShapeCount; i++) {
+                girthDeltaFrames.Add(GenerateFrame(mesh, i, girthUnwrapShader));
             }
-
-            mat.SetFloat("_MaxLength", maxLocalLength);
-            mat.SetFloat("_MaxGirth", maxLocalGirthRadius);
-            mat.SetFloat("_AngleOffset", Mathf.PI/2f);
-
-            // Then use the GPU to rasterize
-            CommandBuffer buffer = new CommandBuffer();
-            buffer.SetRenderTarget(targetTexture);
-            buffer.ClearRenderTarget(false, true, Color.clear);
-            for (int i = 0; i < mesh.subMeshCount; i++) {
-                if (!rendererMask.ShouldDrawSubmesh(i)) {
-                    continue;
-                }
-
-                //buffer.DrawRenderer(rendererMask.renderer, mat, i, 0);
-                buffer.DrawMesh(mesh, Matrix4x4.identity, mat, i, 0);
-            }
-            Graphics.ExecuteCommandBuffer(buffer);
-
-            // We need to do one more blits to ensure the full image gets filled.
-            CommandBuffer additiveBuffer = new CommandBuffer();
-            additiveBuffer.SetRenderTarget(targetTexture);
-            for (int i = 0; i < mesh.subMeshCount; i++) {
-                if (!rendererMask.ShouldDrawSubmesh(i)) {
-                    continue;
-                }
-                //additiveBuffer.DrawRenderer(rendererMask.renderer, mat, i, 0);
-                additiveBuffer.DrawMesh(mesh, Matrix4x4.identity, mat, i, 0);
-            }
-            mat.SetFloat("_AngleOffset", -Mathf.PI/2f);
-            Graphics.ExecuteCommandBuffer(additiveBuffer);
-
-            targetTexture.GenerateMips();
-            PopulateGirthCurve(targetTexture);
-            PopulateOffsetCurves(targetTexture);
         }
     }
 }

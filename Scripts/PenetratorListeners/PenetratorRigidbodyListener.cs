@@ -52,9 +52,14 @@ namespace PenetrationTech {
                 rotationStrength);
 
             Vector3 velocity = body.velocity;
+            
+            
+            float gravityStrength = 1f - rotationStrength;
+            velocity += Physics.gravity * (gravityStrength * gravityStrength * Time.deltaTime);
+            
             velocity = Vector3.Project(velocity, wantedDir);
             // Friction toward zero, though zero in our case is whatever velocity our hole is moving.
-            velocity = Vector3.MoveTowards(velocity, penetrableBody.velocity, Time.deltaTime*50f*friction);
+            velocity = Vector3.Lerp(velocity, penetrableBody==null?Vector3.zero : penetrableBody.velocity, friction*rotationStrength);
 
             Vector3 diff = wantedPosition -
                            (penetratorMem.GetWorldPosition() + penetratorMem.GetWorldForward() * distToHoleMem);
@@ -65,7 +70,9 @@ namespace PenetrationTech {
             float dist = Vector3.Distance(penetratorMem.GetWorldPosition(), wantedPosition);
             float springStrength = Mathf.Max(penetratorMem.GetWorldLength()*0.25f - dist,0f);
             Vector3 springForce = -wantedDir * springStrength;
-            velocity += springForce;
+            velocity += springForce * rotationStrength;
+            
+
 
             body.velocity = velocity;
             body.angularVelocity = angularVelocity;
