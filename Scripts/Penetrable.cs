@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
+using System.Net.Mime;
 using Vector3 = UnityEngine.Vector3;
 
 #if UNITY_EDITOR
@@ -112,9 +113,13 @@ namespace PenetrationTech {
 
         protected override void OnEnable() {
             base.OnEnable();
-            if (!valid && !Application.isPlaying) {
-                return;
+            if (!Application.isPlaying) {
+                CheckValid();
+                if (!valid) {
+                    return;
+                }
             }
+
             worldPoints = new List<Vector3>();
             foreach(PenetrableListener listener in listeners) {
                 listener.OnEnable(this);
