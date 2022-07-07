@@ -27,7 +27,7 @@ namespace PenetrationTech {
             base.OnPenetrationGirthRadiusChange(newGirthRadius);
             foreach(SkinnedMeshBlendshapePair target in targets) {
                 float triggerAmount = (newGirthRadius-baseGirthRadius) / (blendShapeGirthRadius*offsetCorrectionBone.lossyScale.x);
-                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, overdrive ? triggerAmount * 100f : Mathf.Clamp01(triggerAmount)*100f);
+                target.skinnedMeshRenderer.SetBlendShapeWeight(target.blendshapeID, overdrive ? Mathf.Max(triggerAmount * 100f,0f) : Mathf.Clamp01(triggerAmount)*100f);
             }
         }
         public override void OnDrawGizmosSelected(Penetrable p) {
