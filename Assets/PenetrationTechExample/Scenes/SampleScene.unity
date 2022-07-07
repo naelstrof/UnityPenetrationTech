@@ -369,11 +369,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.355
+      value: -0.322
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.453
+      value: 0.502
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -479,7 +479,7 @@ MonoBehaviour:
   targetRenderers:
   - renderer: {fileID: 588931703}
     mask: -14
-  virtualSquashAndStretch: 0.93906254
+  virtualSquashAndStretch: 0.9664428
   tipTarget: {fileID: 0}
   girthUnwrapShader: {fileID: 4800000, guid: 14e0a43a18459694a816fde3a7abd01a, type: 3}
   penetratedHole: {fileID: 224413152}
@@ -493,7 +493,7 @@ MonoBehaviour:
       type: {class: PenetratorKnotSquisher, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
         localDist: 0
-        knotForceFactor: 0.1
+        knotForceFactor: 0.2
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -3653,11 +3653,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4930985089047201335, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[26]
-      value: -5.9999986
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4930985089047201335, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[27]
-      value: 11.159088
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4930985089047201335, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[28]
@@ -4089,11 +4089,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[26]
-      value: -5.9999986
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[27]
-      value: 11.159088
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[28]

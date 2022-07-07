@@ -23,10 +23,14 @@ namespace PenetrationTech {
             lastDepth = depth;
         }
 
+        public override void Update() {
+            base.Update();
+            penetrator.squashAndStretch = Mathf.SmoothDamp(penetrator.squashAndStretch, 1f, ref currentVelocity, 0.6f);
+        }
+
         protected override void OnPenetrationKnotForceChange(float knotForce) {
             base.OnPenetrationKnotForceChange(knotForce);
             knotForce = Mathf.Clamp(knotForce, -knotForceFactor,  knotForceFactor);
-            penetrator.squashAndStretch = Mathf.SmoothDamp(penetrator.squashAndStretch, 1f, ref currentVelocity, 0.6f);
             if (knotForce * dir < 0f) {
                 penetrator.squashAndStretch += knotForce*Time.deltaTime*2f;
             } else {
