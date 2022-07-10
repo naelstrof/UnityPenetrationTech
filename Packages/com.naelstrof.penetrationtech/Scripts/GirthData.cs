@@ -100,7 +100,7 @@ namespace PenetrationTech {
                 }
                 localGirthRadiusCurve.AddKey(maxLocalLength,0f);
             }
-            ~GirthFrame() {
+            public void Release() {
                 girthMap.Release();
             }
         }
@@ -266,6 +266,18 @@ namespace PenetrationTech {
                 rotation = Quaternion.LookRotation(mZ, mY);
             } else {
                 rotation = Quaternion.LookRotation(-mZ, -mY);
+            }
+        }
+        public void Release() {
+            if (baseGirthFrame == null) {
+                return;
+            }
+            baseGirthFrame.Release();
+            if (girthDeltaFrames == null) {
+                return;
+            }
+            foreach (var girthFrame in girthDeltaFrames) {
+                girthFrame.Release();
             }
         }
         private GirthFrame GenerateFrame(Mesh mesh, int blendshapeIndex, Shader girthUnwrapShader) {

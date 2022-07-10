@@ -224,17 +224,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: baacd5cb52684884ba6f84777ce8789e, type: 3}
---- !u!114 &224413152 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1347303840, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
-  m_PrefabInstance: {fileID: 8961346257728547544}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e0550636f1faf54ea9fada34b07cd10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &272124240
 GameObject:
   m_ObjectHideFlags: 0
@@ -369,11 +358,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.322
+      value: -0.178
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.502
+      value: 0.731
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e041130bd9d7f554fa7142394342bff6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -479,10 +468,10 @@ MonoBehaviour:
   targetRenderers:
   - renderer: {fileID: 588931703}
     mask: -14
-  virtualSquashAndStretch: 0.9664428
+  virtualSquashAndStretch: 0.99987096
   tipTarget: {fileID: 0}
   girthUnwrapShader: {fileID: 4800000, guid: 14e0a43a18459694a816fde3a7abd01a, type: 3}
-  penetratedHole: {fileID: 224413152}
+  penetratedHole: {fileID: 0}
   penetrationMarginOfError: 1.2
   autoPenetrate: -1
   listeners:
@@ -2322,7 +2311,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[26]
-      value: -5.9999986
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[27]
@@ -2346,7 +2335,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[38]
-      value: -6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[39]
@@ -4113,7 +4102,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[38]
-      value: -6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7709220909109265131, guid: f4bd3fe07abdbcc4b9f4aa213785446c, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[39]
