@@ -27,14 +27,13 @@ namespace PenetrationTech {
                 }
                 tagManager.ApplyModifiedPropertiesWithoutUndo();
             }
+#endif
             layer = LayerMask.NameToLayer("Penetrables");
             if (layer == -1) {
                 throw new UnityException(
                     "Cannot create penetrable layer! Automatic collisions won't work properly for penetrables and penetrators.");
             }
-
             maskLayer = LayerMask.GetMask("Penetrables");
-#endif
         }
         public static LayerMask GetPenetrableMask() {
             if (maskLayer == 0 || layer == -1) {
