@@ -196,6 +196,11 @@ namespace PenetrationTech {
                     return;
                 }
             }
+
+            if (girthData != null) {
+                girthData.Release();
+            }
+
             girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
                     localRootUp, localRootRight);
             GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent);
@@ -284,6 +289,12 @@ namespace PenetrationTech {
 
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
+            }
+        }
+
+        private void OnDestroy() {
+            if (girthData != null) {
+                girthData.Release();
             }
         }
 
@@ -486,6 +497,10 @@ namespace PenetrationTech {
             }
 
             if (girthData == null || !GirthData.IsValid(girthData)) {
+                if (girthData != null) {
+                    girthData.Release();
+                }
+
                 girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
                         localRootUp, localRootRight);
             }
