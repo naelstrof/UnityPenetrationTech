@@ -313,9 +313,11 @@ namespace PenetrationTech {
             }
 
             Mesh blitMesh;
+            bool freemesh = false;
 
             // If we're a skinned mesh renderer, we mask by bone weights.
             if (rendererMask.renderer is SkinnedMeshRenderer meshRenderer) {
+                freemesh = true;
                 blitMesh = new Mesh();
                 blitMesh.SetVertices(vertices);
                 blitMesh.subMeshCount = mesh.subMeshCount;
@@ -406,6 +408,13 @@ namespace PenetrationTech {
             
             frame.PopulateOffsetCurves(rendererLocalDickForward, rendererLocalDickRight, rendererLocalDickUp);
             frame.PopulateGirthCurve();
+            if (freemesh) {
+                if (Application.isPlaying) {
+                    Object.Destroy(blitMesh);
+                } else {
+                    Object.DestroyImmediate(blitMesh);
+                }
+            }
 
             return frame;
         }
