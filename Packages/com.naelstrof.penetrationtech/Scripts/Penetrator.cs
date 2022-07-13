@@ -379,7 +379,7 @@ namespace PenetrationTech {
 
         private void GetTipPositionAndTangent(out Vector3 tipPosition, out Vector3 tipTangent) {
             float worldLength = girthData.GetWorldLength();
-            tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * worldLength;
+            tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (worldLength * 1.1f);
             tipTangent = rootBone.TransformDirection(localRootForward) * (worldLength * 0.66f);
             if (tipTarget != null) {
                 var forward = tipTarget.forward;
@@ -496,14 +496,6 @@ namespace PenetrationTech {
                 path.SetWeights( new Vector3[] { Vector3.zero, Vector3.up, Vector3.up, Vector3.zero });
             }
 
-            if (girthData == null || !GirthData.IsValid(girthData)) {
-                if (girthData != null) {
-                    girthData.Release();
-                }
-
-                girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
-                        localRootUp, localRootRight);
-            }
 
             valid = true;
             lastError = "";
@@ -566,6 +558,14 @@ namespace PenetrationTech {
             } catch (PenetratorListener.PenetratorListenerValidationException error) {
                 lastError = $"{error.Message}\n\n{error.StackTrace}";
                 valid = false;
+            }
+            if (girthData == null || !GirthData.IsValid(girthData, localRootForward, localRootRight, localRootUp)) {
+                if (girthData != null) {
+                    girthData.Release();
+                }
+
+                girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
+                        localRootUp, localRootRight);
             }
         }
         public void Penetrate(Penetrable penetrable) {

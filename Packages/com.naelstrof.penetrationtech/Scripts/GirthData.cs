@@ -131,8 +131,8 @@ namespace PenetrationTech {
         private Matrix4x4 objectToWorld => rendererMask.renderer.localToWorldMatrix;
         private Matrix4x4 worldToObject => rendererMask.renderer.worldToLocalMatrix;
 
-        public static bool IsValid(GirthData data) {
-            return data != null && data.rendererMask != null && data.girthDeltaFrames != null && data.girthDeltaFrames.Count != 0;
+        public static bool IsValid(GirthData data, Vector3 forward, Vector3 right, Vector3 up) {
+            return data != null && data.rendererMask != null && data.girthDeltaFrames != null && data.girthDeltaFrames.Count != 0 && data.rootLocalDickForward == forward && data.rootLocalDickRight == right && data.rootLocalDickUp == up;
         }
 
         public float GetLocalLength() {
