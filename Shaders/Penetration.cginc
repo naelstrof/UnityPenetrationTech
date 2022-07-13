@@ -116,11 +116,12 @@ void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, floa
     // We want to work in world space, as everything we're working with is there.
     
     // Dot product gives us how far along an axis a position is. This is the dick length distance from the dick root to the particular position.
-    float dist = dot(worldDickForward,(worldPosition - worldDickRootPos));
+    float preDist = dot(worldDickForward,(worldPosition - worldDickRootPos));
+    float dist = max(preDist,0);
 
     // Convert the distance into an overall t sample value
     float t = DistanceToTime(0,dist);
-    float isPenetrator = saturate(sign(t));
+    float isPenetrator = saturate(sign(preDist));
     // Since our t sample value is based on a piece-wise curve, we need to figure out which curve weights we're meant to sample.
     int curveSegmentIndex = 0;
     float subT = GetCurveSegment(0, t, curveSegmentIndex);
