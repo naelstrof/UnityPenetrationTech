@@ -56,7 +56,7 @@ namespace PenetrationTech {
                         Vector2 oppositePosition = new Vector2(oppositeXPosition, oppositeYPosition);
                         positionSum += (position+oppositePosition)*0.5f;
 
-                        Vector3 point = rendererLocalDickForward*((float)x/(float)cpuTex.width)*maxLocalLength;
+                        Vector3 point = rendererLocalDickForward * (((float)x/(float)cpuTex.width) * maxLocalLength);
                         Vector3 otherPoint = point+rendererLocalDickRight*xPosition + rendererLocalDickUp*yPosition;
                         //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
 
@@ -102,6 +102,7 @@ namespace PenetrationTech {
             }
             public void Release() {
                 girthMap.Release();
+                girthMap = null;
             }
         }
 
@@ -273,12 +274,15 @@ namespace PenetrationTech {
                 return;
             }
             baseGirthFrame.Release();
+            baseGirthFrame = null;
+            
             if (girthDeltaFrames == null) {
                 return;
             }
             foreach (var girthFrame in girthDeltaFrames) {
                 girthFrame.Release();
             }
+            girthDeltaFrames.Clear();
         }
         private GirthFrame GenerateFrame(Mesh mesh, int blendshapeIndex, Shader girthUnwrapShader) {
             GirthFrame frame = new GirthFrame();
