@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace PenetrationTech {
+    [System.Serializable]
     public class GirthData {
         [System.Serializable]
         public class GirthFrame {
@@ -22,14 +24,12 @@ namespace PenetrationTech {
             public RenderTexture girthMap;
             public void PopulateOffsetCurves(Vector3 rendererLocalDickForward, Vector3 rendererLocalDickRight, Vector3 rendererLocalDickUp) {
                 // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-                RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-                Graphics.Blit(girthMap, temp);
-                Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
-                RenderTexture.active = temp;
-                cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
+                Texture2D cpuTex = new Texture2D(girthMap.width,girthMap.height, TextureFormat.R8, false, true);
+                var lastActive = RenderTexture.active;
+                RenderTexture.active = girthMap;
+                cpuTex.ReadPixels(new Rect(0,0, girthMap.width, girthMap.height), 0, 0);
                 cpuTex.Apply();
-                RenderTexture.active = null;
-                RenderTexture.ReleaseTemporary(temp);
+                RenderTexture.active = lastActive;
 
                 localXOffsetCurve = new AnimationCurve();
                 localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
@@ -71,34 +71,34 @@ namespace PenetrationTech {
                 }
                 localXOffsetCurve.AddKey(maxLocalLength, 0f);
                 localYOffsetCurve.AddKey(maxLocalLength, 0f);
+                Object.Destroy(cpuTex);
             }
             public void PopulateGirthCurve() {
                 // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
-                RenderTexture temp = RenderTexture.GetTemporary(32,32,0,RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-                Graphics.Blit(girthMap, temp);
-                Texture2D cpuTex = new Texture2D(32,32, TextureFormat.RGB24, false, true);
-                RenderTexture.active = temp;
-                cpuTex.ReadPixels(new Rect(0,0,temp.width, temp.height), 0, 0);
+                Texture2D cpuTex = new Texture2D(girthMap.width,girthMap.height, TextureFormat.R8, false, true);
+                var lastActive = RenderTexture.active;
+                RenderTexture.active = girthMap;
+                cpuTex.ReadPixels(new Rect(0,0,girthMap.width, girthMap.height), 0, 0);
                 cpuTex.Apply();
-                RenderTexture.active = null;
-                RenderTexture.ReleaseTemporary(temp);
+                RenderTexture.active = lastActive;
                 // Then after we got it on the CPU, we use it to generate some curves that we can visualize in the editor (and easily sample).
                 localGirthRadiusCurve = new AnimationCurve();
                 localGirthRadiusCurve.postWrapMode = WrapMode.ClampForever;
                 localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
-                for (int x=0;x<32;x++) {
+                for (int x=0;x<cpuTex.width;x++) {
                     float averagePixelColor = 0f;
                     float maxPixelColor = 0f;
-                    for (int y=0;y<32;y++) {
+                    for (int y=0;y<cpuTex.height;y++) {
                         float pixelColor = cpuTex.GetPixel(x,y).r;
                         averagePixelColor += pixelColor;
                         maxPixelColor = Mathf.Max(pixelColor, maxPixelColor);
                     }
-                    averagePixelColor/=32f;
+                    averagePixelColor/=cpuTex.height;
                     averagePixelColor = (averagePixelColor + maxPixelColor) / 2f;
-                    localGirthRadiusCurve.AddKey((float)x/32f*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
+                    localGirthRadiusCurve.AddKey((float)x/(float)cpuTex.width*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
                 }
                 localGirthRadiusCurve.AddKey(maxLocalLength,0f);
+                Object.Destroy(cpuTex);
             }
             public void Release() {
                 girthMap.Release();
@@ -270,23 +270,22 @@ namespace PenetrationTech {
             }
         }
         public void Release() {
-            if (baseGirthFrame == null) {
-                return;
+            if (baseGirthFrame != null) {
+                baseGirthFrame.Release();
+                baseGirthFrame = null;
             }
-            baseGirthFrame.Release();
-            baseGirthFrame = null;
-            
-            if (girthDeltaFrames == null) {
-                return;
+
+            if (girthDeltaFrames != null && girthDeltaFrames.Count > 0) {
+                foreach (var girthFrame in girthDeltaFrames) {
+                    girthFrame.Release();
+                }
+
+                girthDeltaFrames.Clear();
             }
-            foreach (var girthFrame in girthDeltaFrames) {
-                girthFrame.Release();
-            }
-            girthDeltaFrames.Clear();
         }
         private GirthFrame GenerateFrame(Mesh mesh, int blendshapeIndex, Shader girthUnwrapShader) {
             GirthFrame frame = new GirthFrame();
-            frame.girthMap = new RenderTexture(256, 256, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+            frame.girthMap = new RenderTexture(64, 64, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
             frame.girthMap.useMipMap = true;
             frame.girthMap.autoGenerateMips = false;
             frame.girthMap.wrapModeU = TextureWrapMode.Clamp;
