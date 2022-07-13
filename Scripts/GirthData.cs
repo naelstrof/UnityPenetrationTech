@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -71,7 +72,11 @@ namespace PenetrationTech {
                 }
                 localXOffsetCurve.AddKey(maxLocalLength, 0f);
                 localYOffsetCurve.AddKey(maxLocalLength, 0f);
-                Object.Destroy(cpuTex);
+                if (Application.isPlaying) {
+                    Object.Destroy(cpuTex);
+                } else {
+                    Object.DestroyImmediate(cpuTex);
+                }
             }
             public void PopulateGirthCurve() {
                 // First we use the GPU to scrunch the 2D girthmap a little, this reduces the work we have to do, and smooths the data a bit.
@@ -98,7 +103,11 @@ namespace PenetrationTech {
                     localGirthRadiusCurve.AddKey((float)x/(float)cpuTex.width*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
                 }
                 localGirthRadiusCurve.AddKey(maxLocalLength,0f);
-                Object.Destroy(cpuTex);
+                if (Application.isPlaying) {
+                    Object.Destroy(cpuTex);
+                } else {
+                    Object.DestroyImmediate(cpuTex);
+                }
             }
             public void Release() {
                 girthMap.Release();
