@@ -199,6 +199,7 @@ namespace PenetrationTech {
 
             if (girthData != null) {
                 girthData.Release();
+                girthData = null;
             }
 
             girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
@@ -293,8 +294,10 @@ namespace PenetrationTech {
         }
 
         private void OnDestroy() {
+            Penetrate(null);
             if (girthData != null) {
                 girthData.Release();
+                girthData = null;
             }
         }
 
@@ -562,6 +565,7 @@ namespace PenetrationTech {
             if (girthData == null || !GirthData.IsValid(girthData, localRootForward, localRootRight, localRootUp)) {
                 if (girthData != null) {
                     girthData.Release();
+                    girthData = null;
                 }
 
                 girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward,
