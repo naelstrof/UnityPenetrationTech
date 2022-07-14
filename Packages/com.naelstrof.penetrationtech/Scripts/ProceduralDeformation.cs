@@ -198,16 +198,29 @@ namespace PenetrationTech {
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
             splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
-            foreach(Renderer target in renderTargets) {
-                target.GetPropertyBlock(propertyBlock);
-                switch(index) {
-                    case 0: propertyBlock.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
-                    case 1: propertyBlock.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
-                    case 2: propertyBlock.SetTexture(dickGirthMapZID, penetrator.GetGirthMap()); break;
-                    case 3: propertyBlock.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
-                }
+            if (penetrator.GetWorldLength() > worldSpaceDistanceToPenisRoot) {
+                foreach (Renderer target in renderTargets) {
+                    target.GetPropertyBlock(propertyBlock);
+                    switch (index) {
+                        case 0: propertyBlock.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
+                        case 1: propertyBlock.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
+                        case 2: propertyBlock.SetTexture(dickGirthMapZID, penetrator.GetGirthMap()); break;
+                        case 3: propertyBlock.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
+                    }
 
-                target.SetPropertyBlock(propertyBlock);
+                    target.SetPropertyBlock(propertyBlock);
+                }
+            } else { // We gotta clear references to the render textures, just in case the penetrator was removed, this way the garbage collector can clean them up.
+                foreach (Renderer target in renderTargets) {
+                    target.GetPropertyBlock(propertyBlock);
+                    switch (index) {
+                        case 0: propertyBlock.SetTexture(dickGirthMapXID, Texture2D.blackTexture); break;
+                        case 1: propertyBlock.SetTexture(dickGirthMapYID, Texture2D.blackTexture); break;
+                        case 2: propertyBlock.SetTexture(dickGirthMapZID, Texture2D.blackTexture); break;
+                        case 3: propertyBlock.SetTexture(dickGirthMapWID, Texture2D.blackTexture); break;
+                    }
+                    target.SetPropertyBlock(propertyBlock);
+                }
             }
         }
 
