@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace PenetrationTech {
     [System.Serializable]
-    [PenetrableListener(typeof(ClipListener), "Clip range listener")]
+    //[PenetrableListener(typeof(ClipListener), "Clip range listener")]
     public class ClipListener : PenetrableListener {
         [SerializeField]
         private bool allowForAllTheWayThrough = true;

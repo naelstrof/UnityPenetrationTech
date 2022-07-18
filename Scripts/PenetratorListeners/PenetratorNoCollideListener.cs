@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace PenetrationTech {
-    [System.Serializable] [PenetratorListener(typeof(PenetratorNoCollideListener), "Rigidbody NoCollide listener")]
+    [System.Serializable]
+    //[PenetratorListener(typeof(PenetratorNoCollideListener), "Rigidbody NoCollide listener")]
     public class PenetratorNoCollideListener : PenetratorListener {
         [SerializeField]
         private Rigidbody body;

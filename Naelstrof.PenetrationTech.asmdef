@@ -1,7 +1,9 @@
 {
     "name": "Naelstrof.PenetrationTech",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:73106583b323919458c1e05166706ce3"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

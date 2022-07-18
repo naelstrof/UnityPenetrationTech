@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace PenetrationTech {
-    [System.Serializable] [PenetratorListener(typeof(PenetratorUnityEventListener), "Event listener")]
+    [System.Serializable]
+    //[PenetratorListener(typeof(PenetratorUnityEventListener), "Event listener")]
     public class PenetratorUnityEventListener : PenetratorListener {
         [SerializeField]
         private UnityEvent penetrationStart;
