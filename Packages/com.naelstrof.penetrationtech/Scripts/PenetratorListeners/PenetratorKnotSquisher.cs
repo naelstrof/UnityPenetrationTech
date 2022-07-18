@@ -6,7 +6,8 @@ using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace PenetrationTech {
-    [System.Serializable] [PenetratorListener(typeof(PenetratorKnotSquisher), "Knot Squisher listener")]
+    [System.Serializable]
+    //[PenetratorListener(typeof(PenetratorKnotSquisher), "Knot Squisher listener")]
     public class PenetratorKnotSquisher : PenetratorListener {
         [Range(0f,1f)]
         [SerializeField] private float knotForceFactor = 0.1f;

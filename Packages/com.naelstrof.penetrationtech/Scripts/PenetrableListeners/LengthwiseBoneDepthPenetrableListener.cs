@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PenetrationTech {
     [System.Serializable]
-    [PenetrableListener(typeof(LengthwiseBoneDepthPenetrableListener), "Lengthwise Bone Depth Penetrable")]
+    //[PenetrableListener(typeof(LengthwiseBoneDepthPenetrableListener), "Lengthwise Bone Depth Penetrable")]
     public class LengthwiseBoneDepthPenetrableListener : PenetrableListener {
         [SerializeField]
         private Transform targetTransform;

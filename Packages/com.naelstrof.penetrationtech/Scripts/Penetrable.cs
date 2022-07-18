@@ -15,7 +15,7 @@ namespace PenetrationTech {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(Penetrable))]
     public class PenetrableEditor : Editor {
-        static IEnumerable<PenetrableListenerAttribute> GetPenetrableListenerAttributes() {
+        /*static IEnumerable<PenetrableListenerAttribute> GetPenetrableListenerAttributes() {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 foreach (Type type in assembly.GetTypes()) {
                     var attributes =
@@ -26,7 +26,7 @@ namespace PenetrationTech {
                     }
                 }
             }
-        }
+        }*/
         public override void OnInspectorGUI() {
             string lastError = ((Penetrable)target).GetLastError();
             if (!string.IsNullOrEmpty(lastError)) {
@@ -35,7 +35,7 @@ namespace PenetrationTech {
 
             DrawDefaultInspector();
             
-            if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
+            /*if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace PenetrationTech {
                     }
                 });
             }
-            menu.ShowAsContext();
+            menu.ShowAsContext();*/
         }
     }
     #endif
@@ -69,7 +69,7 @@ namespace PenetrationTech {
         [SerializeField, Range(0f,1f)] private float splineTension = 0.5f;
         private List<Vector3> worldPoints;
         // Keep this on the bottom, so it lines up with the custom inspector.
-        [SerializeReference]
+        [SerializeReference,SerializeReferenceButton]
         public List<PenetrableListener> listeners;
 
         private GameObject colliderEntrance;
@@ -242,6 +242,9 @@ namespace PenetrationTech {
             valid = false;
             reinitialize = true;
             foreach(PenetrableListener listener in listeners) {
+                if (listener == null) {
+                    continue;
+                }
                 listener.OnValidate(this);
             }
         }

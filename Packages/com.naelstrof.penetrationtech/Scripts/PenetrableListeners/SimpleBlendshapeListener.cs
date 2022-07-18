@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace PenetrationTech {
     [System.Serializable]
-    [PenetrableListener(typeof(SimpleBlendshapeListener), "Simple Blendshape Listener")]
+    //[PenetrableListener(typeof(SimpleBlendshapeListener), "Simple Blendshape Listener")]
     public class SimpleBlendshapeListener : BoneTransformListener {
         [SerializeField]
         SkinnedMeshBlendshapePair[] targets;

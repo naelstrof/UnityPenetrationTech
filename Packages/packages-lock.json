@@ -11,7 +11,16 @@
       "version": "file:com.naelstrof.penetrationtech",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git"
+      }
+    },
+    "com.textus-games.serialized-reference-ui": {
+      "version": "https://github.com/TextusGames/UnitySerializedReferenceUI.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "51aff6062610296c86f739a3e093c29d08388a95"
     },
     "com.unity.collab-proxy": {
       "version": "1.11.2",

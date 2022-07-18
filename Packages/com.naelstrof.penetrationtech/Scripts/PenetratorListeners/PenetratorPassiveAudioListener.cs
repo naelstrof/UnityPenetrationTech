@@ -7,7 +7,8 @@ using UnityEngine.Audio;
 using UnityEngine.Events;
 
 namespace PenetrationTech {
-    [System.Serializable] [PenetratorListener(typeof(PenetratorPassiveAudioListener), "Passive audio listener")]
+    [System.Serializable]
+    //[PenetratorListener(typeof(PenetratorPassiveAudioListener), "Passive audio listener")]
     public class PenetratorPassiveAudioListener : PenetratorListener {
         private float lastDepth;
         [SerializeField]

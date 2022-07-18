@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace PenetrationTech {
     [System.Serializable]
-    [PenetrableListener(typeof(PushPullExpandBlendshapeListener), "Push Pull Expand Blendshape Listener")]
+    //[PenetrableListener(typeof(PushPullExpandBlendshapeListener), "Push Pull Expand Blendshape Listener")]
     public class PushPullExpandBlendshapeListener : BoneTransformListener {
         [SerializeField]
         private SkinnedMeshBlendshapePushPullExpandSet[] targets;

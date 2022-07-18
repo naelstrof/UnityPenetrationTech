@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace PenetrationTech {
+    [Obsolete("Currently this feature has been replaced by https://github.com/TextusGames/UnitySerializedReferenceUI with its handy SerializedReferenceButton attribute.")]
     public class PenetratorListenerAttribute : System.Attribute {
         public System.Type type;
         public string name;

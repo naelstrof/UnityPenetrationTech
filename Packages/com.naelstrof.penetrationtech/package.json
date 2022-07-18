@@ -1,7 +1,10 @@
 {
     "name": "com.naelstrof.penetrationtech",
     "displayName": "Penetration Tech",
-    "version": "3.5.5",
+    "version": "3.5.6",
     "unity": "2020.3",
+    "dependencies": {
+        "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git"
+    },
     "description": "Tools that help analyze, animate, and work with penetrators and orifices for sexual activities."
 }

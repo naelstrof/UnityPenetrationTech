@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.naelstrof.jigglephysics": "https://github.com/naelstrof/UnityJigglePhysics.git#v3.6.4",
+    "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git",
     "com.unity.collab-proxy": "1.11.2",
     "com.unity.ide.rider": "3.0.14",
     "com.unity.ide.visualstudio": "2.0.11",

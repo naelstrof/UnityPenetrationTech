@@ -15,7 +15,7 @@ namespace PenetrationTech {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(Penetrator))]
     public class PenetratorEditor : Editor {
-        static IEnumerable<PenetratorListenerAttribute> GetPenetratorListenerAttributes() {
+        /*static IEnumerable<PenetratorListenerAttribute> GetPenetratorListenerAttributes() {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 foreach (Type type in assembly.GetTypes()) {
                     var attributes =
@@ -26,7 +26,7 @@ namespace PenetrationTech {
                     }
                 }
             }
-        }
+        }*/
         public override void OnInspectorGUI() {
             string lastError = ((Penetrator)target).GetLastError();
             if (!string.IsNullOrEmpty(lastError)) {
@@ -38,7 +38,7 @@ namespace PenetrationTech {
             }
 
             DrawDefaultInspector();
-            
+            /*
             if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
                 return;
             }
@@ -59,7 +59,7 @@ namespace PenetrationTech {
                     }
                 });
             }
-            menu.ShowAsContext();
+            menu.ShowAsContext();*/
         }
     }
     #endif
@@ -87,7 +87,7 @@ namespace PenetrationTech {
         private float penetrationMarginOfError = 0.5f;
         [SerializeField] [Tooltip("Automate discovery of penetrables, and automatically penetrate with them if some basic conditions are met (roughly the right angle, and distance). Also decouple automatically if basic conditions are met (penetrator is certain distance away).")]
         private AutoPenetrateMode autoPenetrate = AutoPenetrateMode.AutoSeek | AutoPenetrateMode.AutoDecouple;
-        [SerializeReference] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
+        [SerializeReference,SerializeReferenceButton] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
         
 

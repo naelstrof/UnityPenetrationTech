@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace PenetrationTech {
     [System.Serializable]
-    [PenetrableListener(typeof(BoneTransformListener), "Simple Bone Offset Correction Listener")]
+    //[PenetrableListener(typeof(BoneTransformListener), "Simple Bone Offset Correction Listener")]
     public class BoneTransformListener : PenetrableListener {
         [FormerlySerializedAs("targetBone")] [SerializeField]
         protected Transform offsetCorrectionBone;
