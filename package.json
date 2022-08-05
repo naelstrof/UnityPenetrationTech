@@ -1,10 +1,11 @@
 {
-    "name": "com.naelstrof.penetrationtech",
-    "displayName": "Penetration Tech",
-    "version": "3.5.7",
-    "unity": "2020.3",
-    "dependencies": {
-        "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git"
-    },
-    "description": "Tools that help analyze, animate, and work with penetrators and orifices for sexual activities."
+  "name": "com.naelstrof.penetrationtech",
+  "displayName": "Penetration Tech",
+  "version": "3.5.7",
+  "unity": "2020.3",
+  "comment": "You can install serialized-reference-ui from this git url: https://github.com/TextusGames/UnitySerializedReferenceUI.git",
+  "dependencies": {
+    "com.textus-games.serialized-reference-ui": "1.0.0"
+  },
+  "description": "Tools that help analyze, animate, and work with penetrators and orifices for sexual activities."
 }
