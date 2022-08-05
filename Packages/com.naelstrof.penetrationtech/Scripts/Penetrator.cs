@@ -87,14 +87,16 @@ namespace PenetrationTech {
         private float penetrationMarginOfError = 0.5f;
         [SerializeField] [Tooltip("Automate discovery of penetrables, and automatically penetrate with them if some basic conditions are met (roughly the right angle, and distance). Also decouple automatically if basic conditions are met (penetrator is certain distance away).")]
         private AutoPenetrateMode autoPenetrate = AutoPenetrateMode.AutoSeek | AutoPenetrateMode.AutoDecouple;
+        [SerializeField]
+        private List<Penetrable> ignorePenetrables;
         [SerializeReference,SerializeReferenceButton] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
         
 
 
         public delegate void PenetrationAction(Penetrable penetrable);
-        public PenetrationAction penetrationStart;
-        public PenetrationAction penetrationEnd;
+        public event PenetrationAction penetrationStart;
+        public event PenetrationAction penetrationEnd;
         
         private Penetrable targetHoleA;
         private Penetrable targetHoleB;
@@ -263,7 +265,7 @@ namespace PenetrationTech {
                 return;
             }
 
-            targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*4f);
+            targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*8f);
             if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && targetHoleLerp == 1f) {
                 Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
                 int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
@@ -271,7 +273,7 @@ namespace PenetrationTech {
                 float bestValue = float.MaxValue;
                 for (int i = 0; i < hits; i++) {
                     PenetrableOwner owner = colliders[i].GetComponent<PenetrableOwner>();
-                    if (owner != null) {
+                    if (owner != null && !ignorePenetrables.Contains(owner.owner)) {
                         float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
                         // Being a full 180 degrees around will add a meter to the distance evaluation.
                         float angle = Vector3.Angle(owner.owner.GetSplinePath().GetVelocityFromT(0f).normalized,
@@ -330,9 +332,11 @@ namespace PenetrationTech {
                 return;
             }
             insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
+            float temp = Vector3.Distance(tipPosition, holePos) /
+                         (girthData.GetWorldLength() * penetrationMarginOfError);
             insertionFactor = Mathf.Max(
                 insertionFactor,
-                Mathf.Clamp01(2f - Vector3.Distance(tipPosition, holePos) / (girthData.GetWorldLength() * penetrationMarginOfError) * 2f) * targetHoleLerp
+                Mathf.Clamp01(2f - temp*temp*2f) * targetHoleLerp
             );
             if (insertionFactor >= 0.99f) {
                 Penetrate(penetrable);
