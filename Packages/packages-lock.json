@@ -12,7 +12,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git"
+        "com.textus-games.serialized-reference-ui": "1.0.0"
       }
     },
     "com.textus-games.serialized-reference-ui": {
