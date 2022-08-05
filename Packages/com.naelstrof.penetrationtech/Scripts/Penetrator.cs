@@ -243,6 +243,13 @@ namespace PenetrationTech {
                 listener.FixedUpdate();
             }
         }
+        
+        public void AddIgnorePenetrable(Penetrable p) {
+            ignorePenetrables.Add(p);
+        }
+        public void RemoveIgnorePenetrable(Penetrable p) {
+            ignorePenetrables.Remove(p);
+        }
 
         void Update() {
             #if UNITY_EDITOR
