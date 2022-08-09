@@ -2,7 +2,7 @@
 
 # Unity Penetration Tech
 
-A gpu-based deformation system for mapping penetrators along orifice paths.
+A gpu-based deformation system for mapping penetrators along orifice paths. Does not work on OpenGL (Due to lack of SSBO in vertex, and cannot dynamically index constant buffers.)
 
 For a write-up on this technology, and some more detailed examples-- see [here](https://koboldkare.com/penetrationtech.php)
 
