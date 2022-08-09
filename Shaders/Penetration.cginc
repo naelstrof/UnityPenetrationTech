@@ -13,7 +13,9 @@ struct CatmullSplineData {
 // FIXME: I'm not actually sure this can even compile on mobile platforms. We need to double check.
 // Thoeretically there's no reason to use dynamic buffers like this (we should have static spline counts anyway).
 // But this was the most convienient way I could think of for the programming side of things.
-#if !defined(SHADER_API_D3D11_9X)
+#pragma target 5.0
+
+#ifdef SHADER_API_D3D11	
 StructuredBuffer<CatmullSplineData> _CatmullSplines;
 #else
 CatmullSplineData _CatmullSplines[4];
@@ -218,7 +220,7 @@ struct PenetratorData {
     int holeSubCurveCount;
 };
 
-#if !defined(SHADER_API_D3D11_9X)
+#ifdef SHADER_API_D3D11	
 StructuredBuffer<PenetratorData> _PenetratorData;
 #else
 PenetratorData _PenetratorData[4];
