@@ -522,6 +522,14 @@ namespace PenetrationTech {
                     "Must specify a target renderer.");
                 AssertValid(GetTargetRenderers()[0].mask != 0,
                     "Must have at least one sub-mesh enabled on the renderer, (the one that contains the penetrator hopefully).");
+                
+                foreach (var renderMask in GetTargetRenderers()) {
+                    if (renderMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                        AssertValid(skinnedMeshRenderer.rootBone != null,
+                        $"The SkinnedMeshRenderer {skinnedMeshRenderer} must have a specified root bone.");
+                    }
+                }
+
                 bool isChild = false;
                 foreach (var renderMask in GetTargetRenderers()) {
                     if (renderMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
