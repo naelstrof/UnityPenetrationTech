@@ -35,6 +35,11 @@ namespace PenetrationTech {
                 EditorGUILayout.HelpBox("Make sure the blue dotted line is pointed along the penetrator by adjusting the Local Root forward/up/right.\n" +
                                                 "If the model is inside-out, one of the vectors is backwards.\n" +
                                                 "If you don't see the blue dotted line, ensure Gizmos are enabled.", MessageType.Info);
+                Penetrator penetrator = (Penetrator)target;
+                if (penetrator.GetGirthMap() != null) {
+                    EditorGUILayout.PrefixLabel("Preview Girthmap");
+                    EditorGUI.DrawPreviewTexture(EditorGUILayout.GetControlRect(false, 256f, GUILayout.MaxWidth(256f)), penetrator.GetGirthMap());
+                }
             }
 
             DrawDefaultInspector();
@@ -121,6 +126,9 @@ namespace PenetrationTech {
         }
 
         public RenderTexture GetGirthMap() {
+            if (girthData == null) {
+                return null;
+            }
             return girthData.GetGirthMap();
         }
 
@@ -214,10 +222,39 @@ namespace PenetrationTech {
             }
             OnSetClip(0f, 0f);
         }
-        
+
+        public void SetRootBone(Transform newRootBone) {
+            rootBone = newRootBone;
+            if (GetTargetRenderers().Count <= 0) {
+                return;
+            }
+            Renderer rendererCheck = GetTargetRenderers()[0].renderer;
+            if (rendererCheck is SkinnedMeshRenderer skinnedMeshRenderer) {
+                if (rootBone != null && rootBone.IsChildOf(skinnedMeshRenderer.rootBone)) {
+                    Initialize();
+                }
+            } else if (rendererCheck is MeshRenderer meshRenderer) {
+                if (rootBone != null && rootBone.IsChildOf(meshRenderer.transform)) {
+                    Initialize();
+                }
+            }
+            if (!string.IsNullOrEmpty(GetLastError())) {
+                throw new UnityException(lastError);
+            }
+        }
+
         public override void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
             base.SetTargetRenderers(renderers);
-            Initialize();
+            Renderer rendererCheck = renderers.First().renderer;
+            if (rendererCheck is SkinnedMeshRenderer skinnedMeshRenderer) {
+                if (rootBone != null && rootBone.IsChildOf(skinnedMeshRenderer.rootBone)) {
+                    Initialize();
+                }
+            } else if (rendererCheck is MeshRenderer meshRenderer) {
+                if (rootBone != null && rootBone.IsChildOf(meshRenderer.transform)) {
+                    Initialize();
+                }
+            }
             if (!string.IsNullOrEmpty(GetLastError())) {
                 throw new UnityException(lastError);
             }
@@ -258,6 +295,13 @@ namespace PenetrationTech {
                 if (!valid) {
                     return;
                 }
+
+                if (girthData != null) {
+                    girthData.Release();
+                    girthData = null;
+                    girthData = new GirthData(GetTargetRenderers()[0], girthUnwrapShader, rootBone, Vector3.zero, localRootForward, localRootUp, localRootRight);
+                }
+
                 foreach (var listener in listeners) {
                     listener.OnDisable();
                 }
