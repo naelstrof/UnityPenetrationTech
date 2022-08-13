@@ -222,6 +222,10 @@ namespace PenetrationTech {
             }
             OnSetClip(0f, 0f);
         }
+        
+        public Transform GetRootBone() {
+            return rootBone;
+        }
 
         public void SetRootBone(Transform newRootBone) {
             rootBone = newRootBone;
