@@ -38,7 +38,7 @@ namespace PenetrationTech {
                 Penetrator penetrator = (Penetrator)target;
                 if (penetrator.GetGirthMap() != null) {
                     EditorGUILayout.PrefixLabel("Preview Girthmap");
-                    EditorGUI.DrawPreviewTexture(EditorGUILayout.GetControlRect(false, 256f, GUILayout.MaxWidth(256f)), penetrator.GetGirthMap());
+                    EditorGUI.DrawPreviewTexture(EditorGUILayout.GetControlRect(false, 128f, GUILayout.MaxWidth(128f)), penetrator.GetGirthMap());
                 }
             }
 
