@@ -227,38 +227,16 @@ namespace PenetrationTech {
             return rootBone;
         }
 
-        public void SetRootBone(Transform newRootBone) {
+        public void SetRealtimeConfiguration(RendererSubMeshMask[] newRenderers, Transform newRootBone,
+            Vector3 newLocalForward, Vector3 newLocalRight, Vector3 newLocalUp,
+            PenetratorListener[] newListeners) {
+            SetTargetRenderers(newRenderers);
             rootBone = newRootBone;
-            if (GetTargetRenderers().Count <= 0) {
-                return;
-            }
-            Renderer rendererCheck = GetTargetRenderers()[0].renderer;
-            if (rendererCheck is SkinnedMeshRenderer skinnedMeshRenderer) {
-                if (rootBone != null && rootBone.IsChildOf(skinnedMeshRenderer.rootBone)) {
-                    Initialize();
-                }
-            } else if (rendererCheck is MeshRenderer meshRenderer) {
-                if (rootBone != null && rootBone.IsChildOf(meshRenderer.transform)) {
-                    Initialize();
-                }
-            }
-            if (!string.IsNullOrEmpty(GetLastError())) {
-                throw new UnityException(lastError);
-            }
-        }
-
-        public override void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
-            base.SetTargetRenderers(renderers);
-            Renderer rendererCheck = renderers.First().renderer;
-            if (rendererCheck is SkinnedMeshRenderer skinnedMeshRenderer) {
-                if (rootBone != null && rootBone.IsChildOf(skinnedMeshRenderer.rootBone)) {
-                    Initialize();
-                }
-            } else if (rendererCheck is MeshRenderer meshRenderer) {
-                if (rootBone != null && rootBone.IsChildOf(meshRenderer.transform)) {
-                    Initialize();
-                }
-            }
+            localRootForward = newLocalForward;
+            localRootRight = newLocalRight;
+            localRootUp = newLocalUp;
+            listeners = new List<PenetratorListener>(newListeners);
+            Initialize();
             if (!string.IsNullOrEmpty(GetLastError())) {
                 throw new UnityException(lastError);
             }

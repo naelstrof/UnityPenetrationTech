@@ -46,7 +46,7 @@ namespace PenetrationTech {
             float penetratorLength = penetrator.GetWorldLength();
             float clipStart = Mathf.Max(0f,(penetratorLength+startDist-penetrationDepth));
             float clipEnd = Mathf.Max(0f,(penetratorLength+endDist-penetrationDepth));
-            clipAction?.Invoke(clipStart, allowForAllTheWayThrough ? clipEnd : penetratorLength);
+            clipAction?.Invoke(clipStart, allowForAllTheWayThrough ? clipEnd : penetratorLength*1.5f);
         }
 
         public override void OnValidate(Penetrable p) {
