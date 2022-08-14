@@ -33,7 +33,7 @@ namespace PenetrationTech {
             return targetRenderers;
         }
 
-        public virtual void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
+        protected virtual void SetTargetRenderers(ICollection<RendererSubMeshMask> renderers) {
             if (targetRenderers == null) {
                 targetRenderers = new List<RendererSubMeshMask>(renderers);
             } else {
