@@ -15,7 +15,7 @@ struct CatmullSplineData {
 // But this was the most convienient way I could think of for the programming side of things.
 #pragma target 5.0
 
-#if (SHADER_TARGET < 50 && (defined(SHADER_API_D3D11) || defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN))) || (SHADER_TARGET>=50 && !defined(SHADER_API_D3D11_9X))
+#if (defined(UNITY_COMPILER_CG) && (defined(SHADER_API_D3D11) || defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN)) || !defined(UNITY_COMPILER_CG) && !defined(SHADER_API_D3D11_9X))
 StructuredBuffer<CatmullSplineData> _CatmullSplines;
 #else
 CatmullSplineData _CatmullSplines[4];
@@ -220,7 +220,7 @@ struct PenetratorData {
     int holeSubCurveCount;
 };
 
-#if (SHADER_TARGET < 50 && (defined(SHADER_API_D3D11) || defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN))) || (SHADER_TARGET>=50 && !defined(SHADER_API_D3D11_9X))
+#if (defined(UNITY_COMPILER_CG) && (defined(SHADER_API_D3D11) || defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN)) || !defined(UNITY_COMPILER_CG) && !defined(SHADER_API_D3D11_9X))
 StructuredBuffer<PenetratorData> _PenetratorData;
 #else
 PenetratorData _PenetratorData[4];
