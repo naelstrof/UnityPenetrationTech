@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/PenetrationTechExample/Scenes/EmptyScene.unity
+    guid: e666a02840bb0a242817213f72ec20e8
+  - enabled: 1
+    path: Assets/PenetrationTechExample/Scenes/DonutScene.unity
+    guid: 8f030c8fe21e0a241a6f0871a61c5606
+  - enabled: 1
     path: Assets/PenetrationTechExample/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}

@@ -35,6 +35,8 @@ namespace PenetrationTech {
             [HideInInspector]
             private Vector3 rendererLocalDickUp;
 
+            private NativeArray<byte> nativeArray;
+
             public GirthFrame() {
                 localXOffsetCurve = new AnimationCurve();
                 localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
@@ -47,10 +49,33 @@ namespace PenetrationTech {
                 localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
             }
 
+            private void DoSlowReadback() {
+                Texture2D cpuTex = new Texture2D(girthMap.width, girthMap.height, TextureFormat.R8, false, true);
+                var lastActive = RenderTexture.active;
+                RenderTexture.active = girthMap;
+                cpuTex.ReadPixels(new Rect(0, 0, girthMap.width, girthMap.height), 0, 0);
+                cpuTex.Apply();
+                RenderTexture.active = lastActive;
+                var bytes = cpuTex.GetRawTextureData<byte>();
+                PopulateOffsetCurves(bytes, girthMap.width, girthMap.height);
+                PopulateGirthCurve(bytes, girthMap.width, girthMap.height);
+                if (Application.isPlaying) {
+                    Object.Destroy(cpuTex);
+                } else {
+                    Object.DestroyImmediate(cpuTex);
+                }
+            }
+
             private void OnCompleteReadBack(AsyncGPUReadbackRequest request) {
-                var bytes = request.GetData<byte>();
-                PopulateOffsetCurves(bytes, request.width, request.height);
-                PopulateGirthCurve(bytes, request.width, request.height);
+                if (request.hasError || !request.done) {
+                    nativeArray.Dispose();
+                    DoSlowReadback();
+                    return;
+                }
+
+                PopulateOffsetCurves(nativeArray, request.width, request.height);
+                PopulateGirthCurve(nativeArray, request.width, request.height);
+                nativeArray.Dispose();
             }
 
             public void Readback(Vector3 rendererLocalDickForward, Vector3 rendererLocalDickRight, Vector3 rendererLocalDickUp) {
@@ -58,22 +83,10 @@ namespace PenetrationTech {
                 this.rendererLocalDickRight = rendererLocalDickRight;
                 this.rendererLocalDickUp = rendererLocalDickUp;
                 if (SystemInfo.supportsAsyncGPUReadback) {
-                    AsyncGPUReadback.Request(girthMap, 0, TextureFormat.R8, OnCompleteReadBack);
+                    nativeArray = new NativeArray<byte>(girthMap.width * girthMap.height * sizeof(byte), Allocator.Persistent);
+                    AsyncGPUReadback.RequestIntoNativeArray(ref nativeArray, girthMap, 0, TextureFormat.R8, OnCompleteReadBack);
                 } else {
-                    Texture2D cpuTex = new Texture2D(girthMap.width, girthMap.height, TextureFormat.R8, false, true);
-                    var lastActive = RenderTexture.active;
-                    RenderTexture.active = girthMap;
-                    cpuTex.ReadPixels(new Rect(0, 0, girthMap.width, girthMap.height), 0, 0);
-                    cpuTex.Apply();
-                    RenderTexture.active = lastActive;
-                    var bytes = cpuTex.GetRawTextureData<byte>();
-                    PopulateOffsetCurves(bytes, girthMap.width, girthMap.height);
-                    PopulateGirthCurve(bytes, girthMap.width, girthMap.height);
-                    if (Application.isPlaying) {
-                        Object.Destroy(cpuTex);
-                    } else {
-                        Object.DestroyImmediate(cpuTex);
-                    }
+                    DoSlowReadback();
                 }
             }
 
