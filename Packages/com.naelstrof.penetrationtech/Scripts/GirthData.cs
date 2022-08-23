@@ -38,15 +38,18 @@ namespace PenetrationTech {
             private NativeArray<byte> nativeArray;
 
             public GirthFrame() {
-                localXOffsetCurve = new AnimationCurve();
-                localXOffsetCurve.postWrapMode = WrapMode.ClampForever;
-                localXOffsetCurve.preWrapMode = WrapMode.ClampForever;
-                localYOffsetCurve = new AnimationCurve();
-                localYOffsetCurve.postWrapMode = WrapMode.ClampForever;
-                localYOffsetCurve.preWrapMode = WrapMode.ClampForever;
-                localGirthRadiusCurve = new AnimationCurve();
-                localGirthRadiusCurve.postWrapMode = WrapMode.ClampForever;
-                localGirthRadiusCurve.preWrapMode = WrapMode.ClampForever;
+                localXOffsetCurve = new AnimationCurve {
+                    postWrapMode = WrapMode.ClampForever,
+                    preWrapMode = WrapMode.ClampForever
+                };
+                localYOffsetCurve = new AnimationCurve {
+                    postWrapMode = WrapMode.ClampForever,
+                    preWrapMode = WrapMode.ClampForever
+                };
+                localGirthRadiusCurve = new AnimationCurve {
+                    postWrapMode = WrapMode.ClampForever,
+                    preWrapMode = WrapMode.ClampForever
+                };
             }
 
             private void DoSlowReadback() {
@@ -67,12 +70,20 @@ namespace PenetrationTech {
             }
 
             private void OnCompleteReadBack(AsyncGPUReadbackRequest request) {
+                // if girthmap is null, that means we were released before the readback could complete.
+                if (girthMap == null) {
+                    nativeArray.Dispose();
+                    return;
+                }
+
+                // Failed request, I don't know how this happens, but it's possible. Fallback on a synchronous readback.
                 if (request.hasError || !request.done) {
                     nativeArray.Dispose();
                     DoSlowReadback();
                     return;
                 }
 
+                // Otherwise our data is good.
                 PopulateOffsetCurves(nativeArray, request.width, request.height);
                 PopulateGirthCurve(nativeArray, request.width, request.height);
                 nativeArray.Dispose();
@@ -82,7 +93,7 @@ namespace PenetrationTech {
                 this.rendererLocalDickForward = rendererLocalDickForward;
                 this.rendererLocalDickRight = rendererLocalDickRight;
                 this.rendererLocalDickUp = rendererLocalDickUp;
-                if (SystemInfo.supportsAsyncGPUReadback) {
+                if (SystemInfo.supportsAsyncGPUReadback && Application.isPlaying) {
                     nativeArray = new NativeArray<byte>(girthMap.width * girthMap.height * sizeof(byte), Allocator.Persistent);
                     AsyncGPUReadback.RequestIntoNativeArray(ref nativeArray, girthMap, 0, TextureFormat.R8, OnCompleteReadBack);
                 } else {
