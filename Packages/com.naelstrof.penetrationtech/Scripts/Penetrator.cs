@@ -90,7 +90,7 @@ namespace PenetrationTech {
         [FormerlySerializedAs("targetHole")] [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
         private Penetrable penetratedHole;
 
-        [SerializeField] [Range(0.001f,5f)] [Tooltip("How lenient we are with penetrators being off-target, measured in penetrator-lengths.")]
+        [SerializeField] [Range(0.1f,1f)] [Tooltip("How lenient we are with penetrators being off-target, measured in penetrator-lengths.")]
         private float penetrationMarginOfError = 0.5f;
         [SerializeField] [Tooltip("Automate discovery of penetrables, and automatically penetrate with them if some basic conditions are met (roughly the right angle, and distance). Also decouple automatically if basic conditions are met (penetrator is certain distance away).")]
         private AutoPenetrateMode autoPenetrate = AutoPenetrateMode.AutoSeek | AutoPenetrateMode.AutoDecouple;
@@ -301,15 +301,15 @@ namespace PenetrationTech {
                 reinitialize = false;
             }
             #endif
-            
+
             if (!valid && !Application.isPlaying) {
                 return;
             }
 
             targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*8f);
-            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && targetHoleLerp == 1f) {
-                Vector3 tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (GetWorldLength() * virtualSquashAndStretch);
-                int hits = Physics.OverlapSphereNonAlloc(tipPosition, 1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
+            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && Math.Abs(targetHoleLerp - 1f) < 0.001f) {
+                Vector3 tipPosition = path.GetPositionFromDistance(GetWorldLength());
+                int hits = Physics.OverlapSphereNonAlloc(tipPosition, GetWorldLength()*penetrationMarginOfError+1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
                 PenetrableOwner bestMatch = null;
                 float bestValue = float.MaxValue;
                 for (int i = 0; i < hits; i++) {
@@ -326,6 +326,7 @@ namespace PenetrationTech {
                         }
                     }
                 }
+
                 if (bestMatch != null && !ignorePenetrables.Contains(bestMatch.owner)) {
                     SetTargetHole(bestMatch.owner);
                 }
@@ -374,10 +375,10 @@ namespace PenetrationTech {
             }
             insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
             float temp = Vector3.Distance(tipPosition, holePos) /
-                         (girthData.GetWorldLength() * penetrationMarginOfError);
+                         (GetWorldLength() * penetrationMarginOfError);
             insertionFactor = Mathf.Max(
                 insertionFactor,
-                Mathf.Clamp01(2f - temp*temp*2f) * targetHoleLerp
+                Mathf.Clamp01(1.5f - temp*temp) * targetHoleLerp
             );
             if (insertionFactor >= 0.99f) {
                 Penetrate(penetrable);
@@ -426,8 +427,8 @@ namespace PenetrationTech {
         }
 
         private void GetTipPositionAndTangent(CatmullSpline idlePath, out Vector3 tipPosition, out Vector3 tipTangent) {
-            tipPosition = idlePath.GetPositionFromT(GetWorldLength());
-            tipTangent = idlePath.GetVelocityFromT(GetWorldLength());
+            tipPosition = idlePath.GetPositionFromDistance(GetWorldLength());
+            tipTangent = idlePath.GetVelocityFromDistance(GetWorldLength());
         }
 
         protected override void LateUpdate() {
