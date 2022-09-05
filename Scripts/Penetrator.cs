@@ -15,18 +15,6 @@ namespace PenetrationTech {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(Penetrator))]
     public class PenetratorEditor : Editor {
-        /*static IEnumerable<PenetratorListenerAttribute> GetPenetratorListenerAttributes() {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (Type type in assembly.GetTypes()) {
-                    var attributes =
-                        (PenetratorListenerAttribute[])type.GetCustomAttributes(typeof(PenetratorListenerAttribute),
-                            true);
-                    if (attributes.Length > 0) {
-                        yield return attributes[0];
-                    }
-                }
-            }
-        }*/
         public override void OnInspectorGUI() {
             string lastError = ((Penetrator)target).GetLastError();
             if (!string.IsNullOrEmpty(lastError)) {
@@ -43,28 +31,6 @@ namespace PenetrationTech {
             }
 
             DrawDefaultInspector();
-            /*
-            if (!EditorGUILayout.DropdownButton(new GUIContent("Add listener"), FocusType.Passive)) {
-                return;
-            }
-
-            GenericMenu menu = new GenericMenu();
-            List<PenetratorListenerAttribute> attributes =
-                new List<PenetratorListenerAttribute>(GetPenetratorListenerAttributes());
-            foreach(var attribute in attributes) {
-                menu.AddItem(new GUIContent(attribute.name), false, ()=>{
-                    foreach (var t in targets) {
-                        Penetrator p = t as Penetrator;
-                        if (p.listeners == null) {
-                            p.listeners = new List<PenetratorListener>();
-                        }
-                        p.listeners.Add((PenetratorListener)Activator.CreateInstance(attribute.type));
-                        serializedObject.ApplyModifiedProperties();
-                        EditorUtility.SetDirty(p);
-                    }
-                });
-            }
-            menu.ShowAsContext();*/
         }
     }
     #endif
@@ -79,10 +45,6 @@ namespace PenetrationTech {
 
         [SerializeField] [Range(0f, 2f)] [Tooltip("Squash or stretch the visuals of the penetrator, this can be triggered through listeners, script, or animation to simulate knot forces.")]
         private float virtualSquashAndStretch = 1f;
-        [SerializeField] [Tooltip("A set of transforms for the curve to pass through when it's not busy penetrating, useful to tie the penetrator to some physics! Completely optional.")]
-        protected Transform[] poseTarget;
-        [SerializeField] [Range(0f,1f)] [Tooltip("The tension applied to match the pose target when generating the spline.")]
-        protected float poseTension = 0.75f;
 
         [SerializeField] [Tooltip("If you need to mask parts of the model out, customizing this shader will allow you to mask the girthmap generation (so things like heads or feet don't show up in it).")]
         private Shader girthUnwrapShader;
@@ -143,7 +105,6 @@ namespace PenetrationTech {
         private static readonly int squashStretchCorrectionID = Shader.PropertyToID("_SquashStretchCorrection");
         private static readonly int distanceToHoleID = Shader.PropertyToID("_DistanceToHole");
         private static readonly int dickWorldLengthID = Shader.PropertyToID("_DickWorldLength");
-        private List<Vector3> reusePoints;
         private bool valid = false;
         private string lastError;
         private bool reinitialize = false;
@@ -194,10 +155,7 @@ namespace PenetrationTech {
 
         protected override void OnEnable() {
             base.OnEnable();
-            reusePoints ??= new List<Vector3>();
             propertyBlock = new MaterialPropertyBlock();
-            var position = transform.position;
-            var forward = transform.forward;
             weightsA = new List<Vector3>();
             weightsB = new List<Vector3>();
             weightsC = new List<Vector3>();
@@ -365,7 +323,9 @@ namespace PenetrationTech {
 
         private void UpdateInsertionAmount(Penetrable penetrable, Vector3 tipPosition) {
             if (penetrable == null) {
-                Penetrate(null);
+                if ((autoPenetrate&AutoPenetrateMode.AutoDecouple) != 0) {
+                    Penetrate(null);
+                }
                 return;
             }
 
@@ -385,16 +345,16 @@ namespace PenetrationTech {
             }
         }
 
-        private bool StitchWeights(List<Vector3> a, List<Vector3> b, List<Vector3> output, float t) {
+        private int StitchWeights(List<Vector3> a, List<Vector3> b, List<Vector3> output, float t) {
             output.Clear();
             if (t == 0f || b.Count == 0) {
                 output.AddRange(a);
-                return false;
+                return 0;
             }
 
             if (Math.Abs(t - 1f) < 0.001f || a.Count == 0) {
                 output.AddRange(b);
-                return false;
+                return 0;
             }
 
             for (int i = 0; i < Mathf.Min(a.Count, b.Count); i++) {
@@ -416,14 +376,18 @@ namespace PenetrationTech {
                 Vector3 p1 = output[stitchLocation];
                 Vector3 m0 = output[stitchLocation - 2];
                 Vector3 m1 = output[stitchLocation + 1];
+                if (Vector3.Distance(p0, p1) < 0.05f) {
+                    return 0;
+                }
+
                 output.Insert(stitchLocation, p1);
                 output.Insert(stitchLocation, m1);
                 output.Insert(stitchLocation, m0);
                 output.Insert(stitchLocation, p0);
-                return true;
+                return 1;
             }
 
-            return false;
+            return 0;
         }
 
         private void GetTipPositionAndTangent(CatmullSpline idlePath, out Vector3 tipPosition, out Vector3 tipTangent) {
@@ -441,16 +405,17 @@ namespace PenetrationTech {
             GetTipPositionAndTangent(path, out Vector3 tipPosition, out Vector3 tipTangent);
             
             UpdateInsertionAmount(targetHoleA, tipPosition);
+
+            ConstructPathToPenetrable(weightsB, targetHoleA, out int outHoleIndexA);
+            ConstructPathToPenetrable(weightsC, targetHoleB, out int outHoleIndexB);
+            int outHoleIndex = Mathf.Max(outHoleIndexB, outHoleIndexA);
+            outHoleIndex += StitchWeights(weightsC, weightsB, outputWeightsA, targetHoleLerp);
             
-            ConstructPathToPenetrable(weightsB, targetHoleA);
-            ConstructPathToPenetrable(weightsC, targetHoleB);
-            StitchWeights(weightsC, weightsB, outputWeightsA, targetHoleLerp);
-            
-            bool addedSegment = StitchWeights(weightsA, outputWeightsA, outputWeightsB, insertionFactor);
+            outHoleIndex += StitchWeights(weightsA, outputWeightsA, outputWeightsB, insertionFactor);
             
             path.SetWeights(outputWeightsB);
-            
-            float realDistanceToHole = path.GetDistanceFromSubT(0, addedSegment ? 2 : 1, 1f) + GetWorldLength()*(1f-targetHoleLerp);
+
+            float realDistanceToHole = path.GetDistanceFromSubT(0,  outHoleIndex, 1f);
             if (penetratedHole != null) {
                 OnSetClip(1f, 1f);
                 penetratedHole.SetPenetrationDepth(this, realDistanceToHole/virtualSquashAndStretch, OnSetClip);
@@ -458,7 +423,7 @@ namespace PenetrationTech {
                     listener.NotifyPenetrationUpdate(this, penetratedHole, realDistanceToHole/virtualSquashAndStretch);
                 }
             }
-            if (inserted && realDistanceToHole > GetWorldLength()*Mathf.Max(virtualSquashAndStretch,1f)) {
+            if ((autoPenetrate&AutoPenetrateMode.AutoDecouple)!=0 && inserted && realDistanceToHole > GetWorldLength()*Mathf.Max(virtualSquashAndStretch,1f)) {
                 Penetrate(null);
             }
 
@@ -472,35 +437,22 @@ namespace PenetrationTech {
             base.LateUpdate();
         }
 
-        protected virtual void ConstructPathForIdle(ICollection<Vector3> output) {
-            output.Clear();
-            reusePoints.Clear();
+        protected virtual void ConstructPathForIdle(ICollection<Vector3> outputWeights) {
+            outputWeights.Clear();
             var rootBonePosition = rootBone.position;
-            if (poseTarget == null || poseTarget.Length < 2) {
-                float worldLength = girthData.GetWorldLength();
-                var tipPosition = rootBone.position + rootBone.TransformDirection(localRootForward) * (worldLength * 1.1f);
-                var tipTangent = rootBone.TransformDirection(localRootForward) * (worldLength * 0.66f);
-                reusePoints.Add(rootBonePosition);
-                reusePoints.Add(tipPosition);
-                reusePoints.Add(tipPosition+tipTangent);
-                CatmullSpline.GetWeightsFromPoints(output, reusePoints, poseTension);
-            } else {
-                foreach (Transform t in poseTarget) {
-                    reusePoints.Add(t.position);
-                }
-                // TODO: This should probably resize the spline as a post-process to ensure that the penetrator doesn't fall off of it.
-                // I just project a single extra point 1 meter ahead as a hack to be faster.
-                reusePoints.Add(poseTarget[poseTarget.Length - 1].position +
-                                (poseTarget[poseTarget.Length - 1].position -
-                                 poseTarget[poseTarget.Length - 2].position).normalized);
-
-                CatmullSpline.GetWeightsFromPoints(output, reusePoints, poseTension);
-            }
+            float worldLength = GetWorldLength();
+            var tipPosition = rootBonePosition + rootBone.TransformDirection(localRootForward) * (worldLength * 1.1f);
+            Vector3 tangent = tipPosition - rootBonePosition;
+            outputWeights.Add(rootBonePosition);
+            outputWeights.Add(tangent);
+            outputWeights.Add(tangent);
+            outputWeights.Add(tipPosition);
         }
 
-        private void ConstructPathToPenetrable(ICollection<Vector3> output, Penetrable penetrable) {
+        protected virtual void ConstructPathToPenetrable(ICollection<Vector3> output, Penetrable penetrable, out int penetrableSplineIndex) {
             output.Clear();
             if (penetrable == null) {
+                penetrableSplineIndex = 1;
                 return;
             }
             CatmullSpline holeSplinePath = penetrable.GetSplinePath();
@@ -510,14 +462,15 @@ namespace PenetrationTech {
 
             var rootBonePosition = rootBone.position;
             float fakeDistance = Vector3.Distance(rootBonePosition, holePos);
-            Vector3 penetratorTangent = rootBone.TransformDirection(localRootForward) * (fakeDistance * 0.66f);
+            Vector3 penetratorTangent = rootBone.TransformDirection(localRootForward) * fakeDistance;
             output.Add(rootBonePosition);
             output.Add(penetratorTangent);
-            Vector3 insertionTangent = holeForward * (fakeDistance * 0.66f);
+            Vector3 insertionTangent = holeForward * fakeDistance;
             Vector3 insertionPoint = holePos;
             output.Add(insertionTangent);
             output.Add(insertionPoint);
             
+            penetrableSplineIndex = output.Count / 4;
             penetrable.GetWeights(output);
             Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
             Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
@@ -526,17 +479,23 @@ namespace PenetrationTech {
             output.Add(outTangent);
             output.Add(outPosition+outTangent*GetWorldLength());
         }
-        private class PenetratorValidationException : System.SystemException {
+        protected class PenetratorValidationException : SystemException {
             public PenetratorValidationException(string msg) : base(msg) { }
         }
         
-        private void AssertValid(bool condition, string errorMsg) {
+        protected void AssertValid(bool condition, string errorMsg) {
             valid = valid && condition;
             if (!condition) {
                 throw new PenetratorValidationException(errorMsg);
             }
         }
-        private void CheckValid() {
+
+        protected void SetError(string error) {
+            valid = false;
+            lastError = error;
+        }
+
+        protected virtual void CheckValid() {
             girthUnwrapShader ??= Shader.Find("PenetrationTech/GirthUnwrapRaw");
             listeners ??= new List<PenetratorListener>();
             weightsA ??= new List<Vector3>();
@@ -613,11 +572,9 @@ namespace PenetrationTech {
                     listener.AssertValid();
                 }
             } catch (PenetratorValidationException error) {
-                lastError = $"{error.Message}\n\n{error.StackTrace}";
-                valid = false;
+                SetError($"{error.Message}\n\n{error.StackTrace}");
             } catch (PenetratorListener.PenetratorListenerValidationException error) {
-                lastError = $"{error.Message}\n\n{error.StackTrace}";
-                valid = false;
+                SetError($"{error.Message}\n\n{error.StackTrace}");
             }
             if (girthData == null || !GirthData.IsValid(girthData, localRootForward, localRootRight, localRootUp)) {
                 if (girthData != null) {
@@ -660,7 +617,14 @@ namespace PenetrationTech {
 
         private void OnValidate() {
             reinitialize = true;
+            if (penetratedHole != null && targetHoleA == null) {
+                targetHoleA = penetratedHole;
+            }
+            listeners ??= new List<PenetratorListener>();
             foreach (PenetratorListener listener in listeners) {
+                if (listener == null) {
+                    continue;
+                }
                 listener.OnValidate(this);
             }
             valid = false;
@@ -675,14 +639,14 @@ namespace PenetrationTech {
             }
 #if UNITY_EDITOR
             for(float t=0;t<GetWorldLength()-0.025f;t+=0.025f) {
-                UnityEditor.Handles.color = Color.white;
+                Handles.color = Color.white;
                 Vector3 position = path.GetPositionFromDistance(t) + GetWorldOffset(t);
                 float girth = GetWorldGirthRadius(t);
-                UnityEditor.Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
+                Handles.DrawWireDisc(position, path.GetVelocityFromDistance(t).normalized, girth);
             }
-            UnityEditor.Handles.color = Color.blue;
+            Handles.color = Color.blue;
             var rootBonePosition = rootBone.transform.position;
-            UnityEditor.Handles.DrawDottedLine(rootBonePosition,
+            Handles.DrawDottedLine(rootBonePosition,
                 rootBonePosition + rootBone.transform.TransformDirection(localRootForward), 10f);
             foreach (PenetratorListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);

@@ -7,9 +7,9 @@ namespace PenetrationTech {
 
     public class CatmullDeformer : CatmullDisplay {
         [SerializeField][Tooltip("The main axis of deformation, this should point length-wise through the object.")]
-        protected Vector3 localRootForward = -Vector3.up;
+        protected Vector3 localRootForward = Vector3.up;
         [SerializeField]
-        protected Vector3 localRootUp = Vector3.forward;
+        protected Vector3 localRootUp = -Vector3.forward;
         [SerializeField]
         protected Vector3 localRootRight = Vector3.right;
         [SerializeField][Tooltip("The start of the deformation, should be at the base of the spline.")]
@@ -44,7 +44,7 @@ namespace PenetrationTech {
 
         //TODO: Currently this is only used to send CatmullSplines to the GPU. It's used in other places (currently the ProceduralDeformation class), and should be considered for refactoring.
         public unsafe struct CatmullSplineData {
-            private const int subSplineCount = 6;
+            private const int subSplineCount = 8;
             private const int binormalCount = 16;
             private const int distanceCount = 32;
             int pointCount;

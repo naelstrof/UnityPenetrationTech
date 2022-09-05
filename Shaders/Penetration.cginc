@@ -1,4 +1,4 @@
-#define SUB_SPLINE_COUNT 6 
+#define SUB_SPLINE_COUNT 8 
 #define BINORMAL_COUNT 16
 #define DISTANCE_COUNT 32
 
