@@ -182,11 +182,11 @@ namespace PenetrationTech {
             }
 
             // Undo any twist.
-            float overallAngle = Vector3.Angle(binormalLUT[0], binormalLUT[resolution-1]);
-            for(int i=0;i<resolution;i++) {
-                float t = (float)i/(float)resolution;
-                binormalLUT[i] = Quaternion.AngleAxis(-overallAngle*t, GetVelocityFromT(t).normalized)*binormalLUT[i];
-            }
+            //float overallAngle = Vector3.Angle(binormalLUT[0], binormalLUT[resolution-1]);
+            //for(int i=0;i<resolution;i++) {
+                //float t = (float)i/(float)resolution;
+                //binormalLUT[i] = Quaternion.AngleAxis(-overallAngle*t, GetVelocityFromT(t).normalized)*binormalLUT[i];
+            //}
         }
         public CatmullSpline SetWeights(IList<Vector3> newWeights) {
             // weights come in pairs of 4, otherwise there's been a problem!
