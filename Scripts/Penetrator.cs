@@ -264,32 +264,6 @@ namespace PenetrationTech {
                 return;
             }
 
-            targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*8f);
-            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && Math.Abs(targetHoleLerp - 1f) < 0.001f) {
-                Vector3 tipPosition = path.GetPositionFromDistance(GetWorldLength());
-                int hits = Physics.OverlapSphereNonAlloc(tipPosition, GetWorldLength()*penetrationMarginOfError+1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
-                PenetrableOwner bestMatch = null;
-                float bestValue = float.MaxValue;
-                for (int i = 0; i < hits; i++) {
-                    PenetrableOwner owner = colliders[i].GetComponent<PenetrableOwner>();
-                    if (owner != null && !ignorePenetrables.Contains(owner.owner)) {
-                        float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
-                        // Being a full 90f degrees around will add a meter to the distance evaluation.
-                        float angle = Vector3.Angle(owner.owner.GetSplinePath().GetVelocityFromT(0f).normalized,
-                            GetSplinePath().GetVelocityFromT(1f).normalized)/90f;
-                        float value = angle+distance;
-                        if (value < bestValue) {
-                            bestMatch = owner;
-                            bestValue = value;
-                        }
-                    }
-                }
-
-                if (bestMatch != null && !ignorePenetrables.Contains(bestMatch.owner)) {
-                    SetTargetHole(bestMatch.owner);
-                }
-            }
-
             foreach (PenetratorListener listener in listeners) {
                 listener.Update();
             }
@@ -434,6 +408,33 @@ namespace PenetrationTech {
                 propertyBlock.SetFloat(distanceToHoleID, realDistanceToHole);
                 rendererMask.renderer.SetPropertyBlock(propertyBlock);
             }
+            
+            targetHoleLerp = Mathf.MoveTowards(targetHoleLerp, 1f, Time.deltaTime*8f);
+            if ((autoPenetrate&AutoPenetrateMode.AutoSeek)!=0 && !inserted && Math.Abs(targetHoleLerp - 1f) < 0.001f) {
+                GetTipPositionAndTangent(path, out Vector3 newTipPosition, out Vector3 newTipTangent);
+                int hits = Physics.OverlapSphereNonAlloc(newTipPosition, GetWorldLength()*penetrationMarginOfError+1f, colliders, PenetrationTechTools.GetPenetrableMask(), QueryTriggerInteraction.Collide);
+                PenetrableOwner bestMatch = null;
+                float bestValue = float.MaxValue;
+                for (int i = 0; i < hits; i++) {
+                    PenetrableOwner owner = colliders[i].GetComponent<PenetrableOwner>();
+                    if (owner != null && !ignorePenetrables.Contains(owner.owner)) {
+                        float distance = Vector3.Distance(colliders[i].transform.position, tipPosition);
+                        // Being a full 90f degrees around will add a meter to the distance evaluation.
+                        float angle = Vector3.Angle(owner.owner.GetSplinePath().GetVelocityFromT(0f).normalized,
+                            newTipTangent.normalized)/90f;
+                        float value = angle+distance;
+                        if (value < bestValue) {
+                            bestMatch = owner;
+                            bestValue = value;
+                        }
+                    }
+                }
+
+                if (bestMatch != null && !ignorePenetrables.Contains(bestMatch.owner)) {
+                    SetTargetHole(bestMatch.owner);
+                }
+            }
+
             base.LateUpdate();
         }
 
