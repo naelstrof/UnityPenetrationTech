@@ -153,7 +153,9 @@ namespace PenetrationTech {
                 localGirthRadiusCurve.AddKey(maxLocalLength,0f);
             }
             public void Release() {
-                girthMap.Release();
+                if (girthMap != null) {
+                    girthMap.Release();
+                }
                 girthMap = null;
             }
         }
