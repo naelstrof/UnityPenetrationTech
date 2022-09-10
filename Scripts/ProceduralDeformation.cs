@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,6 +18,20 @@ namespace PenetrationTech {
             DrawDefaultInspector();
             if (GUILayout.Button("Bake All...")) {
                 SerializedProperty renderTargetList = serializedObject.FindProperty("renderTargets");
+                List<UnityEngine.Object> renderersToUndo = new List<UnityEngine.Object>();
+                for (int j = 0; j < renderTargetList.arraySize; j++) {
+                    SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
+                    SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
+                    if (skinnedMeshRenderer == null) {
+                        continue;
+                    }
+
+                    if (skinnedMeshRenderer.sharedMesh.name.Contains("Clone")) {
+                        throw new UnityException("Possibly trying to bake data to a baked mesh. Reset your mesh if you want to bake from original data.");
+                    }
+
+                    renderersToUndo.Add(skinnedMeshRenderer);
+                }
                 string path = EditorUtility.OpenFolderPanel("Output mesh location","","");
                 if (path.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase) == -1) {
                     throw new UnityException("Must save assets to the Unity project");
@@ -25,12 +40,15 @@ namespace PenetrationTech {
                 if (string.IsNullOrEmpty(path)) {
                     return;
                 }
+                Undo.RecordObjects(renderersToUndo.ToArray(), "Swapped existing meshes with baked mesh.");
+                
                 for (int j = 0; j < renderTargetList.arraySize; j++) {
                     SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
                     SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
                     if (skinnedMeshRenderer == null) {
                         continue;
                     }
+
                     Mesh newMesh = Mesh.Instantiate(skinnedMeshRenderer.sharedMesh);
                     List<Vector3> vertices = new List<Vector3>();
                     List<Vector4> uvs = new List<Vector4>();
@@ -81,6 +99,8 @@ namespace PenetrationTech {
         private List<Penetrable> penetrableTargets;
         [SerializeField]
         private List<Renderer> renderTargets;
+
+        [Tooltip("When enabled, only deforms the differences between the approximated girth curve and the real shape. Enable this if you've already authored the main deformations with blendshape listeners."), SerializeField] private bool detailOnly;
         private ComputeBuffer penetratorBuffer;
         private ComputeBuffer splineBuffer;
         private NativeArray<PenetratorData> data;
@@ -162,6 +182,24 @@ namespace PenetrationTech {
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
             }
+
+            if (!Application.isPlaying) {
+                return;
+            }
+
+            foreach (Renderer ren in renderTargets) {
+                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
+                foreach (Material sharedMat in skinnedMeshRenderer.materials) {
+                    if (detailOnly) {
+                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    } else {
+                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    }
+                }
+            }
         }
 
         void OnDisable() {
@@ -201,11 +239,12 @@ namespace PenetrationTech {
             if (penetrator.GetWorldLength() > worldSpaceDistanceToPenisRoot) {
                 foreach (Renderer target in renderTargets) {
                     target.GetPropertyBlock(propertyBlock);
+                    Texture targetTexture = detailOnly ? penetrator.GetDetailMap() : penetrator.GetGirthMap();
                     switch (index) {
-                        case 0: propertyBlock.SetTexture(dickGirthMapXID, penetrator.GetGirthMap()); break;
-                        case 1: propertyBlock.SetTexture(dickGirthMapYID, penetrator.GetGirthMap()); break;
-                        case 2: propertyBlock.SetTexture(dickGirthMapZID, penetrator.GetGirthMap()); break;
-                        case 3: propertyBlock.SetTexture(dickGirthMapWID, penetrator.GetGirthMap()); break;
+                        case 0: propertyBlock.SetTexture(dickGirthMapXID, targetTexture); break;
+                        case 1: propertyBlock.SetTexture(dickGirthMapYID, targetTexture); break;
+                        case 2: propertyBlock.SetTexture(dickGirthMapZID, targetTexture); break;
+                        case 3: propertyBlock.SetTexture(dickGirthMapWID, targetTexture); break;
                     }
 
                     target.SetPropertyBlock(propertyBlock);
@@ -213,11 +252,12 @@ namespace PenetrationTech {
             } else { // We gotta clear references to the render textures, just in case the penetrator was removed, this way the garbage collector can clean them up.
                 foreach (Renderer target in renderTargets) {
                     target.GetPropertyBlock(propertyBlock);
+                    Texture targetTexture = detailOnly ? Texture2D.grayTexture : Texture2D.blackTexture;
                     switch (index) {
-                        case 0: propertyBlock.SetTexture(dickGirthMapXID, Texture2D.blackTexture); break;
-                        case 1: propertyBlock.SetTexture(dickGirthMapYID, Texture2D.blackTexture); break;
-                        case 2: propertyBlock.SetTexture(dickGirthMapZID, Texture2D.blackTexture); break;
-                        case 3: propertyBlock.SetTexture(dickGirthMapWID, Texture2D.blackTexture); break;
+                        case 0: propertyBlock.SetTexture(dickGirthMapXID, targetTexture); break;
+                        case 1: propertyBlock.SetTexture(dickGirthMapYID, targetTexture); break;
+                        case 2: propertyBlock.SetTexture(dickGirthMapZID, targetTexture); break;
+                        case 3: propertyBlock.SetTexture(dickGirthMapWID, targetTexture); break;
                     }
                     target.SetPropertyBlock(propertyBlock);
                 }
@@ -233,6 +273,20 @@ namespace PenetrationTech {
                 }
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
+            }
+
+            foreach (Renderer ren in renderTargets) {
+                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
+                foreach (Material sharedMat in skinnedMeshRenderer.sharedMaterials) {
+                    if (detailOnly) {
+                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    } else {
+                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    }
+                }
             }
         }
     }

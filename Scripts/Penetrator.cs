@@ -25,8 +25,15 @@ namespace PenetrationTech {
                                                 "If you don't see the blue dotted line, ensure Gizmos are enabled.", MessageType.Info);
                 Penetrator penetrator = (Penetrator)target;
                 if (penetrator.GetGirthMap() != null) {
-                    EditorGUILayout.PrefixLabel("Preview Girthmap");
-                    EditorGUI.DrawPreviewTexture(EditorGUILayout.GetControlRect(false, 128f, GUILayout.MaxWidth(128f)), penetrator.GetGirthMap());
+                    EditorGUILayout.PrefixLabel("Preview Girthmap/Detailmap");
+                    var rectContainer = EditorGUILayout.GetControlRect(false, 128f, GUILayout.MaxWidth(256f));
+                    var firstRect = rectContainer;
+                    firstRect.width = 128f;
+                    EditorGUI.DrawPreviewTexture(firstRect, penetrator.GetGirthMap());
+                    var secondRect = rectContainer;
+                    secondRect.x += 128f;
+                    secondRect.width = 128f;
+                    EditorGUI.DrawPreviewTexture(secondRect, penetrator.GetDetailMap());
                 }
             }
 
@@ -48,6 +55,7 @@ namespace PenetrationTech {
 
         [SerializeField] [Tooltip("If you need to mask parts of the model out, customizing this shader will allow you to mask the girthmap generation (so things like heads or feet don't show up in it).")]
         private Shader girthUnwrapShader;
+        //[SerializeField]
         private GirthData girthData;
         [FormerlySerializedAs("targetHole")] [SerializeField] [Tooltip("If autoPenetrate is disabled, you can tell the penetrator specifically what to penetrate with here.")]
         private Penetrable penetratedHole;
@@ -94,6 +102,13 @@ namespace PenetrationTech {
                 return null;
             }
             return girthData.GetGirthMap();
+        }
+
+        public Texture2D GetDetailMap() {
+            if (girthData == null) {
+                return null;
+            }
+            return girthData.GetDetailMap();
         }
 
         public void SetPenetrationMarginOfError(float error) {
@@ -392,10 +407,10 @@ namespace PenetrationTech {
             float realDistanceToHole = path.GetDistanceFromSubT(0,  outHoleIndex, 1f);
             if (penetratedHole != null) {
                 OnSetClip(1f, 1f);
-                penetratedHole.SetPenetrationDepth(this, realDistanceToHole/virtualSquashAndStretch, OnSetClip);
                 foreach (PenetratorListener listener in listeners) {
                     listener.NotifyPenetrationUpdate(this, penetratedHole, realDistanceToHole/virtualSquashAndStretch);
                 }
+                penetratedHole.SetPenetrationDepth(this, realDistanceToHole/virtualSquashAndStretch, OnSetClip);
             }
             if ((autoPenetrate&AutoPenetrateMode.AutoDecouple)!=0 && inserted && realDistanceToHole > GetWorldLength()*Mathf.Max(virtualSquashAndStretch,1f)) {
                 Penetrate(null);
@@ -434,7 +449,9 @@ namespace PenetrationTech {
                     SetTargetHole(bestMatch.owner);
                 }
             }
-
+            foreach (PenetratorListener listener in listeners) {
+                listener.LateUpdate();
+            }
             base.LateUpdate();
         }
 
