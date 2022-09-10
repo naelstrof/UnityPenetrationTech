@@ -17,7 +17,7 @@ namespace PenetrationTech {
         private Penetrator penetrator;
         private float currentKnotForce;
         private float currentVelocity;
-        private float lastDistToHole;
+        private float lastDistToHole = float.MaxValue;
         private Mode mode = Mode.Inserting;
 
         private enum Mode {
@@ -32,6 +32,7 @@ namespace PenetrationTech {
         public override void OnEnable(Penetrator newPenetrator) {
             penetrator = newPenetrator;
             mode = Mode.Inserting;
+            lastDistToHole = float.MaxValue;
         }
 
         protected override void OnPenetrationDepthChange(float depth) {
