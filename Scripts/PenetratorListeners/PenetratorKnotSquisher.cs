@@ -55,8 +55,14 @@ namespace PenetrationTech {
                     currentVelocity = Mathf.MoveTowards(currentVelocity, 0f, Time.deltaTime*friction);
                     currentVelocity += currentKnotForce * Time.deltaTime*force;
                     currentVelocity += (1f - penetrator.squashAndStretch) * Time.deltaTime * elasticity;
-                    penetrator.squashAndStretch = Mathf.Clamp(penetrator.squashAndStretch + currentVelocity * Time.deltaTime,
-                        1f - knotForceFactor, 1f + knotForceFactor);
+                    penetrator.squashAndStretch += currentVelocity * Time.deltaTime;
+                    if (penetrator.squashAndStretch <= 1f - knotForceFactor) {
+                        penetrator.squashAndStretch = 1f - knotForceFactor;
+                        currentVelocity = Mathf.Max(currentVelocity, 0f);
+                    } else if (penetrator.squashAndStretch >= 1f + knotForceFactor) {
+                        penetrator.squashAndStretch = 1f + knotForceFactor;
+                        currentVelocity = Mathf.Min(currentVelocity, 0f);
+                    }
                     break;
             }
         }
