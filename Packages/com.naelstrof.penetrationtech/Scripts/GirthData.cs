@@ -28,6 +28,8 @@ namespace PenetrationTech {
             public AnimationCurve localYOffsetCurve;
             [SerializeField]
             public RenderTexture girthMap;
+            [SerializeField]
+            public Texture2D detailMap;
             [HideInInspector]
             private Vector3 rendererLocalDickForward;
             [HideInInspector]
@@ -62,6 +64,7 @@ namespace PenetrationTech {
                 var bytes = cpuTex.GetRawTextureData<byte>();
                 PopulateOffsetCurves(bytes, girthMap.width, girthMap.height);
                 PopulateGirthCurve(bytes, girthMap.width, girthMap.height);
+                PopulateDetailMap(bytes, girthMap.width, girthMap.height);
                 if (Application.isPlaying) {
                     Object.Destroy(cpuTex);
                 } else {
@@ -86,7 +89,39 @@ namespace PenetrationTech {
                 // Otherwise our data is good.
                 PopulateOffsetCurves(nativeArray, request.width, request.height);
                 PopulateGirthCurve(nativeArray, request.width, request.height);
+                PopulateDetailMap(nativeArray, request.width, request.height);
                 nativeArray.Dispose();
+            }
+
+            private void PopulateDetailMap(NativeArray<byte> bytes, int width, int height) {
+                detailMap = new Texture2D(width, height, TextureFormat.R8, Texture.GenerateAllMips, true) {
+                    wrapModeU = TextureWrapMode.Clamp,
+                    wrapModeV = TextureWrapMode.Repeat
+                };
+                NativeArray<byte> pixelData = new NativeArray<byte>(width * height, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        if (x == width - 1) {
+                            pixelData[x + y * width] = byte.MaxValue/2;
+                            continue;
+                        }
+
+                        float color = (float)bytes[x + y * width]/255f;;
+                        float rad = ((float)y/(float)height)*Mathf.PI*2f;
+                        float distFromCore = color*maxLocalGirthRadius;
+                        float xPosition = Mathf.Sin(rad-Mathf.PI/2f)*distFromCore;
+                        float yPosition = Mathf.Cos(rad-Mathf.PI/2f)*distFromCore;
+                        Vector2 position = new Vector2(xPosition, yPosition);
+                        float distFromRoot = ((float)x/(float)width)*maxLocalLength;
+                        Vector2 offsetSample = new Vector2(localXOffsetCurve.Evaluate(distFromRoot), localYOffsetCurve.Evaluate(distFromRoot));
+                        Vector2 newOffset = position-offsetSample;
+                        float newRadius = (newOffset.magnitude - localGirthRadiusCurve.Evaluate(distFromRoot))/maxLocalGirthRadius;
+                        pixelData[x+y*width] = (byte)Mathf.RoundToInt(Mathf.Clamp01(newRadius+0.5f)*255f);
+                    }
+                }
+                detailMap.SetPixelData(pixelData,0);
+                detailMap.Apply();
+                pixelData.Dispose();
             }
 
             public void Readback(Vector3 rendererLocalDickForward, Vector3 rendererLocalDickRight, Vector3 rendererLocalDickUp) {
@@ -121,7 +156,7 @@ namespace PenetrationTech {
                         Vector2 oppositePosition = new Vector2(oppositeXPosition, oppositeYPosition);
                         positionSum += (position+oppositePosition)*0.5f;
 
-                        Vector3 point = rendererLocalDickForward * (((float)x/(float)width) * maxLocalLength);
+                        //Vector3 point = rendererLocalDickForward * (((float)x/(float)width) * maxLocalLength);
                         //Vector3 otherPoint = point+rendererLocalDickRight*xPosition + rendererLocalDickUp*yPosition;
                         //Debug.DrawLine(objectToWorld.MultiplyPoint(point),objectToWorld.MultiplyPoint(otherPoint), Color.red, 10f);
 
@@ -272,6 +307,21 @@ namespace PenetrationTech {
             changeOfBasis[3,3] = 1f;
             return changeOfBasis.MultiplyVector(worldOffset);
         }
+        
+        public Texture2D GetDetailMap() {
+            Texture2D bestMatch = baseGirthFrame.detailMap;
+            float bestMatchAmount = 50f;
+            if (rendererMask.renderer is SkinnedMeshRenderer skinnedMeshRenderer) {
+                for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++) {
+                    float amount = skinnedMeshRenderer.GetBlendShapeWeight(i);
+                    if (amount > bestMatchAmount) {
+                        bestMatch = girthDeltaFrames[i].detailMap;
+                        bestMatchAmount = amount;
+                    }
+                }
+            }
+            return bestMatch;
+        }
 
         public RenderTexture GetGirthMap() {
             RenderTexture bestMatch = baseGirthFrame.girthMap;
@@ -338,12 +388,15 @@ namespace PenetrationTech {
             }
         }
         private GirthFrame GenerateFrame(Mesh mesh, int blendshapeIndex, Shader girthUnwrapShader) {
-            GirthFrame frame = new GirthFrame();
-            frame.girthMap = new RenderTexture(64, 64, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-            frame.girthMap.useMipMap = true;
-            frame.girthMap.autoGenerateMips = false;
-            frame.girthMap.wrapModeU = TextureWrapMode.Clamp;
-            frame.girthMap.wrapModeV = TextureWrapMode.Repeat;
+            GirthFrame frame = new GirthFrame {
+                girthMap = new RenderTexture(64, 64, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear)
+                {
+                    useMipMap = true,
+                    autoGenerateMips = false,
+                    wrapModeU = TextureWrapMode.Clamp,
+                    wrapModeV = TextureWrapMode.Repeat
+                }
+            };
 
             staticVertices.Clear();
             mesh.GetVertices(staticVertices);

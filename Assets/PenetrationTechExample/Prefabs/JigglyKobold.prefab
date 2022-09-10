@@ -46,7 +46,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &266162945
 Transform:
   m_ObjectHideFlags: 0
@@ -107,11 +107,11 @@ MonoBehaviour:
         offsetCorrectionBone: {fileID: 534859312}
         targets:
         - skinnedMeshRenderer: {fileID: 7709220909109265131}
-          blendshapeName: ButtExpand2
-          blendshapeID: 38
+          blendshapeName: ButtExpand
+          blendshapeID: 26
         - skinnedMeshRenderer: {fileID: 4930985089047201335}
-          blendshapeName: ButtExpand2
-          blendshapeID: 38
+          blendshapeName: ButtExpand
+          blendshapeID: 26
         baseGirthRadius: 0.003
         blendShapeGirthRadius: 0.05
         overdrive: 1
@@ -241,7 +241,7 @@ MonoBehaviour:
       data:
         t: 0.653
         targetTransform: {fileID: 8959237987974983545}
-        girthScaleMultiplier: 20
+        girthScaleMultiplier: 4
     00000001:
       type: {class: PushPullExpandBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
@@ -252,9 +252,9 @@ MonoBehaviour:
           expandBlendshapeName: VagExpand
           pullBlendshapeName: VagPull
           pushBlendshapeName: VagPush
-          expandBlendshapeID: 29
-          pullBlendshapeID: 30
-          pushBlendshapeID: 31
+          expandBlendshapeID: 32
+          pullBlendshapeID: 33
+          pushBlendshapeID: 34
         baseGirthRadius: 0
         blendShapeGirthRadius: 0.05
         pullT: -0.015
@@ -439,6 +439,9 @@ MonoBehaviour:
   - id: 0
   - id: 1
   - id: 2
+  - id: 3
+  - id: 4
+  - id: 5
   references:
     version: 1
     00000000:
@@ -452,15 +455,15 @@ MonoBehaviour:
           pullBlendshapeName: ButtTug
           pushBlendshapeName: ButtPush
           expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
+          pullBlendshapeID: 30
+          pushBlendshapeID: 31
         - skinnedMeshRenderer: {fileID: 4930985089047201335}
           expandBlendshapeName: ButtExpand
           pullBlendshapeName: ButtTug
           pushBlendshapeName: ButtPush
           expandBlendshapeID: 26
-          pullBlendshapeID: 27
-          pushBlendshapeID: 28
+          pullBlendshapeID: 30
+          pushBlendshapeID: 31
         baseGirthRadius: 0.003
         blendShapeGirthRadius: 0.05
         pullT: -0.025
@@ -474,19 +477,61 @@ MonoBehaviour:
         targets:
         - skinnedMeshRenderer: {fileID: 7709220909109265131}
           blendshapeName: MouthBackwardsPenetrate
-          blendshapeID: 39
+          blendshapeID: 41
         - skinnedMeshRenderer: {fileID: 4930985089047201335}
           blendshapeName: MouthBackwardsPenetrate
-          blendshapeID: 39
+          blendshapeID: 41
         baseGirthRadius: 0
         blendShapeGirthRadius: 0.05
         overdrive: 0
     00000002:
+      type: {class: SimpleBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        t: 0.215
+        offsetCorrectionBone: {fileID: 534859312}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7709220909109265131}
+          blendshapeName: ButtDepthExpand1
+          blendshapeID: 27
+        - skinnedMeshRenderer: {fileID: 4930985089047201335}
+          blendshapeName: ButtDepthExpand1
+          blendshapeID: 27
+        baseGirthRadius: 0.003
+        blendShapeGirthRadius: 0.05
+        overdrive: 1
+    00000003:
+      type: {class: SimpleBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        t: 0.333
+        offsetCorrectionBone: {fileID: 534859312}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7709220909109265131}
+          blendshapeName: ButtDepthExpand2
+          blendshapeID: 28
+        baseGirthRadius: 0.003
+        blendShapeGirthRadius: 0.05
+        overdrive: 1
+    00000004:
       type: {class: ClipListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
       data:
         t: 0.098
         allowForAllTheWayThrough: 1
         endT: 0.767
+    00000005:
+      type: {class: SimpleBlendshapeListener, ns: PenetrationTech, asm: Naelstrof.PenetrationTech}
+      data:
+        t: 0.416
+        offsetCorrectionBone: {fileID: 534859312}
+        targets:
+        - skinnedMeshRenderer: {fileID: 7709220909109265131}
+          blendshapeName: ButtDepthExpand3
+          blendshapeID: 29
+        - skinnedMeshRenderer: {fileID: 4930985089047201335}
+          blendshapeName: ButtDepthExpand3
+          blendshapeID: 29
+        baseGirthRadius: 0.003
+        blendShapeGirthRadius: 0.05
+        overdrive: 1
 --- !u!1001 &8961346258925920185
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -550,14 +595,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.054337256
       objectReference: {fileID: 0}
+    - target: {fileID: -1272425587064415450, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3ff87062dcf3c6543bf557613a86e9be, type: 2}
     - target: {fileID: 919132149155446097, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_Name
-      value: Kobold
+      value: JigglyKobold
       objectReference: {fileID: 0}
     - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 4300000, guid: 025326cf7c3240046a24c843d032a277, type: 2}
+      objectReference: {fileID: 4300000, guid: c9478d8a0adaa2d4989e87292d84f37d, type: 2}
     - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.size
       value: 40
@@ -571,8 +620,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[26]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[27]
-      value: -0
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[28]
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[29]
@@ -587,13 +644,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[33]
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[38]
-      value: -6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4049712574573713806, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 4300000, guid: 9281c458c3a7c5642acc0a74a85e77cd, type: 2}
+      objectReference: {fileID: 4300000, guid: b2aca53eb5a18374eb5a3598f9fd780c, type: 2}
     - target: {fileID: 4049712574573713806, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.size
       value: 40
@@ -611,8 +672,16 @@ PrefabInstance:
       value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4049712574573713806, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[30]
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4049712574573713806, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[38]
       value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4514859947357137411, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 510855bd0a09d6d41b6553dac231e35e, type: 3}
       propertyPath: m_Controller
@@ -805,3 +874,4 @@ MonoBehaviour:
   renderTargets:
   - {fileID: 7709220909109265131}
   - {fileID: 4930985089047201335}
+  detailOnly: 1

@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: KoboldEyes
   m_Shader: {fileID: 4800000, guid: 5e1d12dd9f331b94da153b99f92b9e11, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _PENETRATION_DEFORMATION_DETAIL_ON
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

@@ -260,6 +260,9 @@ namespace PenetrationTech {
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
         }
         public CatmullSpline GetSplinePath() {
+            if (!Application.isPlaying) {
+                CheckValid();
+            }
             if (!valid && !Application.isPlaying) {
                 return path;
             }

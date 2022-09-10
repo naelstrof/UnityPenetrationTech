@@ -7,7 +7,7 @@ using UnityEngine.Events;
 namespace PenetrationTech {
     [System.Serializable]
     //[PenetratorListener(typeof(PenetratorRigidbodyListener), "Rigidbody Apply Force listener")]
-    public class PenetratorRigidbodyListener : PenetratorListener {
+    public class PenetratorRigidbodyListener : PenetratorNoCollideListener {
         [SerializeField]
         private Rigidbody body;
 
