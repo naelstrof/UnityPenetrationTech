@@ -8,9 +8,6 @@ namespace PenetrationTech {
     [System.Serializable]
     //[PenetratorListener(typeof(PenetratorRigidbodyListener), "Rigidbody Apply Force listener")]
     public class PenetratorRigidbodyListener : PenetratorNoCollideListener {
-        [SerializeField]
-        private Rigidbody body;
-
         [SerializeField][Range(0f,100f)][Tooltip("The amount of force that aims the penetrator at the hole. This force is increased the more penetrated the penetrator is.")]
         private float angularForceMultiplier = 30f;
         [SerializeField][Range(0f,10f)][Tooltip("The amount of force that moves the penetrator planar to the hole tangent.")]
@@ -25,7 +22,6 @@ namespace PenetrationTech {
         private Vector3 wantedPosition;
         private Vector3 wantedDir;
         private bool applyForce = false;
-        private Rigidbody penetrableBody;
         private float rotationStrength;
         private float distToHoleMem;
 
@@ -39,7 +35,6 @@ namespace PenetrationTech {
             applyForce = true;
             penetrableMem = penetrable;
             body.useGravity = false;
-            penetrableBody = penetrable.GetComponentInParent<Rigidbody>();
         }
 
         public override void FixedUpdate() {
@@ -73,8 +68,6 @@ namespace PenetrationTech {
             Vector3 springForce = -wantedDir * springStrength;
             velocity += springForce * rotationStrength;
             
-
-
             body.velocity = velocity;
             body.angularVelocity = angularVelocity;
         }

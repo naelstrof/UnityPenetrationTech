@@ -9,8 +9,8 @@ namespace PenetrationTech {
     //[PenetratorListener(typeof(PenetratorNoCollideListener), "Rigidbody NoCollide listener")]
     public class PenetratorNoCollideListener : PenetratorListener {
         [SerializeField]
-        private Rigidbody body;
-        private Rigidbody penetrableBody;
+        protected Rigidbody body;
+        protected Rigidbody penetrableBody;
         private Collider[] colliders;
         public override void OnEnable(Penetrator newPenetrator) {
             base.OnEnable(newPenetrator);
