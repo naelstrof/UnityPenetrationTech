@@ -188,7 +188,11 @@ namespace PenetrationTech {
                     girthMap.Release();
                 }
                 if (detailMap != null) {
-                    Object.Destroy(detailMap);
+                    if (Application.isPlaying) {
+                        Object.Destroy(detailMap);
+                    } else {
+                        Object.DestroyImmediate(detailMap);
+                    }
                 }
                 detailMap = null;
                 girthMap = null;
