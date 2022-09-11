@@ -94,10 +94,6 @@ namespace PenetrationTech {
             }
 
             private void PopulateDetailMap(NativeArray<byte> bytes, int width, int height) {
-                detailMap = new Texture2D(width, height, TextureFormat.R8, Texture.GenerateAllMips, true) {
-                    wrapModeU = TextureWrapMode.Clamp,
-                    wrapModeV = TextureWrapMode.Repeat
-                };
                 NativeArray<byte> pixelData = new NativeArray<byte>(width * height, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 for (int x = 0; x < width; x++) {
                     for (int y = 0; y < height; y++) {
@@ -191,6 +187,10 @@ namespace PenetrationTech {
                 if (girthMap != null) {
                     girthMap.Release();
                 }
+                if (detailMap != null) {
+                    Object.Destroy(detailMap);
+                }
+                detailMap = null;
                 girthMap = null;
             }
         }
@@ -393,6 +393,10 @@ namespace PenetrationTech {
                 {
                     useMipMap = true,
                     autoGenerateMips = false,
+                    wrapModeU = TextureWrapMode.Clamp,
+                    wrapModeV = TextureWrapMode.Repeat
+                },
+                detailMap = new Texture2D(64, 64, TextureFormat.R8, Texture.GenerateAllMips, true) {
                     wrapModeU = TextureWrapMode.Clamp,
                     wrapModeV = TextureWrapMode.Repeat
                 }
