@@ -11,6 +11,11 @@ namespace PenetrationTech {
         private bool allowForAllTheWayThrough = true;
         [Range(0f,1f)][SerializeField]
         private float endT = 1f;
+
+        public bool GetAllowForAllTheWayThrough() {
+            return allowForAllTheWayThrough;
+        }
+
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
 #if UNITY_EDITOR
