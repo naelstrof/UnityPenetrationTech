@@ -209,7 +209,7 @@ namespace PenetrationTech {
 
                 Vector3 m0;
                 if (i==0) {
-                    m0 = (2f-tension)*(p1 - p0);
+                    m0 = (2f-tension*2f)*(p1 - p0);
                 } else {
                     m0 = (1f-tension) * (p1 - newPoints[i-1]);
                 }
@@ -218,7 +218,7 @@ namespace PenetrationTech {
                 if (i < newPoints.Count - 2) {
                     m1 = (1f-tension) * (newPoints[i + 2] - p0);
                 } else {
-                    m1 = (2f-tension)*(p1 - p0);
+                    m1 = (2f-tension*2f)*(p1 - p0);
                 }
                 weightCollection.Add(p0);
                 weightCollection.Add(m0);
