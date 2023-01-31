@@ -218,7 +218,7 @@ namespace PenetrationTech {
 
                 Vector3 m0;
                 if (i==0) {
-                    m0 = (1f-tension)*(p1 - p0);
+                    m0 = (1f-tension)*(p0 - p1);
                 } else {
                     m0 = (1f-tension) * (p1 - newPoints[i-1]) / (quickDistanceLUT[i+1]-quickDistanceLUT[i-1]);
                 }
