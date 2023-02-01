@@ -198,11 +198,26 @@ namespace PenetrationTech {
             bounds.Clear();
             return this;
         }
+        
+        // https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline
+        // Using knot interval from there.
+        private static float GetKnotInterval( Vector3 a, Vector3 b, float tension ) {
+            return Mathf.Pow( Vector3.SqrMagnitude( a - b ), 0.5f * tension );
+        }
 
         public static void GetWeightsFromPoints(ICollection<Vector3> weightCollection, IList<Vector3> newPoints, float tension=0.5f) {
             // Using Cardinal Spline tangent generation
             // Got the most useful description of that here: https://stackoverflow.com/questions/53679551/interpolating-a-cardinal-curve-in-c-sharp
             // Updated via knowledge from this video here: https://youtu.be/jvPPXbo87ds?t=2771
+            
+            quickDistanceLUT.Clear();
+            float distance = 0f;
+            for (int i = 0; i < newPoints.Count - 1; i++) {
+                quickDistanceLUT.Add(distance);
+                distance += GetKnotInterval(newPoints[i], newPoints[i + 1], tension);
+            }
+            quickDistanceLUT.Add(distance);
+
             for (int i=0;i<newPoints.Count-1;i++) {
                 Vector3 p0 = newPoints[i];
                 Vector3 p1 = newPoints[i+1];
@@ -211,12 +226,12 @@ namespace PenetrationTech {
                 if (i==0) {
                     m0 = (2f-tension*2f)*(p1 - p0);
                 } else {
-                    m0 = (1f-tension) * (p1 - newPoints[i-1]);
+                    m0 = (1f-tension) * ((p1 - newPoints[i-1]) / (quickDistanceLUT[i+1]-quickDistanceLUT[i-1]));
                 }
                 
                 Vector3 m1;
                 if (i < newPoints.Count - 2) {
-                    m1 = (1f-tension) * (newPoints[i + 2] - p0);
+                    m1 = (1f - tension) * ((newPoints[i + 2] - p0) / (quickDistanceLUT[i + 2] - quickDistanceLUT[i]));
                 } else {
                     m1 = (2f-tension*2f)*(p1 - p0);
                 }
