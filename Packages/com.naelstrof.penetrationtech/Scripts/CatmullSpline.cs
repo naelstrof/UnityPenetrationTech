@@ -217,6 +217,11 @@ namespace PenetrationTech {
                 distance += GetKnotInterval(newPoints[i], newPoints[i + 1], tension);
             }
             quickDistanceLUT.Add(distance);
+            
+            // Make it scale independent
+            for (int i = 0; i < quickDistanceLUT.Count; i++) {
+                quickDistanceLUT[i] /= distance*0.2f;
+            }
 
             for (int i=0;i<newPoints.Count-1;i++) {
                 Vector3 p0 = newPoints[i];
@@ -224,7 +229,7 @@ namespace PenetrationTech {
 
                 Vector3 m0;
                 if (i==0) {
-                    m0 = (2f-tension*2f)*(p1 - p0);
+                    m0 = (2f-tension*2f)*((p1 - p0) / (quickDistanceLUT[i+1]-quickDistanceLUT[i]));
                 } else {
                     m0 = (1f-tension) * ((p1 - newPoints[i-1]) / (quickDistanceLUT[i+1]-quickDistanceLUT[i-1]));
                 }
@@ -233,7 +238,7 @@ namespace PenetrationTech {
                 if (i < newPoints.Count - 2) {
                     m1 = (1f - tension) * ((newPoints[i + 2] - p0) / (quickDistanceLUT[i + 2] - quickDistanceLUT[i]));
                 } else {
-                    m1 = (2f-tension*2f)*(p1 - p0);
+                    m1 = (2f-tension*2f)*((p1 - p0) / (quickDistanceLUT[i+1]-quickDistanceLUT[i]));
                 }
                 weightCollection.Add(p0);
                 weightCollection.Add(m0);
