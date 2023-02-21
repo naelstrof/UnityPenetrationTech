@@ -54,8 +54,9 @@ namespace PenetrationTech {
 
                     Mesh newMesh = Mesh.Instantiate(skinnedMeshRenderer.sharedMesh);
                     // Generate second mesh to insure properties are in bakespace before bake
-                    Mesh bakeMesh = Mesh.Instantiate(newMesh);
-
+                    Mesh bakeMesh = new Mesh();
+                    skinnedMeshRenderer.BakeMesh(bakeMesh);
+                    
                     List<Vector3> vertices = new List<Vector3>();
                     List<Vector4> uvs = new List<Vector4>();
                     bakeMesh.GetVertices(vertices);
