@@ -32,14 +32,17 @@ namespace PenetrationTech {
 
                     renderersToUndo.Add(skinnedMeshRenderer);
                 }
-                string path = EditorUtility.OpenFolderPanel("Output mesh location","","");
-                if (path.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase) == -1) {
-                    throw new UnityException("Must save assets to the Unity project");
-                }
-                path = path.Substring(path.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase));
+                string path = EditorUtility.OpenFolderPanel("Output mesh location","Assets","");
+                // Catch user pressing the cancel button or closing the window
                 if (string.IsNullOrEmpty(path)) {
                     return;
                 }
+                int startIndex = path.IndexOf("Assets", StringComparison.OrdinalIgnoreCase);
+                if (startIndex == -1) {
+                    throw new UnityException("Must save assets to the Unity project");
+                }
+                path = path.Substring(startIndex);
+                
                 Undo.RecordObjects(renderersToUndo.ToArray(), "Swapped existing meshes with baked mesh.");
                 
                 for (int j = 0; j < renderTargetList.arraySize; j++) {
@@ -50,10 +53,14 @@ namespace PenetrationTech {
                     }
 
                     Mesh newMesh = Mesh.Instantiate(skinnedMeshRenderer.sharedMesh);
+                    // Generate second mesh to insure properties are in bakespace before bake
+                    Mesh bakeMesh = new Mesh();
+                    skinnedMeshRenderer.BakeMesh(bakeMesh);
+                    
                     List<Vector3> vertices = new List<Vector3>();
                     List<Vector4> uvs = new List<Vector4>();
-                    newMesh.GetVertices(vertices);
-                    newMesh.GetUVs(2, uvs);
+                    bakeMesh.GetVertices(vertices);
+                    bakeMesh.GetUVs(2, uvs);
                     // If we have no uvs, the array is empty. so we correct that by adding a bunch of zeros.
                     for (int i=uvs.Count;i<vertices.Count;i++) {
                         uvs.Add(Vector4.zero);
@@ -71,8 +78,7 @@ namespace PenetrationTech {
                             Vector3 worldPosition = skinnedMeshRenderer.localToWorldMatrix.MultiplyPoint(vertices[i]);
                             CatmullSpline penPath = p.GetSplinePath();
                             float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
-                            //float nearestDistance = penPath.GetDistanceFromTime(nearestT);
-                            //Debug.DrawLine(worldPosition, p.GetPath().GetPositionFromT(nearestT), Color.red, 10f);
+                            // Debug.DrawLine(worldPosition, penPath.GetPositionFromT(nearestT), Color.red, 10f);
                             switch(o) {
                                 case 0: uvs[i] = new Vector4(nearestT,uvs[i].y,uvs[i].z,uvs[i].w);break;
                                 case 1: uvs[i] = new Vector4(uvs[i].x,nearestT,uvs[i].z,uvs[i].w);break;
@@ -100,7 +106,7 @@ namespace PenetrationTech {
         [SerializeField]
         private List<Renderer> renderTargets;
 
-        [Tooltip("When enabled, only deforms the differences between the approximated girth curve and the real shape. Enable this if you've already authored the main deformations with blendshape listeners."), SerializeField] private bool detailOnly;
+        [Tooltip("When enabled, only deforms the differences between the approximated girth curve and the real shape. Enable this if you've already authored the main deformations with blendshape listeners. Does not affect mesh baking."), SerializeField] private bool detailOnly;
         private ComputeBuffer penetratorBuffer;
         private ComputeBuffer splineBuffer;
         private NativeArray<PenetratorData> data;
