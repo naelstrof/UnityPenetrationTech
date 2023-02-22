@@ -1,7 +1,7 @@
 {
   "name": "com.naelstrof.penetrationtech",
   "displayName": "Penetration Tech",
-  "version": "6.1.4",
+  "version": "6.1.5",
   "unity": "2020.3",
   "comment": "You can install serialized-reference-ui from this git url: https://github.com/TextusGames/UnitySerializedReferenceUI.git",
   "dependencies": {
