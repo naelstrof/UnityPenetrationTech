@@ -36,7 +36,6 @@ sysinfo.txt
 
 # Builds
 *.apk
-*.unitypackage
 
 # Blender
 *.blend[0-9]
