@@ -91,7 +91,17 @@ namespace PenetrationTech {
         public float GetGirthScaleFactor() => girthData.GetGirthScaleFactor();
         public float GetWorldLength() => girthData.GetWorldLength();
         public float GetWorldGirthRadius(float worldDistanceAlongDick) => girthData.GetWorldGirthRadius(worldDistanceAlongDick);
-        public float GetKnotForce(float worldDistanceAlongDick) => girthData.GetKnotForce(worldDistanceAlongDick);
+
+        public float GetKnotForce(float worldDistanceAlongDick) {
+            float length = GetWorldLength();
+            float tipKnotForce = girthData.GetKnotForce(length*0.95f);
+            float trueKnotForce = girthData.GetKnotForce(worldDistanceAlongDick);
+            if (worldDistanceAlongDick > length * 0.95f) {
+                return Mathf.Lerp(tipKnotForce, 0f, Mathf.Clamp01(worldDistanceAlongDick - length * 0.95f));
+            }
+            return trueKnotForce;
+        }
+
         public float squashAndStretch {
             get => virtualSquashAndStretch;
             set => virtualSquashAndStretch = value;
