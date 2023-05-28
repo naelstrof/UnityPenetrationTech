@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PenetrationTech {
     public class CatmullDisplay : CatmullBehaviour {
-        protected virtual void OnDrawGizmosSelected() {
+        protected virtual void OnDrawGizmos() {
             Gizmos.color = Color.red;
             if (path == null || path.GetWeights().Count < 4) {
                 return;

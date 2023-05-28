@@ -644,6 +644,7 @@ namespace PenetrationTech {
         }
 
         private void OnValidate() {
+            Vector3.OrthoNormalize(ref localRootForward, ref localRootUp, ref localRootRight);
             reinitialize = true;
             if (penetratedHole != null && targetHoleA == null) {
                 targetHoleA = penetratedHole;
@@ -660,8 +661,7 @@ namespace PenetrationTech {
         public CatmullSpline GetSplinePath() {
             return path;
         }
-        protected override void OnDrawGizmosSelected() {
-            base.OnDrawGizmosSelected();
+        void OnDrawGizmosSelected() {
             if (!valid && !Application.isPlaying) {
                 return;
             }
