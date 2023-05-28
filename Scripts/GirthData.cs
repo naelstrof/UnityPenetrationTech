@@ -170,16 +170,19 @@ namespace PenetrationTech {
             }
             private void PopulateGirthCurve(NativeArray<byte> bytes, int width, int height) {
                 for (int x=0;x<width;x++) {
-                    float averagePixelColor = 0f;
-                    float maxPixelColor = 0f;
+                    float averageRadius = 0f;
+                    Vector2 offset = new Vector2(localXOffsetCurve.Evaluate((float)x / (float)width * maxLocalLength), localYOffsetCurve.Evaluate((float)x / (float)width * maxLocalLength));
                     for (int y=0;y<height;y++) {
-                        float pixelColor = (float)bytes[x + y * width]/255f;//cpuTex.GetPixel(x,y).r;
-                        averagePixelColor += pixelColor;
-                        maxPixelColor = Mathf.Max(pixelColor, maxPixelColor);
+                        float color = (float)bytes[x + y * width] / 255f; //cpuTex.GetPixel(x,y).r;
+                        float rad = ((float)y / (float)height) * Mathf.PI * 2f;
+                        float distFromCore = color * maxLocalGirthRadius;
+                        float xPosition = Mathf.Sin(rad - Mathf.PI / 2f) * distFromCore;
+                        float yPosition = Mathf.Cos(rad - Mathf.PI / 2f) * distFromCore;
+                        Vector2 position = new Vector2(xPosition, yPosition);
+                        averageRadius += Vector2.Distance(position, offset);
                     }
-                    averagePixelColor/=height;
-                    averagePixelColor = (averagePixelColor + maxPixelColor) / 2f;
-                    localGirthRadiusCurve.AddKey((float)x/(float)width*maxLocalLength,averagePixelColor*maxLocalGirthRadius);
+                    averageRadius/=height;
+                    localGirthRadiusCurve.AddKey((float)x/(float)width*maxLocalLength,averageRadius);
                 }
                 localGirthRadiusCurve.AddKey(maxLocalLength,0f);
             }

@@ -172,8 +172,7 @@ namespace PenetrationTech {
                 listener.Update();
             }
         }
-        protected override void OnDrawGizmosSelected() {
-            base.OnDrawGizmosSelected();
+        void OnDrawGizmosSelected() {
             CheckValid();
             if (!valid && !Application.isPlaying) {
                 return;
