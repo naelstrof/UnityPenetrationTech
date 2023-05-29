@@ -97,7 +97,7 @@ namespace PenetrationTech {
             float tipKnotForce = girthData.GetKnotForce(length*0.95f);
             float trueKnotForce = girthData.GetKnotForce(worldDistanceAlongDick);
             if (worldDistanceAlongDick > length * 0.95f) {
-                return Mathf.Lerp(tipKnotForce, 0f, Mathf.Clamp01(worldDistanceAlongDick - length * 0.95f));
+                return Mathf.Lerp(tipKnotForce, 0f, Mathf.Clamp01((worldDistanceAlongDick - length * 0.95f)/length)*20f);
             }
             return trueKnotForce;
         }
