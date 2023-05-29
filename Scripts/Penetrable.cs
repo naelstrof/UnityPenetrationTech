@@ -71,12 +71,16 @@ namespace PenetrationTech {
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference,SerializeReferenceButton]
         public List<PenetrableListener> listeners;
+        
+        [SerializeField, Range(0f,1f), Tooltip("The spline can start before it reaches the actual hole, use this T-value to allow listeners to query where the real hole starts (for knot force calculations and such.)")]
+        private float actualHoleStartT = 0f;
 
         private GameObject colliderEntrance;
         private bool refreshListeners;
         private bool valid;
         private string lastError;
         private bool reinitialize = false;
+        public virtual float GetActualHoleDistanceFromStartOfSpline() => GetSplinePath().GetDistanceFromTime(actualHoleStartT);
         public string GetLastError() {
             return lastError;
         }
@@ -182,6 +186,11 @@ namespace PenetrationTech {
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);
             }
+            #if UNITY_EDITOR
+            Handles.color = Color.yellow;
+            Handles.DrawWireDisc(GetSplinePath().GetPositionFromT(actualHoleStartT),
+                GetSplinePath().GetVelocityFromT(actualHoleStartT), 0.05f);
+            #endif
         }
 
         void AssertValid(bool condition, string message) {

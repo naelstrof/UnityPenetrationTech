@@ -68,7 +68,7 @@ namespace PenetrationTech {
         }
 
         public override void NotifyPenetrationUpdate(Penetrator a, Penetrable b, float distToHole) {
-            lastDistToHole = distToHole*a.squashAndStretch;
+            lastDistToHole = (distToHole+b.GetActualHoleDistanceFromStartOfSpline())*a.squashAndStretch;
             base.NotifyPenetrationUpdate(a, b, distToHole);
         }
 

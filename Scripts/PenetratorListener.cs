@@ -46,7 +46,7 @@ namespace PenetrationTech {
             float realDist = (1f - localDistanceFromTipOfDick) * a.GetWorldLength();
             float penetrateDist = realDist - distToHole;
             OnPenetrationDepthChange(penetrateDist);
-            OnPenetrationKnotForceChange(penetrateDist > 0f ? a.GetKnotForce(a.GetWorldLength() - penetrateDist) : 0f);
+            OnPenetrationKnotForceChange(penetrateDist > 0f ? a.GetKnotForce(a.GetWorldLength() - (penetrateDist-b.GetActualHoleDistanceFromStartOfSpline())) : 0f);
         }
     }
 }
