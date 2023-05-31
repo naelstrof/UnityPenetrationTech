@@ -261,7 +261,8 @@ namespace PenetrationTech {
 
         private float GetDickRootScaleFactor(Vector3 axis) {
             if (rendererMask.renderer is SkinnedMeshRenderer) {
-                float scale = Vector3.Dot(dickRoot.localScale,new Vector3(Mathf.Abs(axis.x), Mathf.Abs(axis.y), Mathf.Abs(axis.z)));
+                Matrix4x4 parentMatrix = Matrix4x4.TRS(Vector3.zero, dickRoot.localRotation, dickRoot.localScale);
+                float scale = parentMatrix.MultiplyVector(axis).magnitude;
                 return scale;
             }
 
