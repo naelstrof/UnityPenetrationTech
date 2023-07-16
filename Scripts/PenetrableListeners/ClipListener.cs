@@ -19,7 +19,7 @@ namespace PenetrationTech {
         public override void OnDrawGizmosSelected(Penetrable p) {
             base.OnDrawGizmosSelected(p);
 #if UNITY_EDITOR
-            CatmullSpline path = p.GetSplinePath();
+            CatmullSpline path = p.GetPath();
             Vector3 position = path.GetPositionFromT(t);
             Vector3 tangent = path.GetVelocityFromT(t).normalized;
             Vector3 normal = path.GetBinormalFromT(t).normalized;
@@ -44,7 +44,7 @@ namespace PenetrationTech {
 
         public override void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             float penetrationDepth = Mathf.Max(0f, penetrator.GetWorldLength() - worldSpaceDistanceToPenisRoot);
-            var spline = penetrable.GetSplinePath();
+            var spline = penetrable.GetPath();
             float startDist = spline.GetDistanceFromTime(t);
             float endDist = spline.GetDistanceFromTime(endT);
 

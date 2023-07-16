@@ -29,9 +29,9 @@ namespace PenetrationTech {
 #if UNITY_EDITOR
             Handles.color = Color.blue;
             float dist = (1f-localDistanceFromTipOfDick) * p.GetWorldLength();
-            Vector3 position = p.GetSplinePath().GetPositionFromDistance(dist);
+            Vector3 position = p.GetPath().GetPositionFromDistance(dist);
             Handles.Label(position, GetType().Name);
-            Handles.DrawWireDisc(position, p.GetSplinePath().GetVelocityFromDistance(dist).normalized, p.GetWorldGirthRadius(dist));
+            Handles.DrawWireDisc(position, p.GetPath().GetVelocityFromDistance(dist).normalized, p.GetWorldGirthRadius(dist));
 #endif
         }
         public override void NotifyPenetrationUpdate(Penetrator a, Penetrable b, float distToHole) {

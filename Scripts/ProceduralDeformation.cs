@@ -76,7 +76,7 @@ namespace PenetrationTech {
                                     "Please make sure the Penetrables array doesn't have any nulls...");
                             }
                             Vector3 worldPosition = skinnedMeshRenderer.localToWorldMatrix.MultiplyPoint(vertices[i]);
-                            CatmullSpline penPath = p.GetSplinePath();
+                            CatmullSpline penPath = p.GetPath();
                             float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
                             // Debug.DrawLine(worldPosition, penPath.GetPositionFromT(nearestT), Color.red, 10f);
                             switch(o) {
@@ -144,9 +144,9 @@ namespace PenetrationTech {
                 this.worldDistance = worldDistance;
                 girthScaleFactor = penetrator.GetGirthScaleFactor();
                 angle = penetrator.GetPenetratorAngleOffset();
-                holeSubCurveCount = penetrable.GetSplinePath().GetWeights().Count / 4;
-                Vector3 iRight = penetrator.GetSplinePath().GetBinormalFromT(0f);
-                Vector3 iForward = penetrator.GetSplinePath().GetVelocityFromT(0f).normalized;
+                holeSubCurveCount = penetrable.GetPath().GetWeights().Count;
+                Vector3 iRight = penetrator.GetPath().GetBinormalFromT(0f);
+                Vector3 iForward = penetrator.GetPath().GetVelocityFromT(0f).normalized;
                 Vector3 iUp = Vector3.Cross(iForward, iRight).normalized;
                 initialRight[0] = iRight.x;
                 initialRight[1] = iRight.y;
@@ -241,7 +241,7 @@ namespace PenetrationTech {
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
-            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetSplinePath());
+            splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetPath());
             if (penetrator.GetWorldLength() > worldSpaceDistanceToPenisRoot) {
                 foreach (Renderer target in renderTargets) {
                     target.GetPropertyBlock(propertyBlock);

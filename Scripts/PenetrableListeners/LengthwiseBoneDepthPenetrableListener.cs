@@ -31,9 +31,9 @@ namespace PenetrationTech {
         protected override void OnPenetrationDepthChange(float newDepth) {
             base.OnPenetrationDepthChange(newDepth);
             if (newDepth == 0f) {
-                targetTransform.position = penetrable.GetSplinePath().GetPositionFromT(GetT(penetrable));
+                targetTransform.position = penetrable.GetPath().GetPositionFromT(GetT(penetrable));
             } else {
-                targetTransform.position = penetrator.GetSplinePath()
+                targetTransform.position = penetrator.GetPath()
                     .GetPositionFromDistance(penetrator.GetWorldLength());
             }
         }
@@ -52,7 +52,7 @@ namespace PenetrationTech {
 
         public override void OnDrawGizmosSelected(Penetrable p) {
 #if UNITY_EDITOR
-            CatmullSpline path = p.GetSplinePath();
+            CatmullSpline path = p.GetPath();
             Vector3 position = path.GetPositionFromT(t);
             Vector3 normal = path.GetVelocityFromT(t).normalized;
             UnityEditor.Handles.color = Color.green;

@@ -20,23 +20,16 @@ namespace PenetrationTech {
         protected Transform middlePoseTarget;
         [SerializeField] [Tooltip("The tip-most pose target of the jiggle chain.")]
         protected Transform tipTarget;
-        protected override void ConstructPathForIdle(ICollection<Vector3> outputWeights) {
-            outputWeights.Clear();
+        protected override void ConstructPathForIdle(ICollection<Vector3> outputPoints) {
+            outputPoints.Clear();
             var rootBonePosition = rootBone.position;
             float worldLength = GetWorldLength();
             var tipProjected = rootBonePosition + rootBone.TransformDirection(localRootForward) * (worldLength * 1.1f);
             Vector3 realTipPoint = tipTarget.position;
-            outputWeights.Add(rootBonePosition);
-            outputWeights.Add((tipProjected - rootBonePosition));
-            Vector3 tipTangent = (realTipPoint - middlePoseTarget.position).normalized*worldLength;
-            outputWeights.Add(tipTangent);
-            outputWeights.Add(realTipPoint);
-            // Add an extra point to make sure the dick doesn't get clipped
-            float projectionDistance = worldLength;
-            outputWeights.Add(realTipPoint);
-            outputWeights.Add(tipTangent);
-            outputWeights.Add(tipTangent);
-            outputWeights.Add(realTipPoint+tipTangent*projectionDistance);
+            //Vector3 tipTangent = (realTipPoint - middlePoseTarget.position).normalized*worldLength;
+            outputPoints.Add(rootBonePosition);
+            outputPoints.Add(middlePoseTarget.position);
+            outputPoints.Add(realTipPoint);
         }
         protected override void CheckValid() {
             base.CheckValid();
