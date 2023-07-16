@@ -57,7 +57,7 @@ namespace PenetrationTech {
             NotifyPenetrationGDO(penetrable, penetrator, worldSpaceDistanceToPenisRoot, clipAction, PenData.All);
         }
         protected void NotifyPenetrationGDO(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction, PenData penetrationData) {
-            CatmullSpline holeSpline = penetrable.GetSplinePath();
+            CatmullSpline holeSpline = penetrable.GetPath();
             float dist = holeSpline.GetDistanceFromTime(GetT(penetrable));
             float penetratedAmount = Mathf.Max(0f,penetrator.GetWorldLength()-worldSpaceDistanceToPenisRoot);
             float newGirthRadius = 0f;

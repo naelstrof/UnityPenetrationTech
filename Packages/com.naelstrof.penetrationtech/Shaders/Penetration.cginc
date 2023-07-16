@@ -5,7 +5,7 @@
 struct CatmullSplineData {
     int pointCount;
     float arcLength;
-    float weightArray[SUB_SPLINE_COUNT*4*3];
+    float weightArray[SUB_SPLINE_COUNT*4*4];
     float distanceLUT[DISTANCE_COUNT];
     float binormalLUT[BINORMAL_COUNT*3];
 };
@@ -85,34 +85,22 @@ float3 RotateAroundAxisPenetration(float3 original, float3 axis, float angle ) {
     return mul( finalMatrix, original );
 }
 float3 SampleCurveSegmentPosition(int curveIndex, int curveSegmentIndex, float t) {
-    int index = curveSegmentIndex*3*4;
-    float3 start =      float3(_CatmullSplines[curveIndex].weightArray[index],   _CatmullSplines[curveIndex].weightArray[index+1], _CatmullSplines[curveIndex].weightArray[index+2]);
-    float3 tanPoint1 =  float3(_CatmullSplines[curveIndex].weightArray[index+3], _CatmullSplines[curveIndex].weightArray[index+4], _CatmullSplines[curveIndex].weightArray[index+5]);
-    float3 tanPoint2 =  float3(_CatmullSplines[curveIndex].weightArray[index+6], _CatmullSplines[curveIndex].weightArray[index+7], _CatmullSplines[curveIndex].weightArray[index+8]);
-    float3 end =        float3(_CatmullSplines[curveIndex].weightArray[index+9], _CatmullSplines[curveIndex].weightArray[index+10], _CatmullSplines[curveIndex].weightArray[index+11]);
-    // Using the expanded form of a Hermite basis functions
-    // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
-    // p(t) = (2t³ - 3t² + 1)p₀ + (t³ - 2t² + t)m₀ + (-2t³ + 3t²)p₁ + (t³ - t²)m₁
-    return  (2.0 * t * t * t - 3.0 * t * t + 1.0) * start
-            + (t * t * t - 2.0 * t * t + t) * tanPoint1
-            + (-2.0 * t * t * t + 3.0 * t * t) * end
-            + (t * t * t - t * t) * tanPoint2;
-
+    int index = curveSegmentIndex*4*4;
+    const float4x4 mat = float4x4(
+        _CatmullSplines[curveIndex].weightArray[index],_CatmullSplines[curveIndex].weightArray[index+1],_CatmullSplines[curveIndex].weightArray[index+2],_CatmullSplines[curveIndex].weightArray[index+3],
+        _CatmullSplines[curveIndex].weightArray[index+4],_CatmullSplines[curveIndex].weightArray[index+5],_CatmullSplines[curveIndex].weightArray[index+6],_CatmullSplines[curveIndex].weightArray[index+7],
+        _CatmullSplines[curveIndex].weightArray[index+8],_CatmullSplines[curveIndex].weightArray[index+9],_CatmullSplines[curveIndex].weightArray[index+10],_CatmullSplines[curveIndex].weightArray[index+11],
+        _CatmullSplines[curveIndex].weightArray[index+12],_CatmullSplines[curveIndex].weightArray[index+13],_CatmullSplines[curveIndex].weightArray[index+14],_CatmullSplines[curveIndex].weightArray[index+15]);
+    return mul(mat,float4(1,t,t*t,t*t*t)).xyz;
 }
 float3 SampleCurveSegmentVelocity(int curveIndex, int curveSegmentIndex, float t) {
-    int index = curveSegmentIndex*3*4;
-    float3 start =      float3(_CatmullSplines[curveIndex].weightArray[index], _CatmullSplines[curveIndex].weightArray[index+1], _CatmullSplines[curveIndex].weightArray[index+2]);
-    float3 tanPoint1 =  float3(_CatmullSplines[curveIndex].weightArray[index+3], _CatmullSplines[curveIndex].weightArray[index+4], _CatmullSplines[curveIndex].weightArray[index+5]);
-    float3 tanPoint2 =  float3(_CatmullSplines[curveIndex].weightArray[index+6], _CatmullSplines[curveIndex].weightArray[index+7], _CatmullSplines[curveIndex].weightArray[index+8]);
-    float3 end =        float3(_CatmullSplines[curveIndex].weightArray[index+9], _CatmullSplines[curveIndex].weightArray[index+10], _CatmullSplines[curveIndex].weightArray[index+11]);
-    // Using the expanded form of a Hermite basis functions
-    // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
-    // First derivative (velocity)
-    // p'(t) = (6t² - 6t)p₀ + (3t² - 4t + 1)m₀ + (-6t² + 6t)p₁ + (3t² - 2t)m₁
-    return  (6.0 * t * t - 6.0 * t) * start
-            + (3.0 * t * t - 4.0 * t + 1.0) * tanPoint1
-            + (-6.0 * t * t + 6.0 * t) * end
-            + (3.0 * t * t - 2.0 * t) * tanPoint2;
+    int index = curveSegmentIndex*4*4;
+    const float4x4 mat = float4x4(
+        _CatmullSplines[curveIndex].weightArray[index],_CatmullSplines[curveIndex].weightArray[index+1],_CatmullSplines[curveIndex].weightArray[index+2],_CatmullSplines[curveIndex].weightArray[index+3],
+        _CatmullSplines[curveIndex].weightArray[index+4],_CatmullSplines[curveIndex].weightArray[index+5],_CatmullSplines[curveIndex].weightArray[index+6],_CatmullSplines[curveIndex].weightArray[index+7],
+        _CatmullSplines[curveIndex].weightArray[index+8],_CatmullSplines[curveIndex].weightArray[index+9],_CatmullSplines[curveIndex].weightArray[index+10],_CatmullSplines[curveIndex].weightArray[index+11],
+        _CatmullSplines[curveIndex].weightArray[index+12],_CatmullSplines[curveIndex].weightArray[index+13],_CatmullSplines[curveIndex].weightArray[index+14],_CatmullSplines[curveIndex].weightArray[index+15]);
+    return mul(mat,float4(0,1,2*t,3*t*t)).xyz;
 }
 void ToCatmullRomSpace_float(float3 worldDickRootPos, float3 worldPosition, float3 worldDickForward, float3 worldDickUp, float3 worldDickRight, float3 worldNormal, float4 worldTangent, out float3 worldPositionOUT, out float3 worldNormalOUT, out float4 worldTangentOUT) {
     // We want to work in world space, as everything we're working with is there.

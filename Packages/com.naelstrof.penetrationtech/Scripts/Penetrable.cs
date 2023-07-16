@@ -60,13 +60,13 @@ namespace PenetrationTech {
     #endif
     [ExecuteAlways]
     public class Penetrable : CatmullDisplay {
+        private CatmullSpline path;
         public delegate void SetClipDistanceAction(float startDistWorld, float endDistWorld);
         public delegate void PenetrateNotifyAction(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenetrator, SetClipDistanceAction clipAction);
         public PenetrateNotifyAction penetrationNotify;
         [SerializeField]
         private Transform[] points;
 
-        [SerializeField, Range(0f,1f)] private float splineTension = 0.5f;
         private List<Vector3> worldPoints;
         // Keep this on the bottom, so it lines up with the custom inspector.
         [SerializeReference,SerializeReferenceButton]
@@ -80,7 +80,7 @@ namespace PenetrationTech {
         private bool valid;
         private string lastError;
         private bool reinitialize = false;
-        public virtual float GetActualHoleDistanceFromStartOfSpline() => GetSplinePath().GetDistanceFromTime(actualHoleStartT);
+        public virtual float GetActualHoleDistanceFromStartOfSpline() => GetPath().GetDistanceFromTime(actualHoleStartT);
         public string GetLastError() {
             return lastError;
         }
@@ -98,9 +98,11 @@ namespace PenetrationTech {
             }
         }
 
-        public void GetWeights(ICollection<Vector3> collection) {
+        public void GetPoints(ICollection<Vector3> collection) {
             UpdateWorldPoints();
-            CatmullSpline.GetWeightsFromPoints(collection, worldPoints, splineTension);
+            foreach (var t in worldPoints) {
+                collection.Add(t);
+            }
         }
 
         private void SetUpCollider(ref GameObject obj, Transform point) {
@@ -115,8 +117,8 @@ namespace PenetrationTech {
         }
 
 
-        protected override void OnEnable() {
-            base.OnEnable();
+        protected void OnEnable() {
+            path = new CatmullSpline();
             if (!Application.isPlaying) {
                 CheckValid();
                 if (!valid) {
@@ -182,14 +184,14 @@ namespace PenetrationTech {
                 return;
             }
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints, splineTension);
+            path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
                 listener.OnDrawGizmosSelected(this);
             }
             #if UNITY_EDITOR
             Handles.color = Color.yellow;
-            Handles.DrawWireDisc(GetSplinePath().GetPositionFromT(actualHoleStartT),
-                GetSplinePath().GetVelocityFromT(actualHoleStartT), 0.05f);
+            Handles.DrawWireDisc(GetPath().GetPositionFromT(actualHoleStartT),
+                GetPath().GetVelocityFromT(actualHoleStartT), 0.05f);
             #endif
         }
 
@@ -221,7 +223,7 @@ namespace PenetrationTech {
                     colliderEntrance.transform.localPosition = Vector3.zero;
                 }
                 UpdateWorldPoints();
-                path.SetWeightsFromPoints(worldPoints, splineTension);
+                path.SetWeightsFromPoints(worldPoints);
                 
                 AssertValid(!hasNullTransform, "One of the path transforms is null.");
                 bool hasNullListener = false;
@@ -261,13 +263,13 @@ namespace PenetrationTech {
                 return;
             }
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints, splineTension);
+            path.SetWeightsFromPoints(worldPoints);
             foreach(PenetrableListener listener in listeners) {
                 listener.NotifyPenetration(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
             }
             penetrationNotify?.Invoke(this, penetrator, worldSpaceDistanceToPenisRoot, clipAction);
         }
-        public CatmullSpline GetSplinePath() {
+        public override CatmullSpline GetPath() {
             if (!Application.isPlaying) {
                 CheckValid();
             }
@@ -276,7 +278,7 @@ namespace PenetrationTech {
             }
 
             UpdateWorldPoints();
-            path.SetWeightsFromPoints(worldPoints, splineTension);
+            path.SetWeightsFromPoints(worldPoints);
             return path;
         }
     }

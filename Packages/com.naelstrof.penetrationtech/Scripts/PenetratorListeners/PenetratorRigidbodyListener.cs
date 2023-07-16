@@ -80,7 +80,7 @@ namespace PenetrationTech {
             }
 
             applyForce = true;
-            var path = penetrableMem.GetSplinePath();
+            var path = penetrableMem.GetPath();
             //wantedDir = path.GetVelocityFromT(0f).normalized;
             float worldLength = penetratorMem.GetWorldLength();
             wantedPosition = path.GetPositionFromDistance(0f);

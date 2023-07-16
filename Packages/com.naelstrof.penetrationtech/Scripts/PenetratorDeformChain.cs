@@ -22,19 +22,11 @@ namespace PenetrationTech {
         [SerializeField] [Range(0f,1f)] [Tooltip("The tension applied to match the pose target when generating the spline.")]
         protected float poseTension = 0.75f;
 
-        private List<Vector3> reusePositions;
-        protected override void OnEnable() {
-            reusePositions ??= new List<Vector3>();
-            base.OnEnable();
-        }
-
         protected override void ConstructPathForIdle(ICollection<Vector3> output) {
             output.Clear();
-            reusePositions.Clear();
             foreach (Transform t in poseTarget) {
-                reusePositions.Add(t.position);
+                output.Add(t.position);
             }
-            CatmullSpline.GetWeightsFromPoints(output, reusePositions, poseTension);
         }
         protected override void ConstructPathToPenetrable(ICollection<Vector3> output, Penetrable penetrable, out int penetrableSplineIndex) {
             output.Clear();
@@ -44,31 +36,25 @@ namespace PenetrationTech {
             }
             ConstructPathForIdle(output);
             
-            CatmullSpline holeSplinePath = penetrable.GetSplinePath();
+            CatmullSpline holeSplinePath = penetrable.GetPath();
             Vector3 holePos = holeSplinePath.GetPositionFromT(0f);
             Vector3 holeForward = holeSplinePath.GetVelocityFromT(0f).normalized;
             var tipPosition = poseTarget[poseTarget.Length - 1].position;
             float fakeDistance = Vector3.Distance(tipPosition, holePos);
             Vector3 penetratorTangent = (tipPosition - poseTarget[poseTarget.Length - 2].position).normalized*(fakeDistance*2f);
-            output.Add(tipPosition);
-            output.Add(penetratorTangent);
             Vector3 insertionTangent = holeForward * fakeDistance;
             Vector3 insertionPoint = holePos;
-            output.Add(insertionTangent);
+            output.Add(tipPosition);
             output.Add(insertionPoint);
-            
-            penetrableSplineIndex = output.Count / 4;
-            penetrable.GetWeights(output);
+            penetrableSplineIndex = output.Count;
+            penetrable.GetPoints(output);
             Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
             Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
             output.Add(outPosition);
-            output.Add(outTangent);
-            output.Add(outTangent);
             output.Add(outPosition+outTangent*GetWorldLength());
         }
 
         protected override void CheckValid() {
-            reusePositions ??= new List<Vector3>();
             base.CheckValid();
             try {
                 AssertValid(poseTarget != null && poseTarget.Length >= 2, "Pose target list needs at least two bones.");
