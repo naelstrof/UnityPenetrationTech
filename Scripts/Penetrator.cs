@@ -335,11 +335,10 @@ namespace PenetrationTech {
                 return;
             }
             insertionFactor = Mathf.MoveTowards(insertionFactor, 0f, Time.deltaTime * 4f);
-            float temp = Vector3.Distance(tipPosition, holePos) /
-                         (GetWorldLength() * penetrationMarginOfError);
+            float temp = Vector3.Distance(tipPosition, holePos)/GetWorldLength();
             insertionFactor = Mathf.Max(
                 insertionFactor,
-                Mathf.Clamp01(1.5f - temp*temp) * targetHoleLerp
+                Mathf.Clamp01((1f+penetrationMarginOfError) - temp)
             );
             if (insertionFactor >= 0.99f) {
                 Penetrate(penetrable);
@@ -353,7 +352,7 @@ namespace PenetrationTech {
                 return;
             }
 
-            if (Math.Abs(t - 1f) < 0.001f || a.Count == 0) {
+            if (Mathf.Approximately(t, 1f) || a.Count == 0) {
                 output.AddRange(b);
                 return;
             }
@@ -366,11 +365,11 @@ namespace PenetrationTech {
             for (int i = output.Count; i < b.Count; i++) {
                 output.Add(b[i]);
             }
-            for (int i = 0; i < output.Count-1; i++) {
+            /*for (int i = 0; i < output.Count-1; i++) {
                 if (output[i] == output[i + 1]) {
                     output.RemoveAt(i--);
                 }
-            }
+            }*/
         }
 
         private void GetTipPositionAndTangent(CatmullSpline idlePath, out Vector3 tipPosition, out Vector3 tipTangent) {
@@ -473,17 +472,17 @@ namespace PenetrationTech {
 
             var rootBonePosition = rootBone.position;
             float fakeDistance = Vector3.Distance(rootBonePosition, holePos);
-            //Vector3 penetratorTangent = rootBone.TransformDirection(localRootForward) * fakeDistance;
-            //Vector3 insertionTangent = holeForward * fakeDistance;
+            float length = GetWorldLength();
+            Vector3 penetratorTangent = rootBone.TransformDirection(localRootForward) * length;
+            Vector3 insertionTangent = -holeForward * length;
             Vector3 insertionPoint = holePos;
             output.Add(rootBonePosition);
-            //output.Add(insertionPoint);
             
             penetrableSplineIndex = output.Count;
             penetrable.GetPoints(output);
             Vector3 outPosition = holeSplinePath.GetPositionFromT(1f);
             Vector3 outTangent = holeSplinePath.GetVelocityFromT(1f).normalized;
-            output.Add(outPosition + outTangent * GetWorldLength());
+            output.Add(outPosition + outTangent * length);
         }
         protected class PenetratorValidationException : SystemException {
             public PenetratorValidationException(string msg) : base(msg) { }
@@ -606,6 +605,9 @@ namespace PenetrationTech {
                 inserted = false;
                 OnSetClip(0f, 0f);
                 penetratedHole = null;
+                if ((autoPenetrate & AutoPenetrateMode.AutoDecouple) == 0) {
+                    SetTargetHole(null);
+                }
                 return;
             }
 

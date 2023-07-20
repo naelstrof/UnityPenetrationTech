@@ -30,7 +30,9 @@ namespace PenetrationTech {
             outputPoints.Add(rootBonePosition);
             outputPoints.Add(middlePoseTarget.position);
             outputPoints.Add(realTipPoint);
+            outputPoints.Add(realTipPoint+(realTipPoint-rootBonePosition).normalized*0.1f);
         }
+
         protected override void CheckValid() {
             base.CheckValid();
             try {
