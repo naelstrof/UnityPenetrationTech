@@ -57,9 +57,6 @@ namespace PenetrationTech {
             }
             return new CatmullSpline().SetWeights(merged);
         }
-        private static float Remap (float value, float from1, float to1, float from2, float to2) {
-            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-        }
         public static Vector3 GetPosition(Matrix4x4 weightBlock, float t) {
             return weightBlock * new Vector4(1f, t, t * t, t * t * t);
         }
@@ -218,58 +215,49 @@ namespace PenetrationTech {
             return this;
         }
         
-        // https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline
-        // Using knot interval from there.
+        private static float Remap (float value, float from1, float to1, float from2, float to2) {
+            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+        }
         private static float GetKnotInterval( Vector3 a, Vector3 b, float alpha) {
             return Mathf.Pow( Vector3.SqrMagnitude( a - b ), 0.5f*alpha);
         }
 
         public static void GetWeightsFromPoints(ICollection<Matrix4x4> weightCollection, IList<Vector3> newPoints) {
-
-
+            // 0 for standard Catmull-Rom
+            // 0.5 for Centripetal Catmull-Rom
+            // 1 for Chordal Catmull-Rom
             const float alpha = 0.5f;
-            
             for (int i=0;i<newPoints.Count-1;i++) {
                 float distance = 0f;
-                Vector3 currentPoint = newPoints[i];
-                Vector3 nextPoint = newPoints[i+1];
-
-
                 float interval1;
-                float interval2;
-                Vector3 m0;
-                Vector3 m1;
-                if (i!=0) {
+                Vector3 p0;
+                Vector3 p1 = newPoints[i];
+                Vector3 p2 = newPoints[i+1];
+                Vector3 p3;
+                if (i==0) { // Projected point
+                    Vector3 previousPoint = p1 + (p1-p2);
+                    p0 = previousPoint;
+                    distance += GetKnotInterval(previousPoint, p1, alpha);
+                    interval1 = distance;
+                } else {
                     Vector3 previousPoint = newPoints[i-1];
-                    m0 = previousPoint;
-                    distance += GetKnotInterval(previousPoint, currentPoint, alpha);
-                    interval1 = distance;
-                } else {
-                    Vector3 previousPoint = currentPoint + (currentPoint-nextPoint);
-                    m0 = previousPoint;
-                    distance += GetKnotInterval(previousPoint, currentPoint, alpha);
+                    p0 = previousPoint;
+                    distance += GetKnotInterval(previousPoint, p1, alpha);
                     interval1 = distance;
                 }
-
-                distance += GetKnotInterval(currentPoint, nextPoint, alpha);
-                interval2 = distance;
-
-                if (i < newPoints.Count - 2) {
+                distance += GetKnotInterval(p1, p2, alpha);
+                float interval2 = distance;
+                if (i >= newPoints.Count - 2) { // Projected end
+                    Vector3 pointAfter = p2 + (p2 - p1);
+                    p3 = pointAfter;
+                    distance += GetKnotInterval(p2, pointAfter, alpha);
+                } else {
                     Vector3 pointAfter = newPoints[i + 2];
-                    m1 = pointAfter;
-                    distance += GetKnotInterval(nextPoint, pointAfter, alpha);
-                } else {
-                    Vector3 pointAfter = nextPoint+(nextPoint-currentPoint);
-                    m1 = pointAfter;
-                    distance += GetKnotInterval(nextPoint, pointAfter, alpha);
+                    p3 = pointAfter;
+                    distance += GetKnotInterval(p2, pointAfter, alpha);
                 }
-
-                var matrix = new Matrix4x4();
-                matrix.SetColumn(0, m0);
-                matrix.SetColumn(1, currentPoint);
-                matrix.SetColumn(2, nextPoint);
-                matrix.SetColumn(3, m1);
-                weightCollection.Add(matrix*GenerateCentripetalCatmullMatrixFast( Remap(0f, interval1/distance, interval2/distance, 0f, 1f), Remap(1f, interval1/distance, interval2/distance, 0f, 1f)));
+                var pointMatrix = new Matrix4x4(p0,p1,p2,p3);
+                weightCollection.Add(pointMatrix*GenerateCentripetalCatmullMatrixFast( Remap(0f, interval1/distance, interval2/distance, 0f, 1f), Remap(1f, interval1/distance, interval2/distance, 0f, 1f)));
             }
         }
         public float GetDistanceFromSubT(int start, int end, float subT) {
