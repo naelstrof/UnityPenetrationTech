@@ -305,6 +305,12 @@ namespace PenetrationTech {
         }
 
         public void SetTargetHole(Penetrable target) {
+            if (target == null && (autoPenetrate&AutoPenetrateMode.AutoDecouple) == 0) {
+                targetHoleA = null;
+                targetHoleB = null;
+                return;
+            }
+
             if (target == targetHoleA) {
                 return;
             }
