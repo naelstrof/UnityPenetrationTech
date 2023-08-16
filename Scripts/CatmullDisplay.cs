@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace PenetrationTech {
-    public class CatmullDisplay : CatmullBehaviour {
+    public abstract class CatmullDisplay : CatmullBehaviour {
         //[Range(0f,1f)]
         //public float slider = 0f;
         protected virtual void OnDrawGizmos() {
