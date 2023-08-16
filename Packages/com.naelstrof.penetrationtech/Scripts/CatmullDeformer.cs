@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PenetrationTech {
 
-    public class CatmullDeformer : CatmullDisplay {
+    public abstract class CatmullDeformer : CatmullDisplay {
         [SerializeField][Tooltip("The main axis of deformation, this should point length-wise through the object.")]
         protected Vector3 localRootForward = Vector3.up;
         [SerializeField]
