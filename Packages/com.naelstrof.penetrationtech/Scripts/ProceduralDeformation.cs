@@ -188,7 +188,7 @@ namespace PenetrationTech {
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
             }
-
+            
             if (!Application.isPlaying) {
                 return;
             }
@@ -199,6 +199,7 @@ namespace PenetrationTech {
                     continue;
                 }
                 foreach (Material sharedMat in skinnedMeshRenderer.materials) {
+                    sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_ON");
                     if (detailOnly) {
                         sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
                     } else {
@@ -218,6 +219,19 @@ namespace PenetrationTech {
                     continue;
                 }
                 penetrable.penetrationNotify -= NotifyPenetration;
+            }
+
+            foreach (Renderer ren in renderTargets) {
+                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
+
+                if (Application.isPlaying) {
+                    foreach (Material sharedMat in skinnedMeshRenderer.materials) {
+                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_ON");
+                    }
+                }
             }
         }
 
@@ -287,6 +301,7 @@ namespace PenetrationTech {
                     continue;
                 }
                 foreach (Material sharedMat in skinnedMeshRenderer.sharedMaterials) {
+                    sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_ON");
                     if (detailOnly) {
                         sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
                     } else {
