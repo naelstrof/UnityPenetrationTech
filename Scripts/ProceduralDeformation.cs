@@ -1,13 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.UIElements;
 #endif
 
 namespace PenetrationTech {
@@ -16,86 +12,84 @@ namespace PenetrationTech {
     public class ProceduralDeformationEditor : Editor {
         public override void OnInspectorGUI() {
             DrawDefaultInspector();
-            if (GUILayout.Button("Bake All...")) {
-                SerializedProperty renderTargetList = serializedObject.FindProperty("renderTargets");
-                List<UnityEngine.Object> renderersToUndo = new List<UnityEngine.Object>();
-                for (int j = 0; j < renderTargetList.arraySize; j++) {
-                    SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
-                    SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
-                    if (skinnedMeshRenderer == null) {
-                        continue;
-                    }
+            if (!GUILayout.Button("Bake All...")) return;
+            SerializedProperty renderTargetList = serializedObject.FindProperty("renderTargets");
+            List<UnityEngine.Object> renderersToUndo = new List<UnityEngine.Object>();
+            for (int j = 0; j < renderTargetList.arraySize; j++) {
+                SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
+                SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
 
-                    if (skinnedMeshRenderer.sharedMesh.name.Contains("Clone")) {
-                        throw new UnityException("Possibly trying to bake data to a baked mesh. Reset your mesh if you want to bake from original data.");
-                    }
+                if (skinnedMeshRenderer.sharedMesh.name.Contains("Clone")) {
+                    throw new UnityException("Possibly trying to bake data to a baked mesh. Reset your mesh if you want to bake from original data.");
+                }
 
-                    renderersToUndo.Add(skinnedMeshRenderer);
-                }
-                string path = EditorUtility.OpenFolderPanel("Output mesh location","Assets","");
-                // Catch user pressing the cancel button or closing the window
-                if (string.IsNullOrEmpty(path)) {
-                    return;
-                }
-                int startIndex = path.IndexOf("Assets", StringComparison.OrdinalIgnoreCase);
-                if (startIndex == -1) {
-                    throw new UnityException("Must save assets to the Unity project");
-                }
-                path = path.Substring(startIndex);
+                renderersToUndo.Add(skinnedMeshRenderer);
+            }
+            string path = EditorUtility.OpenFolderPanel("Output mesh location","Assets","");
+            // Catch user pressing the cancel button or closing the window
+            if (string.IsNullOrEmpty(path)) {
+                return;
+            }
+            int startIndex = path.IndexOf("Assets", StringComparison.OrdinalIgnoreCase);
+            if (startIndex == -1) {
+                throw new UnityException("Must save assets to the Unity project");
+            }
+            path = path.Substring(startIndex);
                 
-                Undo.RecordObjects(renderersToUndo.ToArray(), "Swapped existing meshes with baked mesh.");
+            Undo.RecordObjects(renderersToUndo.ToArray(), "Swapped existing meshes with baked mesh.");
                 
-                for (int j = 0; j < renderTargetList.arraySize; j++) {
-                    SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
-                    SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
-                    if (skinnedMeshRenderer == null) {
-                        continue;
-                    }
+            for (int j = 0; j < renderTargetList.arraySize; j++) {
+                SerializedProperty skinnedMeshRendererProp = renderTargetList.GetArrayElementAtIndex(j);
+                SkinnedMeshRenderer skinnedMeshRenderer = skinnedMeshRendererProp.objectReferenceValue as SkinnedMeshRenderer;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
 
-                    Mesh newMesh = Mesh.Instantiate(skinnedMeshRenderer.sharedMesh);
-                    // Generate second mesh to insure properties are in bakespace before bake
-                    Mesh bakeMesh = new Mesh();
-                    skinnedMeshRenderer.BakeMesh(bakeMesh);
+                Mesh newMesh = Instantiate(skinnedMeshRenderer.sharedMesh);
+                // Generate second mesh to insure properties are in bakespace before bake
+                Mesh bakeMesh = new Mesh();
+                skinnedMeshRenderer.BakeMesh(bakeMesh);
                     
-                    List<Vector3> vertices = new List<Vector3>();
-                    List<Vector4> uvs = new List<Vector4>();
-                    bakeMesh.GetVertices(vertices);
-                    bakeMesh.GetUVs(2, uvs);
-                    // If we have no uvs, the array is empty. so we correct that by adding a bunch of zeros.
-                    for (int i=uvs.Count;i<vertices.Count;i++) {
-                        uvs.Add(Vector4.zero);
-                    }
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector4> uvs = new List<Vector4>();
+                bakeMesh.GetVertices(vertices);
+                bakeMesh.GetUVs(2, uvs);
+                // If we have no uvs, the array is empty. so we correct that by adding a bunch of zeros.
+                for (int i=uvs.Count;i<vertices.Count;i++) {
+                    uvs.Add(Vector4.zero);
+                }
 
-                    SerializedProperty penetrableTargetsProp = serializedObject.FindProperty("penetrableTargets");
-                    for (int i=0;i<uvs.Count;i++) {
-                        EditorUtility.DisplayProgressBar("Baking meshes...", $"Baking for mesh {newMesh.name}", (float)i / (float)uvs.Count);
-                        for(int o=0;o<penetrableTargetsProp.arraySize;o++) {
-                            Penetrable p = penetrableTargetsProp.GetArrayElementAtIndex(o).objectReferenceValue as Penetrable;
-                            if (p == null) {
-                                throw new UnityException(
-                                    "Please make sure the Penetrables array doesn't have any nulls...");
-                            }
-                            Vector3 worldPosition = skinnedMeshRenderer.localToWorldMatrix.MultiplyPoint(vertices[i]);
-                            CatmullSpline penPath = p.GetPath();
-                            float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
-                            // Debug.DrawLine(worldPosition, penPath.GetPositionFromT(nearestT), Color.red, 10f);
-                            switch(o) {
-                                case 0: uvs[i] = new Vector4(nearestT,uvs[i].y,uvs[i].z,uvs[i].w);break;
-                                case 1: uvs[i] = new Vector4(uvs[i].x,nearestT,uvs[i].z,uvs[i].w);break;
-                                case 2: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,nearestT,uvs[i].w);break;
-                                case 3: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,uvs[i].z,nearestT);break;
-                                default: throw new UnityException("We only support up to 4 penetrables per procedural deformation...");
-                            }
+                SerializedProperty penetrableTargetsProp = serializedObject.FindProperty("penetrableTargets");
+                for (int i=0;i<uvs.Count;i++) {
+                    EditorUtility.DisplayProgressBar("Baking meshes...", $"Baking for mesh {newMesh.name}", (float)i / (float)uvs.Count);
+                    for(int o=0;o<penetrableTargetsProp.arraySize;o++) {
+                        Penetrable p = penetrableTargetsProp.GetArrayElementAtIndex(o).objectReferenceValue as Penetrable;
+                        if (p == null) {
+                            throw new UnityException("Please make sure the Penetrables array doesn't have any nulls...");
+                        }
+                        Vector3 worldPosition = skinnedMeshRenderer.localToWorldMatrix.MultiplyPoint(vertices[i]);
+                        CatmullSpline penPath = p.GetPath();
+                        float nearestT = penPath.GetClosestTimeFromPosition(worldPosition, 256);
+                        // Debug.DrawLine(worldPosition, penPath.GetPositionFromT(nearestT), Color.red, 10f);
+                        switch(o) {
+                            case 0: uvs[i] = new Vector4(nearestT,uvs[i].y,uvs[i].z,uvs[i].w);break;
+                            case 1: uvs[i] = new Vector4(uvs[i].x,nearestT,uvs[i].z,uvs[i].w);break;
+                            case 2: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,nearestT,uvs[i].w);break;
+                            case 3: uvs[i] = new Vector4(uvs[i].x,uvs[i].y,uvs[i].z,nearestT);break;
+                            default: throw new UnityException("We only support up to 4 penetrables per procedural deformation...");
                         }
                     }
-                    newMesh.SetUVs(2, uvs);
-                    string meshPath = $"{path}/{newMesh.name}.mesh";
-                    AssetDatabase.CreateAsset(newMesh, meshPath);
-                    skinnedMeshRenderer.sharedMesh = newMesh;
                 }
-                serializedObject.ApplyModifiedProperties();
-                EditorUtility.ClearProgressBar();
+                newMesh.SetUVs(2, uvs);
+                string meshPath = $"{path}/{newMesh.name}.mesh";
+                AssetDatabase.CreateAsset(newMesh, meshPath);
+                skinnedMeshRenderer.sharedMesh = newMesh;
             }
+            serializedObject.ApplyModifiedProperties();
+            EditorUtility.ClearProgressBar();
         }
     }
 #endif
@@ -105,6 +99,8 @@ namespace PenetrationTech {
         private List<Penetrable> penetrableTargets;
         [SerializeField]
         private List<Renderer> renderTargets;
+
+        private bool enabledKeywordAlready;
 
         [Tooltip("When enabled, only deforms the differences between the approximated girth curve and the real shape. Enable this if you've already authored the main deformations with blendshape listeners. Does not affect mesh baking."), SerializeField] private bool detailOnly;
         private ComputeBuffer penetratorBuffer;
@@ -164,10 +160,38 @@ namespace PenetrationTech {
             if (!renderTargets.Contains(targetRenderer)) {
                 renderTargets.Add(targetRenderer);
             }
+            SetKeyword(enabledKeywordAlready);
         }
 
         public void RemoveTargetRenderer(Renderer targetRenderer) {
+            SetKeyword(false);
             renderTargets.Remove(targetRenderer);
+            SetKeyword(enabledKeywordAlready);
+        }
+
+        private void SetKeyword(bool enableKeyword) {
+            foreach (Renderer ren in renderTargets) {
+                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
+                if (skinnedMeshRenderer == null) {
+                    continue;
+                }
+
+                Material[] mats = Application.isPlaying ? skinnedMeshRenderer.materials : skinnedMeshRenderer.sharedMaterials;
+
+                foreach (Material sharedMat in mats) {
+                    if (enableKeyword) {
+                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_ON");
+                    } else {
+                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_ON");
+                    }
+
+                    if (detailOnly) {
+                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    } else {
+                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
+                    }
+                }
+            }
         }
 
         void OnEnable() {
@@ -188,25 +212,8 @@ namespace PenetrationTech {
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
             }
-            
-            if (!Application.isPlaying) {
-                return;
-            }
-
-            foreach (Renderer ren in renderTargets) {
-                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
-                if (skinnedMeshRenderer == null) {
-                    continue;
-                }
-                foreach (Material sharedMat in skinnedMeshRenderer.materials) {
-                    sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_ON");
-                    if (detailOnly) {
-                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
-                    } else {
-                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
-                    }
-                }
-            }
+            SetKeyword(false);
+            enabledKeywordAlready = false;
         }
 
         void OnDisable() {
@@ -220,19 +227,7 @@ namespace PenetrationTech {
                 }
                 penetrable.penetrationNotify -= NotifyPenetration;
             }
-
-            foreach (Renderer ren in renderTargets) {
-                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
-                if (skinnedMeshRenderer == null) {
-                    continue;
-                }
-
-                if (Application.isPlaying) {
-                    foreach (Material sharedMat in skinnedMeshRenderer.materials) {
-                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_ON");
-                    }
-                }
-            }
+            SetKeyword(false);
         }
 
         void LateUpdate() {
@@ -253,6 +248,10 @@ namespace PenetrationTech {
             }
         }
         private void NotifyPenetration(Penetrable penetrable, Penetrator penetrator, float worldSpaceDistanceToPenisRoot, Penetrable.SetClipDistanceAction clipAction) {
+            if (!enabledKeywordAlready) {
+                SetKeyword(true);
+                enabledKeywordAlready = true;
+            }
             int index = penetrableTargets.IndexOf(penetrable);
             data[index] = new PenetratorData(penetrable, penetrator, worldSpaceDistanceToPenisRoot);
             splineData[index] = new CatmullDeformer.CatmullSplineData(penetrable.GetPath());
@@ -294,21 +293,7 @@ namespace PenetrationTech {
                 penetrable.penetrationNotify -= NotifyPenetration;
                 penetrable.penetrationNotify += NotifyPenetration;
             }
-
-            foreach (Renderer ren in renderTargets) {
-                if (!(ren is SkinnedMeshRenderer skinnedMeshRenderer)) continue;
-                if (skinnedMeshRenderer == null) {
-                    continue;
-                }
-                foreach (Material sharedMat in skinnedMeshRenderer.sharedMaterials) {
-                    sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_ON");
-                    if (detailOnly) {
-                        sharedMat.EnableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
-                    } else {
-                        sharedMat.DisableKeyword("_PENETRATION_DEFORMATION_DETAIL_ON");
-                    }
-                }
-            }
+            enabledKeywordAlready = false;
         }
     }
 }
