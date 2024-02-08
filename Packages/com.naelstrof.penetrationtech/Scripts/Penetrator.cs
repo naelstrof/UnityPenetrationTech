@@ -645,6 +645,11 @@ namespace PenetrationTech {
             valid = false;
         }
         public override CatmullSpline GetPath() {
+            if (path == null) {
+                path = new CatmullSpline();
+                Initialize();
+            }
+
             return path;
         }
         void OnDrawGizmosSelected() {
