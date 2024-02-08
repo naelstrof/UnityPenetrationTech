@@ -646,8 +646,7 @@ namespace PenetrationTech {
         }
         public override CatmullSpline GetPath() {
             if (path == null) {
-                path = new CatmullSpline();
-                Initialize();
+                OnEnable();
             }
 
             return path;
