@@ -97,6 +97,7 @@ namespace PenetrationTech {
             }
         }
         protected virtual void OnEnable() {
+            if (data.IsCreated) return; // Technically OnEnable can be called multiple times by child classes. Triggers leaks.
             catmullBuffer = new ComputeBuffer(1, CatmullSplineData.GetSize());
             data = new NativeArray<CatmullSplineData>(1, Allocator.Persistent);
             List<Material> tempMaterials = new List<Material>();
