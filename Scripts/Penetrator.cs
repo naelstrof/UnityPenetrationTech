@@ -67,7 +67,7 @@ namespace PenetrationTech {
         private AutoPenetrateMode autoPenetrate = AutoPenetrateMode.AutoSeek | AutoPenetrateMode.AutoDecouple;
         [SerializeField]
         private List<Penetrable> ignorePenetrables;
-        [SerializeReference,SerializeReferenceButton] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
+        [SerializeReference,SubclassSelector] [Tooltip("Programmable listeners, they can respond to penetrations in a variety of ways. Great for triggering audio and such.")]
         public List<PenetratorListener> listeners;
         
 

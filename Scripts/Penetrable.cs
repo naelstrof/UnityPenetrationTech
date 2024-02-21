@@ -69,7 +69,7 @@ namespace PenetrationTech {
 
         private List<Vector3> worldPoints;
         // Keep this on the bottom, so it lines up with the custom inspector.
-        [SerializeReference,SerializeReferenceButton]
+        [SerializeReference,SubclassSelector]
         public List<PenetrableListener> listeners;
         
         [SerializeField, Range(0f,1f), Tooltip("The spline can start before it reaches the actual hole, use this T-value to allow listeners to query where the real hole starts (for knot force calculations and such.)")]
