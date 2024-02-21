@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.mackysoft.serializereference-extensions": {
+      "version": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions#1.3.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "05efde50014f31dd73d0097d106326b70d685af7"
+    },
     "com.naelstrof.jigglephysics": {
       "version": "https://github.com/naelstrof/UnityJigglePhysics.git#v3.6.4",
       "depth": 0,
@@ -12,15 +19,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.textus-games.serialized-reference-ui": "1.0.0"
+        "com.mackysoft.serializereference-extensions": "1.3.0"
       }
-    },
-    "com.textus-games.serialized-reference-ui": {
-      "version": "https://github.com/TextusGames/UnitySerializedReferenceUI.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "51aff6062610296c86f739a3e093c29d08388a95"
     },
     "com.unity.burst": {
       "version": "1.6.6",

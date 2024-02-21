@@ -27,7 +27,7 @@ For a write-up on this technology, and some more detailed examples-- see [here](
 
 # Installation
 
-First, install the dependency: `https://github.com/TextusGames/UnitySerializedReferenceUI.git` as a package using the package manager.
+First, install the dependency: `https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions#1.3.0` as a package using the package manager.
 
 Then add `https://github.com/naelstrof/UnityPenetrationTech.git#upm` as a package using the package manager.
 
@@ -36,7 +36,7 @@ Or if that doesn't work, add it to the manifest.json like so.
 ```
 {
   "dependencies": {
-    "com.textus-games.serialized-reference-ui": "https://github.com/TextusGames/UnitySerializedReferenceUI.git",
+    "com.mackysoft.serializereference-extensions": https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions#1.3.0",
     "com.naelstrof.penetrationtech": "https://github.com/naelstrof/PenetrationTech.git#upm",
   }
 }
