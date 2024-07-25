@@ -2,6 +2,10 @@
 
 # Unity Penetration Tech
 
+### This technology has been replaced by DPG, found here: https://github.com/naelstrof/DynamicPenetrationForGames
+
+It's no longer maintained.
+
 A gpu-based deformation system for mapping penetrators along orifice paths. Supports DX11, Vulkan, Metal, and modern OpenGL.
 
 For a write-up on this technology, and some more detailed examples-- see [here](https://koboldkare.com/penetrationtech.php)
